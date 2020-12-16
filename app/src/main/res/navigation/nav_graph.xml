@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/MainFragment">
+
+    <fragment
+        android:id="@+id/MainFragment"
+        android:name="me.alexbakker.webdav.fragments.MainFragment"
+        android:label="@string/app_name"
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_MainFragment_to_AccountFragment"
+            app:destination="@id/AccountFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/AccountFragment"
+        android:name="me.alexbakker.webdav.fragments.AccountFragment"
+        android:label="{title}"
+        tools:layout="@layout/fragment_account">
+        <argument
+            android:name="uuid"
+            app:argType="java.util.UUID"
+            app:nullable="true"
+            android:defaultValue="@null" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_AccountFragment_to_MainFragment"
+            app:destination="@id/MainFragment">
+        </action>
+    </fragment>
+</navigation>
