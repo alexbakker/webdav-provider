@@ -8,9 +8,9 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_main.*
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.adapters.AccountAdapter
+import me.alexbakker.webdav.databinding.FragmentMainBinding
 import me.alexbakker.webdav.settings.Account
 import me.alexbakker.webdav.settings.Settings
 import java.util.*
@@ -22,21 +22,23 @@ class MainFragment : Fragment() {
     lateinit var settings: Settings
 
     private var actionMode: ActionMode? = null
+    private lateinit var binding : FragmentMainBinding
     private lateinit var accountAdapter: AccountAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_main, container, false)
+        binding = FragmentMainBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         accountAdapter = AccountAdapter(settings.accounts, Listener())
-        rvAccounts.layoutManager = LinearLayoutManager(context)
-        rvAccounts.adapter = accountAdapter
+        binding.rvAccounts.layoutManager = LinearLayoutManager(context)
+        binding.rvAccounts.adapter = accountAdapter
 
         findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<AccountFragment.Result?>("result")?.observe(
             viewLifecycleOwner
@@ -56,8 +58,8 @@ class MainFragment : Fragment() {
 
     private fun updateEmptyState() {
         val empty = settings.accounts.isEmpty()
-        viewEmpty.visibility = if (empty) View.VISIBLE else View.GONE
-        rvAccounts.visibility = if (empty) View.GONE else View.VISIBLE
+        binding.viewEmpty.visibility = if (empty) View.VISIBLE else View.GONE
+        binding.rvAccounts.visibility = if (empty) View.GONE else View.VISIBLE
     }
 
     private fun removeAccount(uuid: UUID) {

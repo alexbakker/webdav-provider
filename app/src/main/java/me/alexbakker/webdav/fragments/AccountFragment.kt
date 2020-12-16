@@ -11,8 +11,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.parcel.Parcelize
-import kotlinx.android.synthetic.main.fragment_account.*
+import kotlinx.parcelize.Parcelize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.alexbakker.webdav.R
@@ -65,7 +64,7 @@ class AccountFragment : Fragment() {
         when (item.itemId) {
             R.id.action_save -> {
                 menu.setGroupEnabled(R.id.menu_action_group, false)
-                busyIndicator.visibility = View.VISIBLE
+                binding.busyIndicator.visibility = View.VISIBLE
 
                 val job = lifecycleScope.launch(Dispatchers.IO) {
                     account.resetClient()
@@ -100,7 +99,7 @@ class AccountFragment : Fragment() {
                     if (it == null) {
                         lifecycleScope.launch(Dispatchers.Main) {
                             menu.setGroupEnabled(R.id.menu_action_group, true)
-                            busyIndicator.visibility = View.GONE
+                            binding.busyIndicator.visibility = View.GONE
                         }
                     }
                 }
