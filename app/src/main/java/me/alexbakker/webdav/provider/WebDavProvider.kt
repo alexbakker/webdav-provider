@@ -12,7 +12,7 @@ import android.util.Log
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
-import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.*
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.settings.Account
@@ -324,7 +324,7 @@ class WebDavProvider : DocumentsProvider() {
     }
 
     @EntryPoint
-    @InstallIn(ApplicationComponent::class)
+    @InstallIn(SingletonComponent::class)
     interface WebDavEntryPoint {
         fun provideSettings(): Settings
     }
