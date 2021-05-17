@@ -35,7 +35,6 @@ data class Settings(val accounts: MutableList<Account> = ArrayList()) {
         private fun getEncryptedFile(context: Context): EncryptedFile {
             val key = MasterKey.Builder(context)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-                .setRequestStrongBoxBacked(true)
                 .build()
 
             return EncryptedFile.Builder(
