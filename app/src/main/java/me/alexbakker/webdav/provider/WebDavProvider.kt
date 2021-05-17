@@ -1,5 +1,6 @@
 package me.alexbakker.webdav.provider
 
+import android.content.Context
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.os.Build
@@ -138,7 +139,7 @@ class WebDavProvider : DocumentsProvider() {
             return null
         }
 
-        val cacheFile = File(requireContext().cacheDir, file.path)
+        val cacheFile = File(mustGetContext().cacheDir, file.path)
         val cacheDir = cacheFile.parentFile
         if (cacheDir == null || (!cacheDir.exists() && !cacheDir.mkdirs())) {
             return null
@@ -321,6 +322,10 @@ class WebDavProvider : DocumentsProvider() {
             }
             add(Root.COLUMN_ICON, R.drawable.ic_launcher_foreground)
         }
+    }
+
+    private fun mustGetContext(): Context {
+        return context ?: throw IllegalStateException("Cannot find context from the provider.")
     }
 
     @EntryPoint
