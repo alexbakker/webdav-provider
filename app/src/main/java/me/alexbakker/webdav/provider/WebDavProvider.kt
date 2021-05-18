@@ -320,7 +320,7 @@ class WebDavProvider : DocumentsProvider() {
                 }
                 add(Root.COLUMN_CAPACITY_BYTES, avail)
             }
-            add(Root.COLUMN_ICON, R.drawable.ic_launcher_foreground)
+            add(Root.COLUMN_ICON, R.mipmap.ic_launcher)
         }
     }
 
