@@ -47,11 +47,11 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
         get() {
             if (_api == null) {
                 val builder = OkHttpClient.Builder()
-                if (BuildConfig.DEBUG) {
+                /*if (BuildConfig.DEBUG) {
                     val logging = HttpLoggingInterceptor()
                     logging.level = HttpLoggingInterceptor.Level.BODY
                     builder.addInterceptor(logging)
-                }
+                }*/
                 if (creds != null) {
                     val creds = Credentials.basic(creds.first, creds.second)
                     builder.addInterceptor(AuthInterceptor(creds))
@@ -69,13 +69,14 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
             return _api!!
         }
 
-    suspend fun get(path: String): Result<InputStream> {
-        val res = execRequest { api.get(path) }
+    suspend fun get(path: String, offset: Long = 0): Result<InputStream> {
+        val res = execRequest { api.get(path, if (offset == 0L) null else "bytes=$offset-") }
         if (!res.isSuccessful) {
             return Result(error = res.error)
         }
 
-        return Result(res.body?.byteStream())
+        val contentLength = res.body?.contentLength()
+        return Result(res.body?.byteStream(), contentLength = if (contentLength == -1L) null else contentLength)
     }
 
     suspend fun put(path: String, inStream: InputStream? = null, contentType: String? = null): Result<Unit> {
@@ -146,6 +147,7 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
 
     data class Result<T>(
         val body: T? = null,
+        val contentLength: Long? = null,
         val error: Exception? = null
     ) {
         val isSuccessful: Boolean

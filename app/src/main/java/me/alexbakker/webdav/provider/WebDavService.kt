@@ -9,7 +9,7 @@ import retrofit2.http.*
 interface WebDavService {
     @GET
     @Streaming
-    suspend fun get(@Url path: String): Response<ResponseBody>
+    suspend fun get(@Url path: String, @Header("Range") range: String?): Response<ResponseBody>
 
     @PUT
     suspend fun put(@Url path: String, @Body body: RequestBody): Response<Unit>

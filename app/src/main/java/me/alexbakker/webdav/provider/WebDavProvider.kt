@@ -3,12 +3,13 @@ package me.alexbakker.webdav.provider
 import android.content.Context
 import android.database.Cursor
 import android.database.MatrixCursor
-import android.os.Build
-import android.os.CancellationSignal
-import android.os.ParcelFileDescriptor
+import android.os.*
+import android.os.storage.StorageManager
 import android.provider.DocumentsContract.Document
 import android.provider.DocumentsContract.Root
 import android.provider.DocumentsProvider
+import android.system.ErrnoException
+import android.system.OsConstants
 import android.util.Log
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
@@ -19,10 +20,9 @@ import me.alexbakker.webdav.R
 import me.alexbakker.webdav.settings.Account
 import me.alexbakker.webdav.settings.Settings
 import me.alexbakker.webdav.settings.byUUID
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
+import java.io.*
 import java.util.*
+import java.util.concurrent.CountDownLatch
 
 class WebDavProvider : DocumentsProvider() {
     private val TAG: String = WebDavProvider::class.java.simpleName
@@ -48,6 +48,8 @@ class WebDavProvider : DocumentsProvider() {
     )
 
     private lateinit var settings: Settings
+    private lateinit var looper: WebDavFileReadCallbackLooper
+    private lateinit var storageManager: StorageManager
 
     override fun onCreate(): Boolean {
         Log.d(TAG, "onCreate()")
@@ -57,6 +59,8 @@ class WebDavProvider : DocumentsProvider() {
             WebDavEntryPoint::class.java
         )
         settings = entryPoint.provideSettings()
+        looper = WebDavFileReadCallbackLooper()
+        storageManager = context!!.getSystemService(Context.STORAGE_SERVICE) as StorageManager
 
         for (account in settings.accounts) {
             refreshAccount(account)
@@ -139,34 +143,15 @@ class WebDavProvider : DocumentsProvider() {
             return null
         }
 
-        val cacheFile = File(mustGetContext().cacheDir, file.path)
-        val cacheDir = cacheFile.parentFile
-        if (cacheDir == null || (!cacheDir.exists() && !cacheDir.mkdirs())) {
-            return null
-        }
-
         when (mode) {
             "r" -> {
-                val success = runBlocking {
-                    withContext(Dispatchers.IO) {
-                        //val url = account.buildURL(file)
-                        val res = account.client.get(file.path)
-                        if (res.isSuccessful) {
-                            res.body!!.use { inStream ->
-                                FileOutputStream(cacheFile).use { outStream ->
-                                    inStream.copyTo(outStream)
-                                }
-                            }
-                        }
-                        res.isSuccessful
-                    }
-                }
+                /*val cacheFile = WebDavFileReadProxyCallback.getCacheFile(mustGetContext(), file.path)
+                if (cacheFile.exists()) {
+                    return ParcelFileDescriptor.open(cacheFile, ParcelFileDescriptor.parseMode(mode))
+                }*/
 
-                return if (success) {
-                    ParcelFileDescriptor.open(cacheFile, ParcelFileDescriptor.MODE_READ_ONLY);
-                } else {
-                    null
-                }
+                val callback = WebDavFileReadProxyCallback(mustGetContext(), account.client, file)
+                return storageManager.openProxyFileDescriptor(ParcelFileDescriptor.parseMode(mode), callback, getHandler())
             }
             "w" -> {
                 val pipe = ParcelFileDescriptor.createReliablePipe()
@@ -313,14 +298,13 @@ class WebDavProvider : DocumentsProvider() {
             add(Root.COLUMN_DOCUMENT_ID, "/${account.uuid}/")
             add(Root.COLUMN_MIME_TYPES, null)
             add(Root.COLUMN_AVAILABLE_BYTES, account.root.quotaAvailableBytes)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                var avail: Int? = null
-                if (account.root.quotaUsedBytes != null && account.root.quotaAvailableBytes != null) {
-                    avail = account.root.quotaUsedBytes!! + account.root.quotaAvailableBytes!!
-                }
-                add(Root.COLUMN_CAPACITY_BYTES, avail)
-            }
             add(Root.COLUMN_ICON, R.mipmap.ic_launcher)
+
+            var avail: Int? = null
+            if (account.root.quotaUsedBytes != null && account.root.quotaAvailableBytes != null) {
+                avail = account.root.quotaUsedBytes!! + account.root.quotaAvailableBytes!!
+            }
+            add(Root.COLUMN_CAPACITY_BYTES, avail)
         }
     }
 
@@ -328,9 +312,130 @@ class WebDavProvider : DocumentsProvider() {
         return context ?: throw IllegalStateException("Cannot find context from the provider.")
     }
 
+    private fun getHandler(): Handler {
+        return Handler(looper.looper)
+    }
+
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface WebDavEntryPoint {
         fun provideSettings(): Settings
+    }
+
+    class WebDavFileReadProxyCallback @Throws(IOException::class) constructor(
+        context: Context,
+        private var client: WebDavClient,
+        private var file: WebDavFile
+    ) : ProxyFileDescriptorCallback() {
+        private var outStream: OutputStream? = null
+        private var inStream: InputStream? = null
+        private var contentLength = file.contentLength!!.toLong()
+        private var nextOffset = 0L
+        private val uuid = UUID.randomUUID()
+        private val TAG: String = "WebDavFileReadProxyCallback(uuid=$uuid)"
+
+        init {
+            val cacheFile = getCacheFile(context, file.path)
+            /*val cacheDir = cacheFile.parentFile
+            if (cacheDir == null || (!cacheDir.exists() && !cacheDir.mkdirs())) {
+                throw IOException("Unable to create cache directory: $cacheDir")
+            }
+            if (!cacheFile.exists()) {
+                outStream = FileOutputStream(cacheFile)
+            }*/
+
+            Log.i(TAG, "init(file=${file.path}, contentLength=${contentLength})")
+        }
+
+        @Throws(ErrnoException::class)
+        override fun onGetSize(): Long {
+            Log.i(TAG, "onGetSize(contentLength=${contentLength})")
+            return contentLength
+        }
+
+        @Throws(ErrnoException::class)
+        override fun onRead(offset: Long, size: Int, data: ByteArray?): Int {
+            Log.i(TAG, "onRead(offset=$offset, size=$size)")
+            val inStream = getStream(offset)
+
+            var res = 0
+            while (true) {
+                val read = inStream.read(data, res, size - res)
+                if (read == -1) {
+                    break
+                }
+
+                res += read
+                if (res == size) {
+                    break
+                }
+            }
+
+            nextOffset = offset + size
+            outStream?.write(data, 0, res)
+            return res
+        }
+
+        override fun onRelease() {
+            Log.i(TAG, "onRelease()")
+            inStream?.close()
+            outStream?.close()
+        }
+
+        private fun getStream(offset: Long): InputStream {
+            val res = when {
+                inStream == null -> {
+                    Log.w(TAG, "Opening stream at: offset=$offset")
+                    openWebDavStream(offset)
+                }
+                nextOffset != offset -> {
+                    Log.w(TAG, "Unexpected offset: offset=$offset, expOffset=$nextOffset")
+                    inStream!!.close()
+
+                    Log.d(TAG, "Reopening stream at: offset=$offset")
+                    openWebDavStream(offset)
+                }
+                else -> {
+                    inStream!!
+                }
+            }
+
+            inStream = res
+            return res
+        }
+
+        private fun openWebDavStream(offset: Long): InputStream {
+            val res = runBlocking { client.get(file.path, offset) }
+            if (!res.isSuccessful) {
+                throw ErrnoException("openWebDavStream", OsConstants.EBADF)
+            }
+            return res.body!!
+        }
+
+        companion object {
+            fun getCacheFile(context: Context, filePath: String): File {
+                return File(context.cacheDir, filePath)
+            }
+        }
+    }
+
+    class WebDavFileReadCallbackLooper {
+        lateinit var looper: Looper
+        private val thread = Thread {
+            Looper.prepare()
+            looper = Looper.myLooper()!!
+            latch.countDown()
+            Looper.loop()
+        }
+        private val latch: CountDownLatch = CountDownLatch(1)
+
+        init {
+            try {
+                thread.start()
+                latch.await()
+            } catch (e: InterruptedException) {
+                throw RuntimeException(e)
+            }
+        }
     }
 }
