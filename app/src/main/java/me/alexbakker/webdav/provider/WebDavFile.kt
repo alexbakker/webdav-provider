@@ -74,7 +74,11 @@ class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: St
         }
     }
 
-    private fun parseDate(s: String): Date? {
+    private fun parseDate(s: String?): Date? {
+        if (s == null) {
+            return s
+        }
+
         val format = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
         return try {
             format.parse(s)
