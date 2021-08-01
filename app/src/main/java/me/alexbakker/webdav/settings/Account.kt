@@ -26,12 +26,29 @@ data class Account(
         var password: String? = null,
 ) {
     @Transient
-    var root = WebDavFile("/", true)
+    private var _root: WebDavFile? = null
+
+    var root: WebDavFile
+        get() {
+            if (_root == null) {
+                _root = WebDavFile(rootPath, true)
+            }
+
+            return _root!!
+        }
+        set(value) {
+            _root = value
+        }
+
+    private val rootPath: String
+        get() {
+            return ensureTrailingSlash(baseUrl.encodedPath!!)
+        }
 
     @Transient
     private var _client: WebDavClient? = null
 
-    val baseUrl: Uri
+    private val baseUrl: Uri
         get() {
             return Uri.parse(url)
         }
@@ -39,27 +56,25 @@ data class Account(
     val client: WebDavClient
         get() {
             if (_client == null) {
-                _client = WebDavClient(baseUrl.toString(), if (authentication) Pair(username!!, password!!) else null)
+                val url = ensureTrailingSlash(baseUrl.toString())
+                _client = WebDavClient(url, if (authentication) Pair(username!!, password!!) else null)
             }
 
             return _client!!
         }
 
-    fun buildURL(file: WebDavFile): String {
-        var path: String = file.path
-        if (path.startsWith("/")) {
-            path = path.drop(1)
-        }
-
-        return Uri.parse(url)
-            .buildUpon()
-            .appendPath(path)
-            .build()
-            .toString()
+    fun resetState() {
+        _client = null
+        _root = null
     }
 
-    fun resetClient() {
-        _client = null
+    private fun ensureTrailingSlash(s: String): String {
+        var res = s
+        if (!s.endsWith("/")) {
+            res += "/"
+        }
+
+        return res
     }
 }
 

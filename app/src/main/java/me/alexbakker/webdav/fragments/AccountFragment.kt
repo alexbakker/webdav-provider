@@ -2,6 +2,7 @@ package me.alexbakker.webdav.fragments
 
 import android.os.Bundle
 import android.os.Parcelable
+import android.provider.DocumentsContract
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -11,9 +12,10 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.parcelize.Parcelize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.parcelize.Parcelize
+import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.databinding.FragmentAccountBinding
 import me.alexbakker.webdav.settings.Account
@@ -36,7 +38,7 @@ class AccountFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_account, container, false)
         if (args.uuid != null) {
             binding.account = settings.accounts.byUUID(args.uuid!!).copy()
@@ -67,9 +69,10 @@ class AccountFragment : Fragment() {
                 binding.busyIndicator.visibility = View.VISIBLE
 
                 val job = lifecycleScope.launch(Dispatchers.IO) {
-                    account.resetClient()
-                    val res = account.client.propFind("/")
+                    account.resetState()
+                    val res = account.client.propFind(account.root.path)
                     if (res.isSuccessful) {
+                        account.root = res.body!!
                         val oldAccount = settings.accounts.byUUIDOrNull(account.uuid)
                         if (oldAccount == null) {
                             settings.accounts.add(account)
@@ -79,6 +82,10 @@ class AccountFragment : Fragment() {
                             result = Result(account.uuid, Action.EDIT)
                         }
                         settings.save(requireContext())
+
+                        // notify any observers that the roots of our provider have changed
+                        val rootsUri = DocumentsContract.buildRootsUri(BuildConfig.PROVIDER_AUTHORITY)
+                        requireContext().contentResolver.notifyChange(rootsUri, null)
 
                         lifecycleScope.launch(Dispatchers.Main) {
                             closeWithResult(Result(account.uuid, Action.ADD))

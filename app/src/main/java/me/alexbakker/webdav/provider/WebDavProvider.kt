@@ -242,7 +242,7 @@ class WebDavProvider : DocumentsProvider() {
 
     private fun refreshAccount(account: Account) {
         GlobalScope.launch(Dispatchers.IO) {
-            val result = account.client.propFind("/")
+            val result = account.client.propFind(account.root.path)
             if (result.isSuccessful) {
                 account.root = result.body!!
             }
@@ -289,7 +289,7 @@ class WebDavProvider : DocumentsProvider() {
             add(Root.COLUMN_SUMMARY, account.name)
             add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE or Root.FLAG_SUPPORTS_IS_CHILD)
             add(Root.COLUMN_TITLE, "WebDAV")
-            add(Root.COLUMN_DOCUMENT_ID, "/${account.uuid}/")
+            add(Root.COLUMN_DOCUMENT_ID, "/${account.uuid}${account.root.path}")
             add(Root.COLUMN_MIME_TYPES, null)
             add(Root.COLUMN_AVAILABLE_BYTES, account.root.quotaAvailableBytes)
             add(Root.COLUMN_ICON, R.mipmap.ic_launcher)

@@ -47,11 +47,11 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
         get() {
             if (_api == null) {
                 val builder = OkHttpClient.Builder()
-                /*if (BuildConfig.DEBUG) {
+                if (BuildConfig.DEBUG) {
                     val logging = HttpLoggingInterceptor()
-                    logging.level = HttpLoggingInterceptor.Level.HEADERS
+                    logging.level = HttpLoggingInterceptor.Level.BASIC
                     builder.addInterceptor(logging)
-                }*/
+                }
                 if (creds != null) {
                     val creds = Credentials.basic(creds.first, creds.second)
                     builder.addInterceptor(AuthInterceptor(creds))
