@@ -1,5 +1,6 @@
 package me.alexbakker.webdav.provider
 
+import android.webkit.MimeTypeMap
 import com.thegrizzlylabs.sardineandroid.model.Response
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -37,7 +38,7 @@ class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: St
     constructor (res: Response, href: String = res.href)
             : this(href, res.propstat[0].prop.resourcetype.collection != null) {
         val prop = res.propstat[0].prop
-        contentType = prop.getcontenttype ?: "application/octet-stream"
+        contentType = parseContentType(name, prop.getcontenttype)
         contentLength = prop.getcontentlength?.toIntOrNull()
         quotaUsedBytes = prop.quotaUsedBytes?.content?.firstOrNull()?.toIntOrNull()
         quotaAvailableBytes = prop.quotaAvailableBytes?.content?.firstOrNull()?.toIntOrNull()
@@ -85,5 +86,19 @@ class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: St
         } catch (e: ParseException) {
             null
         }
+    }
+
+    private fun parseContentType(fileName: String, contentType: String?): String {
+        if (contentType != null) {
+            return contentType
+        }
+
+        val ext = fileName.split(".").last()
+        val res = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
+        if (res != null) {
+            return res
+        }
+
+        return "application/octet-stream"
     }
 }
