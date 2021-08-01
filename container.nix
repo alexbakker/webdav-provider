@@ -15,6 +15,7 @@ in {
           root = davPath;
           extraConfig = ''
             autoindex on;
+            client_max_body_size 1g;
 
             dav_methods PUT DELETE MKCOL COPY MOVE;
             dav_ext_methods PROPFIND OPTIONS;
