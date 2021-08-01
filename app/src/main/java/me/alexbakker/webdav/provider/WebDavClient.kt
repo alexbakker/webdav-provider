@@ -49,7 +49,7 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
                 val builder = OkHttpClient.Builder()
                 /*if (BuildConfig.DEBUG) {
                     val logging = HttpLoggingInterceptor()
-                    logging.level = HttpLoggingInterceptor.Level.BODY
+                    logging.level = HttpLoggingInterceptor.Level.HEADERS
                     builder.addInterceptor(logging)
                 }*/
                 if (creds != null) {

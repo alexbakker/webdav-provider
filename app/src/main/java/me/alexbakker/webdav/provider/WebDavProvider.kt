@@ -24,6 +24,7 @@ import java.io.*
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
+@DelicateCoroutinesApi
 class WebDavProvider : DocumentsProvider() {
     private val TAG: String = WebDavProvider::class.java.simpleName
 
@@ -145,12 +146,7 @@ class WebDavProvider : DocumentsProvider() {
 
         when (mode) {
             "r" -> {
-                /*val cacheFile = WebDavFileReadProxyCallback.getCacheFile(mustGetContext(), file.path)
-                if (cacheFile.exists()) {
-                    return ParcelFileDescriptor.open(cacheFile, ParcelFileDescriptor.parseMode(mode))
-                }*/
-
-                val callback = WebDavFileReadProxyCallback(mustGetContext(), account.client, file)
+                val callback = WebDavFileReadProxyCallback(account.client, file)
                 return storageManager.openProxyFileDescriptor(ParcelFileDescriptor.parseMode(mode), callback, getHandler())
             }
             "w" -> {
@@ -158,7 +154,6 @@ class WebDavProvider : DocumentsProvider() {
                 val inStream = ParcelFileDescriptor.AutoCloseInputStream(pipe[0])
                 val job = GlobalScope.launch(Dispatchers.IO) {
                     inStream.use {
-                        //val url = account.buildURL(file)
                         val res = account.client.put(file.path, inStream, contentType = file.contentType)
                         if (!res.isSuccessful) {
                             Log.e(TAG, "Error: ${res.error?.message}")
@@ -222,9 +217,8 @@ class WebDavProvider : DocumentsProvider() {
 
         runBlocking {
             val job = GlobalScope.launch(Dispatchers.IO) {
-                // val url = account.buildURL(file)
                 val res = account.client.delete(file.path)
-                Log.i(
+                Log.d(
                     TAG,
                     "deleteDocument(), documentId=$documentId, success=${res.isSuccessful}, message=${res.error?.message}"
                 )
@@ -323,7 +317,6 @@ class WebDavProvider : DocumentsProvider() {
     }
 
     class WebDavFileReadProxyCallback @Throws(IOException::class) constructor(
-        context: Context,
         private var client: WebDavClient,
         private var file: WebDavFile
     ) : ProxyFileDescriptorCallback() {
@@ -335,27 +328,18 @@ class WebDavProvider : DocumentsProvider() {
         private val TAG: String = "WebDavFileReadProxyCallback(uuid=$uuid)"
 
         init {
-            val cacheFile = getCacheFile(context, file.path)
-            /*val cacheDir = cacheFile.parentFile
-            if (cacheDir == null || (!cacheDir.exists() && !cacheDir.mkdirs())) {
-                throw IOException("Unable to create cache directory: $cacheDir")
-            }
-            if (!cacheFile.exists()) {
-                outStream = FileOutputStream(cacheFile)
-            }*/
-
-            Log.i(TAG, "init(file=${file.path}, contentLength=${contentLength})")
+            Log.d(TAG, "init(file=${file.path}, contentLength=${contentLength})")
         }
 
         @Throws(ErrnoException::class)
         override fun onGetSize(): Long {
-            Log.i(TAG, "onGetSize(contentLength=${contentLength})")
+            Log.d(TAG, "onGetSize(contentLength=${contentLength})")
             return contentLength
         }
 
         @Throws(ErrnoException::class)
         override fun onRead(offset: Long, size: Int, data: ByteArray?): Int {
-            Log.i(TAG, "onRead(offset=$offset, size=$size)")
+            Log.d(TAG, "onRead(offset=$offset, size=$size)")
             val inStream = getStream(offset)
 
             var res = 0
@@ -377,7 +361,7 @@ class WebDavProvider : DocumentsProvider() {
         }
 
         override fun onRelease() {
-            Log.i(TAG, "onRelease()")
+            Log.d(TAG, "onRelease()")
             inStream?.close()
             outStream?.close()
         }
@@ -385,7 +369,7 @@ class WebDavProvider : DocumentsProvider() {
         private fun getStream(offset: Long): InputStream {
             val res = when {
                 inStream == null -> {
-                    Log.w(TAG, "Opening stream at: offset=$offset")
+                    Log.d(TAG, "Opening stream at: offset=$offset")
                     openWebDavStream(offset)
                 }
                 nextOffset != offset -> {
@@ -410,12 +394,6 @@ class WebDavProvider : DocumentsProvider() {
                 throw ErrnoException("openWebDavStream", OsConstants.EBADF)
             }
             return res.body!!
-        }
-
-        companion object {
-            fun getCacheFile(context: Context, filePath: String): File {
-                return File(context.cacheDir, filePath)
-            }
         }
     }
 
