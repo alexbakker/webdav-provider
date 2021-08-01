@@ -1,6 +1,8 @@
 package me.alexbakker.webdav.provider
 
 import com.thegrizzlylabs.sardineandroid.model.Response
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -28,6 +30,9 @@ class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: St
 
             return "/"
         }
+
+    val decodedName: String
+        get() = URLDecoder.decode(name, StandardCharsets.UTF_8.toString())
 
     constructor (res: Response, href: String = res.href)
             : this(href, res.propstat[0].prop.resourcetype.collection != null) {
