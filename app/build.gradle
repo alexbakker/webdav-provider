@@ -8,12 +8,16 @@ plugins {
     id "androidx.navigation.safeargs.kotlin"
 }
 
+def packageName = "me.alexbakker.webdav"
+def providerAuthority = "${packageName}.provider"
+def providerAuthorityDebug = "${packageName}.debug.provider"
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        applicationId "me.alexbakker.webdav"
+        applicationId "${packageName}"
         minSdkVersion 26
         targetSdkVersion 30
         versionCode 1
@@ -28,7 +32,21 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+            manifestPlaceholders = [
+                title: "WebDAV Provider (Debug)",
+                providerAuthority: "${providerAuthorityDebug}"
+            ]
+            buildConfigField("String", "PROVIDER_AUTHORITY", "\"${providerAuthorityDebug}\"")
+        }
         release {
+            manifestPlaceholders = [
+                title: "WebDAV Provider",
+                providerAuthority: "${providerAuthority}"
+            ]
+            buildConfigField("String", "PROVIDER_AUTHORITY", "\"${providerAuthority}\"")
+
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

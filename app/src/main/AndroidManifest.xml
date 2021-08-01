@@ -15,7 +15,7 @@
         tools:targetApi="n">
         <activity
             android:name=".activities.MainActivity"
-            android:label="@string/app_name"
+            android:label="${title}"
             android:theme="@style/Theme.WebDAVProvider.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,7 +24,7 @@
         </activity>
         <provider
             android:name="me.alexbakker.webdav.provider.WebDavProvider"
-            android:authorities="me.alexbakker.webdav.provider"
+            android:authorities="${providerAuthority}"
             android:grantUriPermissions="true"
             android:exported="true"
             android:permission="android.permission.MANAGE_DOCUMENTS">
