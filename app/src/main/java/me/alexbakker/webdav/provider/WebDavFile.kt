@@ -13,6 +13,7 @@ class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: St
     var parent: WebDavFile? = null
     val children: MutableList<WebDavFile> = ArrayList()
     val writable: Boolean = true
+    var isRoot = false
 
     var contentLength: Int? = null
     var quotaUsedBytes: Int? = null

@@ -37,6 +37,7 @@ data class Account(
             return _root!!
         }
         set(value) {
+            value.isRoot = true
             _root = value
         }
 

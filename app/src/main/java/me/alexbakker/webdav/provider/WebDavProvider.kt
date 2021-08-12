@@ -118,7 +118,11 @@ class WebDavProvider : DocumentsProvider() {
 
             if (res.isSuccessful) {
                 val file = res.body!!
-                parent.replaceWith(file)
+                if (parent.isRoot) {
+                    account.root = file
+                } else {
+                    parent.replaceWith(file)
+                }
                 parent = file
             }
 
@@ -325,6 +329,7 @@ class WebDavProvider : DocumentsProvider() {
         private var contentLength = file.contentLength!!.toLong()
         private var nextOffset = 0L
         private val uuid = UUID.randomUUID()
+
         private val TAG: String = "WebDavFileReadProxyCallback(uuid=$uuid)"
 
         init {
