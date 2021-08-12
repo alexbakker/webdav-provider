@@ -1,7 +1,9 @@
 { config, pkgs, lib, ... }:
 
 let
-  davPath = "/var/lib/webdav";
+  davPathNginx = "/var/lib/webdav-nginx";
+  davPathApache = "/var/lib/webdav-apache";
+  davPathApacheLock = "/var/lib/httpd/dav";
 in {
   services.nginx = {
     enable = true;
@@ -12,7 +14,7 @@ in {
     virtualHosts."_" = {
       locations = {
         "/" = {
-          root = davPath;
+          root = davPathNginx;
           extraConfig = ''
             autoindex on;
             client_max_body_size 1g;
@@ -25,15 +27,54 @@ in {
     };
   };
 
+  services.httpd = {
+    enable = true;
+    adminAddr = "localhost";
+    extraModules = [
+      "dav"
+      "dav_fs"
+      "dav_lock"
+    ];
+    extraConfig = ''
+      DAVLockDB ${davPathApacheLock}/lock
+    '';
+    virtualHosts = {
+      "webdav" = {
+        listen = [
+          {
+            ip = "*";
+            port = 8000;
+          }
+        ];
+        extraConfig = ''
+          ServerAlias *
+          DocumentRoot ${davPathApache}
+          Alias /webdav ${davPathApache}
+          <Directory ${davPathApache}>
+            Order allow,deny
+            Allow from all
+            Require all granted
+
+            Options Indexes
+            DAV On
+          </Directory>
+        '';
+      };
+    };
+  };
+
   systemd.services.nginx = {
     serviceConfig = {
-      ReadWritePaths = davPath;
+      ReadWritePaths = davPathNginx;
     };
   };
 
   systemd.tmpfiles.rules = [
-    "d ${davPath} 0770 nginx nginx -"
+    "d ${davPathNginx} 0770 nginx nginx -"
+    "d ${davPathApache} 0770 wwwrun wwwrun -"
+
+    "d ${davPathApacheLock} 0770 wwwrun wwwrun"
   ];
 
-  networking.firewall.allowedTCPPorts = [ 80 ];
+  networking.firewall.allowedTCPPorts = [ 80 8000 ];
 }
