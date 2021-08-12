@@ -23,6 +23,20 @@ in {
             dav_ext_methods PROPFIND OPTIONS;
           '';
         };
+        # proxy for Apache WebDAV
+        "/webdav" = {
+          extraConfig = ''
+            set $destination $http_destination;
+            if ($destination ~* ^https(.+)$) {
+                set $destination http$1;
+            }
+
+            proxy_pass http://127.0.0.1:8000;
+            proxy_set_header Destination $destination;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $remote_addr;
+          '';
+        };
       };
     };
   };
