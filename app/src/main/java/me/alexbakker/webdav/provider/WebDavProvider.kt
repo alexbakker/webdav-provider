@@ -1,10 +1,13 @@
 package me.alexbakker.webdav.provider
 
+import android.content.ContentResolver
 import android.content.Context
 import android.database.Cursor
 import android.database.MatrixCursor
+import android.net.Uri
 import android.os.*
 import android.os.storage.StorageManager
+import android.provider.DocumentsContract
 import android.provider.DocumentsContract.Document
 import android.provider.DocumentsContract.Root
 import android.provider.DocumentsProvider
@@ -16,6 +19,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.*
+import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.settings.Account
 import me.alexbakker.webdav.settings.Settings
@@ -130,6 +134,9 @@ class WebDavProvider : DocumentsProvider() {
                 for (file in parent.children) {
                     includeFile(this, account, file)
                 }
+
+                val notifyUri = buildDocumentUri(account, parent)
+                setNotificationUri(mustGetContext().contentResolver, notifyUri)
             }
         }
 
@@ -163,6 +170,9 @@ class WebDavProvider : DocumentsProvider() {
                             Log.e(TAG, "Error: ${res.error?.message}")
                         }
                     }
+
+                    val notifyUri = buildDocumentUri(account, file.parent!!)
+                    mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
                 }
 
                 signal?.setOnCancelListener { job.cancel("openDocument() cancellation signal received") }
@@ -209,7 +219,11 @@ class WebDavProvider : DocumentsProvider() {
             val file = WebDavFile(path, isDirectory, contentType = mimeType)
             file.parent = dir
             dir.children.add(file)
-            return "/${account.uuid}${file.path}"
+
+            val notifyUri = buildDocumentUri(account, file.parent!!)
+            mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
+
+            return buildDocumentId(account, file)
         }
 
         return null
@@ -223,19 +237,20 @@ class WebDavProvider : DocumentsProvider() {
             throw FileNotFoundException(documentId)
         }
 
-        runBlocking {
-            val job = GlobalScope.launch(Dispatchers.IO) {
-                val res = account.client.delete(file.path)
-                Log.d(
-                    TAG,
-                    "deleteDocument(), documentId=$documentId, success=${res.isSuccessful}, message=${res.error?.message}"
-                )
+        val res = runBlocking {
+            withContext(Dispatchers.IO) {
+                account.client.delete(file.path)
             }
-            job.join()
         }
+        Log.d(TAG, "deleteDocument(), documentId=$documentId, success=${res.isSuccessful}, message=${res.error?.message}")
 
-        if (file.parent != null) {
-            file.parent!!.children.remove(file)
+        if (res.isSuccessful) {
+            if (file.parent != null) {
+                file.parent!!.children.remove(file)
+
+                val notifyUri = buildDocumentUri(account, file.parent!!)
+                mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
+            }
         }
     }
 
@@ -282,7 +297,7 @@ class WebDavProvider : DocumentsProvider() {
         }
 
         cursor.newRow().apply {
-            add(Document.COLUMN_DOCUMENT_ID, "/${account.uuid}${file.path}")
+            add(Document.COLUMN_DOCUMENT_ID, buildDocumentId(account, file))
             add(Document.COLUMN_MIME_TYPE, if (file.isDirectory) Document.MIME_TYPE_DIR else file.contentType)
             add(Document.COLUMN_DISPLAY_NAME, file.decodedName)
             add(Document.COLUMN_LAST_MODIFIED, file.lastModified?.time)
@@ -297,7 +312,7 @@ class WebDavProvider : DocumentsProvider() {
             add(Root.COLUMN_SUMMARY, account.name)
             add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE or Root.FLAG_SUPPORTS_IS_CHILD)
             add(Root.COLUMN_TITLE, "WebDAV")
-            add(Root.COLUMN_DOCUMENT_ID, "/${account.uuid}${account.root.path}")
+            add(Root.COLUMN_DOCUMENT_ID, buildDocumentId(account, account.root))
             add(Root.COLUMN_MIME_TYPES, null)
             add(Root.COLUMN_AVAILABLE_BYTES, account.root.quotaAvailableBytes)
             add(Root.COLUMN_ICON, R.mipmap.ic_launcher)
@@ -308,6 +323,18 @@ class WebDavProvider : DocumentsProvider() {
             }
             add(Root.COLUMN_CAPACITY_BYTES, avail)
         }
+    }
+
+    private fun buildDocumentId(account: Account, file: WebDavFile): String {
+        return "/${account.uuid}${file.path}"
+    }
+
+    private fun buildDocumentUri(documentId: String): Uri {
+        return DocumentsContract.buildDocumentUri(BuildConfig.PROVIDER_AUTHORITY, documentId)
+    }
+
+    private fun buildDocumentUri(account: Account, file: WebDavFile): Uri {
+        return buildDocumentUri(buildDocumentId(account, file))
     }
 
     private fun mustGetContext(): Context {
