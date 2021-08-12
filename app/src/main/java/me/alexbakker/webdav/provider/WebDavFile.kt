@@ -73,6 +73,7 @@ class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: St
             } else {
                 parent!!.children.add(file)
             }
+            file.parent = parent
         }
     }
 

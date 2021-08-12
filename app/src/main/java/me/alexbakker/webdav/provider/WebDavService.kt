@@ -12,10 +12,13 @@ interface WebDavService {
     suspend fun get(@Url path: String, @Header("Range") range: String?): Response<ResponseBody>
 
     @PUT
-    suspend fun put(@Url path: String, @Body body: RequestBody): Response<Unit>
+    suspend fun putFile(@Url path: String, @Body body: RequestBody): Response<Unit>
 
     @PUT
-    suspend fun putEmpty(@Url path: String): Response<Unit>
+    suspend fun putFileEmpty(@Url path: String): Response<Unit>
+
+    @HTTP(method = "MKCOL")
+    suspend fun putDir(@Url path: String): Response<Unit>
 
     @DELETE
     suspend fun delete(@Url path: String): Response<Unit>

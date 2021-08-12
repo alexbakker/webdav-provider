@@ -79,13 +79,19 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
         return Result(res.body?.byteStream(), contentLength = if (contentLength == -1L) null else contentLength)
     }
 
-    suspend fun put(path: String, inStream: InputStream? = null, contentType: String? = null): Result<Unit> {
+    suspend fun putDir(path: String): Result<Unit> {
+        return execRequest {
+            api.putDir(path)
+        }
+    }
+
+    suspend fun putFile(path: String, inStream: InputStream? = null, contentType: String? = null): Result<Unit> {
         return execRequest {
             if (inStream != null) {
                 val body = StreamRequestBody((contentType ?: "application/octet-stream").toMediaType(), inStream)
-                api.put(path, body)
+                api.putFile(path, body)
             } else {
-                api.putEmpty(path)
+                api.putFileEmpty(path)
             }
         }
     }

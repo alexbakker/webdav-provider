@@ -158,7 +158,7 @@ class WebDavProvider : DocumentsProvider() {
                 val inStream = ParcelFileDescriptor.AutoCloseInputStream(pipe[0])
                 val job = GlobalScope.launch(Dispatchers.IO) {
                     inStream.use {
-                        val res = account.client.put(file.path, inStream, contentType = file.contentType)
+                        val res = account.client.putFile(file.path, inStream, contentType = file.contentType)
                         if (!res.isSuccessful) {
                             Log.e(TAG, "Error: ${res.error?.message}")
                         }
@@ -195,7 +195,11 @@ class WebDavProvider : DocumentsProvider() {
 
         val res = runBlocking {
             withContext(Dispatchers.IO) {
-                val res = account.client.put(path)
+                val res = if (isDirectory) {
+                    account.client.putDir(path)
+                } else {
+                    account.client.putFile(path)
+                }
                 Log.d(TAG, "createDocument(), success=${res.isSuccessful}, documentId=$documentId, mimeType=$mimeType, displayName=$displayName")
                 res
             }
