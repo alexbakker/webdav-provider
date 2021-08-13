@@ -17,4 +17,6 @@
     <string name="empty_account_list_description">There are no accounts to be shown. Add one by tapping the plus sign in the bottom right corner.</string>
 
     <string name="webdav_testing_connection">Testing WebDAV connection…</string>
+
+    <string name="error_loading_settings">Unable to load WebDAV settings. Using defaults…</string>
 </resources>
