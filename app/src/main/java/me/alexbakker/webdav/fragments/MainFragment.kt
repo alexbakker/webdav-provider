@@ -1,6 +1,8 @@
 package me.alexbakker.webdav.fragments
 
+import android.content.Intent
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
@@ -8,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.adapters.AccountAdapter
 import me.alexbakker.webdav.databinding.FragmentMainBinding
@@ -69,12 +72,19 @@ class MainFragment : Fragment() {
 
     private inner class Listener : AccountAdapter.Listener {
         override fun onAccountClick(account: Account) {
-            val action = MainFragmentDirections.actionMainFragmentToAccountFragment(
-                account.uuid,
-                getString(R.string.edit_account)
-            )
+            val intent = Intent(Intent.ACTION_VIEW)
+            intent.setDataAndType(account.rootUri, DocumentsContract.Document.MIME_TYPE_DIR)
 
-            findNavController().navigate(action)
+            if (intent.resolveActivityInfo(requireContext().packageManager, 0) != null) {
+                startActivity(intent)
+            } else {
+                val action = MainFragmentDirections.actionMainFragmentToAccountFragment(
+                    account.uuid,
+                    getString(R.string.edit_account)
+                )
+
+                findNavController().navigate(action)
+            }
         }
 
         override fun onAccountLongClick(account: Account): Boolean {

@@ -1,6 +1,7 @@
 package me.alexbakker.webdav.settings
 
 import android.net.Uri
+import android.provider.DocumentsContract
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Serializer
@@ -10,6 +11,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.provider.WebDavClient
 import me.alexbakker.webdav.provider.WebDavFile
 import java.util.*
@@ -44,6 +46,11 @@ data class Account(
     private val rootPath: String
         get() {
             return ensureTrailingSlash(baseUrl.encodedPath!!)
+        }
+
+    val rootUri: Uri
+        get() {
+            return DocumentsContract.buildRootUri(BuildConfig.PROVIDER_AUTHORITY, uuid.toString())
         }
 
     @Transient
