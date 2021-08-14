@@ -11,6 +11,8 @@ import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
+private val json = Json { ignoreUnknownKeys = true }
+
 @Serializable
 data class Settings(val accounts: MutableList<Account> = ArrayList()) {
     fun save(context: Context) {
@@ -52,7 +54,7 @@ data class Settings(val accounts: MutableList<Account> = ArrayList()) {
         fun readFile(context: Context): Settings {
             getEncryptedFile(context).openFileInput().use { stream ->
                 val data = stream.readBytes()
-                return Json.decodeFromString(data.decodeToString())
+                return json.decodeFromString(data.decodeToString())
             }
         }
     }

@@ -10,13 +10,12 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
-import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.adapters.AccountAdapter
 import me.alexbakker.webdav.databinding.FragmentMainBinding
+import me.alexbakker.webdav.provider.WebDavProvider
 import me.alexbakker.webdav.settings.Account
 import me.alexbakker.webdav.settings.Settings
-import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -43,14 +42,9 @@ class MainFragment : Fragment() {
         binding.rvAccounts.layoutManager = LinearLayoutManager(context)
         binding.rvAccounts.adapter = accountAdapter
 
-        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<AccountFragment.Result?>("result")?.observe(
-            viewLifecycleOwner
-        ) { result ->
-            when (result.action) {
-                AccountFragment.Action.REMOVE -> {
-                    removeAccount(result.uuid)
-                }
-            }
+        val navController = findNavController()
+        navController.addOnDestinationChangedListener { _, _, _ ->
+            actionMode?.finish()
         }
     }
 
@@ -65,9 +59,20 @@ class MainFragment : Fragment() {
         binding.rvAccounts.visibility = if (empty) View.GONE else View.VISIBLE
     }
 
-    private fun removeAccount(uuid: UUID) {
+    private fun removeAccounts(accounts: List<Account>) {
+        settings.accounts.removeAll(accounts)
         settings.save(requireContext())
-        accountAdapter.remove(uuid)
+
+        for (account in accounts) {
+            accountAdapter.remove(account)
+        }
+
+        updateEmptyState()
+    }
+
+    private fun startEditAccount(account: Account) {
+        val action = MainFragmentDirections.actionMainFragmentToAccountFragment(account.uuid, getString(R.string.edit_account))
+        findNavController().navigate(action)
     }
 
     private inner class Listener : AccountAdapter.Listener {
@@ -77,19 +82,21 @@ class MainFragment : Fragment() {
 
             if (intent.resolveActivityInfo(requireContext().packageManager, 0) != null) {
                 startActivity(intent)
-            } else {
-                val action = MainFragmentDirections.actionMainFragmentToAccountFragment(
-                    account.uuid,
-                    getString(R.string.edit_account)
-                )
-
-                findNavController().navigate(action)
             }
         }
 
-        override fun onAccountLongClick(account: Account): Boolean {
+        override fun onAccountSelectionStart() {
             actionMode = (requireActivity() as AppCompatActivity).startSupportActionMode(ActionModeListener())
-            return true
+        }
+
+        override fun onAccountSelectionEnd() {
+            actionMode?.finish()
+        }
+
+        override fun onAccountSelectionChange(accounts: List<Account>) {
+            val multiple = accounts.size > 1
+            actionMode?.menu?.findItem(R.id.action_edit)?.isVisible = !multiple
+            actionMode?.title = resources.getQuantityString(R.plurals.account_selection, accounts.size, accounts.size)
         }
     }
 
@@ -105,16 +112,28 @@ class MainFragment : Fragment() {
         }
 
         override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
-            /*if (item!!.itemId == R.id.action_delete) {
-                removeAccount()
-            }*/
+            when (item!!.itemId) {
+                R.id.action_delete -> {
+                    val accounts = accountAdapter.selectedAccounts.toList()
+                    Dialogs.showRemoveAccountsDialog(requireContext(), accounts) { _, _ ->
+                        removeAccounts(accounts)
 
-            actionMode!!.finish()
+                        WebDavProvider.notifyChangeRoots(requireContext())
+                    }
+                }
+                R.id.action_edit -> {
+                    val account = accountAdapter.selectedAccounts.first()
+                    startEditAccount(account)
+                }
+            }
+
+            actionMode?.finish()
             return true
         }
 
         override fun onDestroyActionMode(mode: ActionMode?) {
             actionMode = null
+            accountAdapter.clearSelection()
         }
     }
 }

@@ -9,14 +9,16 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/Theme.WebDAVProvider.AppBarOverlay">
+        android:translationZ="0.1dp"
+        app:elevation="0dp"
+        android:theme="@style/ThemeOverlay.WebDAVProvider.AppBar">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/Theme.WebDAVProvider.PopupOverlay" />
+            app:popupTheme="@style/ThemeOverlay.WebDAVProvider.Popup" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

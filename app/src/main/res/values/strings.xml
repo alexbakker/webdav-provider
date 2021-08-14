@@ -1,8 +1,11 @@
 <resources>
-    <string name="app_name">WebDAV Provider</string>
     <string name="action_settings">Settings</string>
     <string name="action_save">Save</string>
+    <string name="action_edit">Edit</string>
     <string name="action_delete">Delete</string>
+
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
     <string name="name">Name</string>
     <string name="url">URL</string>
@@ -15,8 +18,25 @@
     <string name="edit_account">Edit account</string>
     <string name="empty_account_list">No accounts found</string>
     <string name="empty_account_list_description">There are no accounts to be shown. Add one by tapping the plus sign in the bottom right corner.</string>
+    <plurals name="account_selection">
+        <item quantity="one">%d account selected</item>
+        <item quantity="other">%d accounts selected</item>
+    </plurals>
+
+    <string name="dialog_title_discard_changes">Discard changes?</string>
+    <string name="dialog_message_discard_changes">Your changes have not been saved</string>
+    <plurals name="dialog_title_delete_accounts">
+        <item quantity="one">Delete account</item>
+        <item quantity="other">Delete accounts</item>
+    </plurals>
+    <plurals name="dialog_message_delete_accounts">
+        <item quantity="one">Are you sure you want to delete %d account?</item>
+        <item quantity="other">Are you sure you want to delete %d accounts?</item>
+    </plurals>
 
     <string name="webdav_testing_connection">Testing WebDAV connection…</string>
 
+    <string name="error_field_required">"This field is required"</string>
     <string name="error_loading_settings">Unable to load WebDAV settings. Using defaults…</string>
+    <string name="error_webdav_connection">Couldn\'t establish WebDAV connection: %s</string>
 </resources>

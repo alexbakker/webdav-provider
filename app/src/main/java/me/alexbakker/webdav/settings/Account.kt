@@ -23,7 +23,6 @@ data class Account(
         var name: String? = null,
         var url: String? = null,
         var verifyCerts: Boolean = true,
-        var authentication: Boolean = true,
         var username: String? = null,
         var password: String? = null,
 ) {
@@ -41,6 +40,11 @@ data class Account(
         set(value) {
             value.isRoot = true
             _root = value
+        }
+
+    private val authentication: Boolean
+        get() {
+            return username != null && password != null
         }
 
     private val rootPath: String
@@ -77,12 +81,11 @@ data class Account(
     }
 
     private fun ensureTrailingSlash(s: String): String {
-        var res = s
-        if (!s.endsWith("/")) {
-            res += "/"
+        return if (!s.endsWith("/")) {
+            "$s/"
+        } else {
+            s
         }
-
-        return res
     }
 }
 

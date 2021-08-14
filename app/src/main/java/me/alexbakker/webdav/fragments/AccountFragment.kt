@@ -1,9 +1,9 @@
 package me.alexbakker.webdav.fragments
 
 import android.os.Bundle
-import android.os.Parcelable
-import android.provider.DocumentsContract
 import android.view.*
+import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -11,18 +11,17 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.parcelize.Parcelize
-import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.databinding.FragmentAccountBinding
+import me.alexbakker.webdav.provider.WebDavProvider
 import me.alexbakker.webdav.settings.Account
 import me.alexbakker.webdav.settings.Settings
 import me.alexbakker.webdav.settings.byUUID
 import me.alexbakker.webdav.settings.byUUIDOrNull
-import java.util.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -45,6 +44,8 @@ class AccountFragment : Fragment() {
         } else {
             binding.account = Account()
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, BackPressedCallback())
         return binding.root
     }
 
@@ -56,93 +57,121 @@ class AccountFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.clear()
         inflater.inflate(R.menu.menu_account, menu)
+        if (args.uuid == null) {
+            menu.findItem(R.id.action_delete).isVisible = false
+        }
         this.menu = menu
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val account = binding.account!!
-        var result: Result
 
         when (item.itemId) {
             R.id.action_save -> {
-                menu.setGroupEnabled(R.id.menu_action_group, false)
-                binding.busyIndicator.visibility = View.VISIBLE
+                if (validateForm()) {
+                    menu.setGroupEnabled(R.id.menu_action_group, false)
+                    binding.busyIndicator.visibility = View.VISIBLE
 
-                val job = lifecycleScope.launch(Dispatchers.IO) {
-                    account.resetState()
-                    val res = account.client.propFind(account.root.path)
-                    if (res.isSuccessful) {
-                        account.root = res.body!!
-                        val oldAccount = settings.accounts.byUUIDOrNull(account.uuid)
-                        if (oldAccount == null) {
-                            settings.accounts.add(account)
-                            result = Result(account.uuid, Action.ADD)
+                    val job = lifecycleScope.launch(Dispatchers.IO) {
+                        account.resetState()
+                        val res = account.client.propFind(account.root.path)
+                        if (res.isSuccessful) {
+                            account.root = res.body!!
+                            val oldAccount = settings.accounts.byUUIDOrNull(account.uuid)
+                            if (oldAccount == null) {
+                                settings.accounts.add(account)
+                            } else {
+                                settings.accounts[settings.accounts.indexOf(oldAccount)] = account
+                            }
+                            settings.save(requireContext())
+
+                            WebDavProvider.notifyChangeRoots(requireContext())
+                            lifecycleScope.launch(Dispatchers.Main) { close() }
                         } else {
-                            settings.accounts[settings.accounts.indexOf(oldAccount)] = account
-                            result = Result(account.uuid, Action.EDIT)
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                Snackbar
+                                    .make(
+                                        requireView(),
+                                        getString(R.string.error_webdav_connection, res.error?.message),
+                                        BaseTransientBottomBar.LENGTH_SHORT
+                                    )
+                                    .show()
+                            }
                         }
-                        settings.save(requireContext())
-
-                        // notify any observers that the roots of our provider have changed
-                        val rootsUri = DocumentsContract.buildRootsUri(BuildConfig.PROVIDER_AUTHORITY)
-                        requireContext().contentResolver.notifyChange(rootsUri, null)
-
-                        lifecycleScope.launch(Dispatchers.Main) {
-                            closeWithResult(Result(account.uuid, Action.ADD))
-                        }
-                    } else {
-                        lifecycleScope.launch(Dispatchers.Main) {
-                            Snackbar
-                                .make(
-                                    requireView(),
-                                    "Couldn't establish WebDAV connection: ${res.error?.message}",
-                                    BaseTransientBottomBar.LENGTH_SHORT
-                                )
-                                .show()
+                    }
+                    job.invokeOnCompletion {
+                        if (it == null) {
+                            lifecycleScope.launch(Dispatchers.Main) {
+                                menu.setGroupEnabled(R.id.menu_action_group, true)
+                                binding.busyIndicator.visibility = View.GONE
+                            }
                         }
                     }
                 }
-                job.invokeOnCompletion {
-                    if (it == null) {
-                        lifecycleScope.launch(Dispatchers.Main) {
-                            menu.setGroupEnabled(R.id.menu_action_group, true)
-                            binding.busyIndicator.visibility = View.GONE
-                        }
-                    }
-                }
-                return true
             }
             R.id.action_delete -> {
-                result = Result(account.uuid, Action.REMOVE)
+                Dialogs.showRemoveAccountsDialog(requireContext(), listOf(account)) { _, _ ->
+                    settings.accounts.remove(settings.accounts.byUUID(args.uuid!!))
+                    settings.save(requireContext())
+
+                    WebDavProvider.notifyChangeRoots(requireContext())
+                    close()
+                }
             }
             android.R.id.home -> {
-                result = Result(account.uuid, Action.CANCEL)
+                tryClose()
             }
             else -> {
                 return false
             }
         }
 
-        closeWithResult(result)
         return true
     }
 
-    private fun closeWithResult(res: Result) {
-        view?.clearFocus()
+    private fun validateForm(): Boolean {
+        var res = true
+        val requiredTextFields = arrayOf(binding.textName, binding.textUrl)
+        for (field in requiredTextFields) {
+            if (field.text.toString().isBlank()) {
+                (field.parent.parent as TextInputLayout).error = getString(R.string.error_field_required)
+                res = false
+            }
+        }
 
-        findNavController().apply {
-            previousBackStackEntry?.savedStateHandle?.set("result", res)
-            popBackStack()
+        return res
+    }
+
+    private fun tryClose(): Boolean {
+        val origAccount = if (args.uuid == null) Account() else settings.accounts.byUUID(args.uuid!!)
+        val formAccount = binding.account!!.copy(uuid = origAccount.uuid)
+
+        if (origAccount != formAccount) {
+            AlertDialog.Builder(requireContext())
+                .setTitle(R.string.dialog_title_discard_changes)
+                .setMessage(R.string.dialog_message_discard_changes)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    close()
+                }
+                .setNegativeButton(R.string.no, null)
+                .show()
+            return false
+        }
+
+        close()
+        return true
+    }
+
+    private fun close() {
+        view?.clearFocus()
+        findNavController().popBackStack()
+    }
+
+    private inner class BackPressedCallback : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            if (tryClose() && isEnabled) {
+                isEnabled = false
+            }
         }
     }
-
-    enum class Action {
-        ADD, CANCEL, EDIT, REMOVE
-    }
-
-    @Parcelize
-    data class Result(
-        var uuid: UUID,
-        var action: Action
-    ) : Parcelable
 }

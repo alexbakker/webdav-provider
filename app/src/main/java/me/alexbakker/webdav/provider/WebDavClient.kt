@@ -22,52 +22,18 @@ import java.io.IOException
 import java.io.InputStream
 
 class WebDavClient(private val url: String, private val creds: Pair<String, String>? = null) {
-    private var _api: WebDavService? = null
+    private val api: WebDavService = buildApiService(url, creds)
 
-    private val serializer: Serializer
-        get() {
-            // source: https://git.io/Jkf9B
-            val format = Format("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
-            val registry = Registry()
-            val strategy: Strategy = RegistryStrategy(registry)
-            val serializer: Serializer = Persister(strategy, format)
-            registry.bind(
-                Prop::class.java,
-                EntityWithAnyElementConverter(serializer, Prop::class.java)
-            )
-            registry.bind(
-                Resourcetype::class.java,
-                EntityWithAnyElementConverter(serializer, Resourcetype::class.java)
-            )
-            registry.bind(Property::class.java, Property.PropertyConverter::class.java)
-            return serializer
-        }
-
-    private val api: WebDavService
-        get() {
-            if (_api == null) {
-                val builder = OkHttpClient.Builder()
-                if (BuildConfig.DEBUG) {
-                    val logging = HttpLoggingInterceptor()
-                    logging.level = HttpLoggingInterceptor.Level.BASIC
-                    builder.addInterceptor(logging)
-                }
-                if (creds != null) {
-                    val creds = Credentials.basic(creds.first, creds.second)
-                    builder.addInterceptor(AuthInterceptor(creds))
-                }
-
-                val converter = SimpleXmlConverterFactory.create(serializer)
-                _api = Retrofit.Builder()
-                    .baseUrl(url)
-                    .client(builder.build())
-                    .addConverterFactory(converter)
-                    .build()
-                    .create(WebDavService::class.java)
+    data class Result<T>(
+        val body: T? = null,
+        val contentLength: Long? = null,
+        val error: Exception? = null
+    ) {
+        val isSuccessful: Boolean
+            get() {
+                return error == null
             }
-
-            return _api!!
-        }
+    }
 
     suspend fun get(path: String, offset: Long = 0): Result<InputStream> {
         val res = execRequest { api.get(path, if (offset == 0L) null else "bytes=$offset-") }
@@ -151,17 +117,6 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
         return Result(res.body())
     }
 
-    data class Result<T>(
-        val body: T? = null,
-        val contentLength: Long? = null,
-        val error: Exception? = null
-    ) {
-        val isSuccessful: Boolean
-            get() {
-                return error == null
-            }
-    }
-
     private class AuthInterceptor(val auth: String) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
             val req = chain.request().newBuilder()
@@ -189,5 +144,45 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
                 inputStream.copyTo(outStream)
             }
         }
+    }
+
+    private fun buildApiService(url: String, creds: Pair<String, String>?): WebDavService {
+        val builder = OkHttpClient.Builder()
+        if (BuildConfig.DEBUG) {
+            val logging = HttpLoggingInterceptor()
+            logging.level = HttpLoggingInterceptor.Level.BASIC
+            builder.addInterceptor(logging)
+        }
+        if (creds != null) {
+            val auth = Credentials.basic(creds.first, creds.second)
+            builder.addInterceptor(AuthInterceptor(auth))
+        }
+
+        val serializer = buildSerializer()
+        val converter = SimpleXmlConverterFactory.create(serializer)
+        return Retrofit.Builder()
+            .baseUrl(url)
+            .client(builder.build())
+            .addConverterFactory(converter)
+            .build()
+            .create(WebDavService::class.java)
+    }
+
+    private fun buildSerializer(): Serializer {
+        // source: https://git.io/Jkf9B
+        val format = Format("<?xml version=\"1.0\" encoding=\"utf-8\"?>")
+        val registry = Registry()
+        val strategy: Strategy = RegistryStrategy(registry)
+        val serializer: Serializer = Persister(strategy, format)
+        registry.bind(
+            Prop::class.java,
+            EntityWithAnyElementConverter(serializer, Prop::class.java)
+        )
+        registry.bind(
+            Resourcetype::class.java,
+            EntityWithAnyElementConverter(serializer, Resourcetype::class.java)
+        )
+        registry.bind(Property::class.java, Property.PropertyConverter::class.java)
+        return serializer
     }
 }

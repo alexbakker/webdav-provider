@@ -15,8 +15,8 @@
         tools:targetApi="n">
         <activity
             android:name=".activities.MainActivity"
-            android:label="${title}"
-            android:theme="@style/Theme.WebDAVProvider.NoActionBar">
+            android:label="@string/app_name"
+            android:theme="@style/Theme.WebDAVProvider.Default">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

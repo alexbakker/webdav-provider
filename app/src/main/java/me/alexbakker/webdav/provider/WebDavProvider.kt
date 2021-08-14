@@ -23,11 +23,13 @@ import me.alexbakker.webdav.R
 import me.alexbakker.webdav.settings.Account
 import me.alexbakker.webdav.settings.Settings
 import me.alexbakker.webdav.settings.byUUID
-import java.io.*
+import java.io.FileNotFoundException
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
-@DelicateCoroutinesApi
 class WebDavProvider : DocumentsProvider() {
     private val TAG: String = WebDavProvider::class.java.simpleName
 
@@ -55,6 +57,7 @@ class WebDavProvider : DocumentsProvider() {
     private lateinit var looper: WebDavFileReadCallbackLooper
     private lateinit var storageManager: StorageManager
 
+    @DelicateCoroutinesApi
     override fun onCreate(): Boolean {
         Log.d(TAG, "onCreate()")
 
@@ -142,6 +145,7 @@ class WebDavProvider : DocumentsProvider() {
         return result
     }
 
+    @DelicateCoroutinesApi
     override fun openDocument(
         documentId: String,
         mode: String,
@@ -262,6 +266,7 @@ class WebDavProvider : DocumentsProvider() {
         return account.uuid == parentUUID && file?.parent?.path == parentPath
     }
 
+    @DelicateCoroutinesApi
     private fun refreshAccount(account: Account) {
         GlobalScope.launch(Dispatchers.IO) {
             val result = account.client.propFind(account.root.path)
@@ -342,6 +347,16 @@ class WebDavProvider : DocumentsProvider() {
 
     private fun getHandler(): Handler {
         return Handler(looper.looper)
+    }
+
+    companion object {
+        /**
+         * Notify any observers that the roots of our provider have changed.
+         */
+        fun notifyChangeRoots(context: Context) {
+            val rootsUri = DocumentsContract.buildRootsUri(BuildConfig.PROVIDER_AUTHORITY)
+            context.contentResolver.notifyChange(rootsUri, null, 0)
+        }
     }
 
     @EntryPoint

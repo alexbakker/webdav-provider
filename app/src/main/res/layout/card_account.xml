@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
+        <import type="android.view.View"/>
         <variable name="account" type="me.alexbakker.webdav.settings.Account" />
     </data>
     <LinearLayout
+        android:id="@+id/card_account"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="10dp"
+        android:paddingVertical="10dp"
+        android:paddingHorizontal="17.5dp"
         android:foreground="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true">
@@ -16,10 +20,24 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{account.name}"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:textSize="16sp" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{account.username + ` (` + account.url + `)`}" />
+            android:textStyle="italic"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:text="@{@string/url + `: ` + account.url}" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:visibility="@{account.username != null ? View.VISIBLE : View.GONE}"
+            android:text="@{@string/username + `: ` + account.username}" />
     </LinearLayout>
 </layout>

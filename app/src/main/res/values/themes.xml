@@ -1,24 +1,26 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.WebDAVProvider" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color. -->
+    <style name="Theme.WebDAVProvider" parent="Theme.MaterialComponents.DayNight">
         <item name="colorPrimary">@color/blue_gray_500</item>
         <item name="colorPrimaryVariant">@color/blue_gray_700</item>
         <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
+
         <item name="colorSecondary">@color/orange_200</item>
         <item name="colorSecondaryVariant">@color/orange_700</item>
         <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <!-- Customize your theme here. -->
-    </style>
 
-    <style name="Theme.WebDAVProvider.NoActionBar" parent="Theme.WebDAVProvider">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionModeOverlay">true</item>
+
+        <item name="android:statusBarColor">?android:colorBackground</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <style name="Theme.WebDAVProvider.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
-    <style name="Theme.WebDAVProvider.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+    <style name="Theme.WebDAVProvider.Default" parent="Theme.WebDAVProvider" />
+
+    <style name="ThemeOverlay.WebDAVProvider.AppBar" parent="ThemeOverlay.MaterialComponents.ActionBar">
+        <item name="colorPrimary">?android:colorBackground</item>
+    </style>
+
+    <style name="ThemeOverlay.WebDAVProvider.Popup" parent="ThemeOverlay.MaterialComponents.Light" />
 </resources>
