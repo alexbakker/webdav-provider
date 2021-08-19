@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <import type="android.view.View"/>
-        <variable name="account" type="me.alexbakker.webdav.settings.Account" />
+        <variable name="account" type="me.alexbakker.webdav.data.Account" />
     </data>
     <LinearLayout
         android:id="@+id/card_account"

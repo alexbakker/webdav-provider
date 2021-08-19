@@ -12,16 +12,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.adapters.AccountAdapter
+import me.alexbakker.webdav.data.Account
+import me.alexbakker.webdav.data.AccountDao
 import me.alexbakker.webdav.databinding.FragmentMainBinding
 import me.alexbakker.webdav.provider.WebDavProvider
-import me.alexbakker.webdav.settings.Account
-import me.alexbakker.webdav.settings.Settings
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
     @Inject
-    lateinit var settings: Settings
+    lateinit var accountDao: AccountDao
 
     private var actionMode: ActionMode? = null
     private lateinit var binding : FragmentMainBinding
@@ -38,7 +38,7 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        accountAdapter = AccountAdapter(settings.accounts, Listener())
+        accountAdapter = AccountAdapter(accountDao.getAll(), Listener())
         binding.rvAccounts.layoutManager = LinearLayoutManager(context)
         binding.rvAccounts.adapter = accountAdapter
 
@@ -54,14 +54,13 @@ class MainFragment : Fragment() {
     }
 
     private fun updateEmptyState() {
-        val empty = settings.accounts.isEmpty()
+        val empty = accountDao.count() == 0L
         binding.viewEmpty.visibility = if (empty) View.VISIBLE else View.GONE
         binding.rvAccounts.visibility = if (empty) View.GONE else View.VISIBLE
     }
 
     private fun removeAccounts(accounts: List<Account>) {
-        settings.accounts.removeAll(accounts)
-        settings.save(requireContext())
+        accountDao.delete(*accounts.toTypedArray())
 
         for (account in accounts) {
             accountAdapter.remove(account)
@@ -71,7 +70,7 @@ class MainFragment : Fragment() {
     }
 
     private fun startEditAccount(account: Account) {
-        val action = MainFragmentDirections.actionMainFragmentToAccountFragment(account.uuid, getString(R.string.edit_account))
+        val action = MainFragmentDirections.actionMainFragmentToAccountFragment(account.id, getString(R.string.edit_account))
         findNavController().navigate(action)
     }
 

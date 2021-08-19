@@ -4,11 +4,15 @@ import android.os.Bundle
 import android.view.*
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
+import androidx.databinding.InverseBindingAdapter
+import androidx.databinding.InverseBindingListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.slider.Slider
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
@@ -16,18 +20,17 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import me.alexbakker.webdav.R
+import me.alexbakker.webdav.data.Account
+import me.alexbakker.webdav.data.AccountDao
 import me.alexbakker.webdav.databinding.FragmentAccountBinding
 import me.alexbakker.webdav.provider.WebDavProvider
-import me.alexbakker.webdav.settings.Account
-import me.alexbakker.webdav.settings.Settings
-import me.alexbakker.webdav.settings.byUUID
-import me.alexbakker.webdav.settings.byUUIDOrNull
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class AccountFragment : Fragment() {
     @Inject
-    lateinit var settings: Settings
+    lateinit var accountDao: AccountDao
 
     private lateinit var menu: Menu
 
@@ -39,10 +42,18 @@ class AccountFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_account, container, false)
-        if (args.uuid != null) {
-            binding.account = settings.accounts.byUUID(args.uuid!!).copy()
+        if (args.id != -1L) {
+            binding.account = accountDao.getById(args.id).copy()
         } else {
             binding.account = Account()
+        }
+
+        binding.sliderMaxCacheFileSize.apply {
+            setLabelFormatter { getString(R.string.value_max_cache_file_size, it.toInt()) }
+            addOnChangeListener(Slider.OnChangeListener { _, value, _ ->
+                // TODO: figure out why this update doesn't automatically happen with data binding
+                binding.valueCacheFileSize.text = getString(R.string.value_max_cache_file_size, value.toLong())
+            })
         }
 
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, BackPressedCallback())
@@ -57,7 +68,7 @@ class AccountFragment : Fragment() {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         menu.clear()
         inflater.inflate(R.menu.menu_account, menu)
-        if (args.uuid == null) {
+        if (args.id == -1L) {
             menu.findItem(R.id.action_delete).isVisible = false
         }
         this.menu = menu
@@ -77,13 +88,11 @@ class AccountFragment : Fragment() {
                         val res = account.client.propFind(account.root.path)
                         if (res.isSuccessful) {
                             account.root = res.body!!
-                            val oldAccount = settings.accounts.byUUIDOrNull(account.uuid)
-                            if (oldAccount == null) {
-                                settings.accounts.add(account)
+                            if (account.id == 0L) {
+                                accountDao.insert(account)
                             } else {
-                                settings.accounts[settings.accounts.indexOf(oldAccount)] = account
+                                accountDao.update(account)
                             }
-                            settings.save(requireContext())
 
                             WebDavProvider.notifyChangeRoots(requireContext())
                             lifecycleScope.launch(Dispatchers.Main) { close() }
@@ -111,8 +120,7 @@ class AccountFragment : Fragment() {
             }
             R.id.action_delete -> {
                 Dialogs.showRemoveAccountsDialog(requireContext(), listOf(account)) { _, _ ->
-                    settings.accounts.remove(settings.accounts.byUUID(args.uuid!!))
-                    settings.save(requireContext())
+                    accountDao.delete(account)
 
                     WebDavProvider.notifyChangeRoots(requireContext())
                     close()
@@ -143,8 +151,8 @@ class AccountFragment : Fragment() {
     }
 
     private fun tryClose(): Boolean {
-        val origAccount = if (args.uuid == null) Account() else settings.accounts.byUUID(args.uuid!!)
-        val formAccount = binding.account!!.copy(uuid = origAccount.uuid)
+        val origAccount = if (args.id == -1L) Account() else accountDao.getById(args.id)
+        val formAccount = binding.account!!.copy(id = origAccount.id)
 
         if (origAccount != formAccount) {
             AlertDialog.Builder(requireContext())
@@ -172,6 +180,28 @@ class AccountFragment : Fragment() {
             if (tryClose() && isEnabled) {
                 isEnabled = false
             }
+        }
+    }
+
+    companion object {
+        @BindingAdapter("android:valueAttrChanged")
+        @JvmStatic fun setSliderListeners(slider: Slider, attrChange: InverseBindingListener) {
+            slider.addOnChangeListener { _, _, _ ->
+                attrChange.onChange()
+            }
+        }
+
+        @BindingAdapter("android:value")
+        @JvmStatic fun setSliderValueLong(view: Slider, newValue: Long) {
+            val fNewValue = newValue.toFloat()
+            if (view.value != fNewValue) {
+                view.value = fNewValue
+            }
+        }
+
+        @InverseBindingAdapter(attribute = "android:value")
+        @JvmStatic fun getSliderValueLong(view: Slider): Long {
+            return view.value.toLong()
         }
     }
 }

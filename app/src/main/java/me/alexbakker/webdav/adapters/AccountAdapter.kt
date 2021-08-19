@@ -4,15 +4,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import me.alexbakker.webdav.R
+import me.alexbakker.webdav.data.Account
+import me.alexbakker.webdav.data.byId
 import me.alexbakker.webdav.databinding.CardAccountBinding
-import me.alexbakker.webdav.settings.Account
-import me.alexbakker.webdav.settings.byUUID
-import java.util.*
-import kotlin.collections.ArrayList
 
 class AccountAdapter(
-        accounts: MutableList<Account>,
-        private val listener: Listener
+    accounts: List<Account>,
+    private val listener: Listener
     ) : RecyclerView.Adapter<AccountAdapter.Holder>() {
     val selectedAccounts: MutableList<Account> = ArrayList()
     private val accounts = ArrayList(accounts.sortedBy { it.name!!.lowercase() })
@@ -65,11 +63,7 @@ class AccountAdapter(
     }
 
     fun remove(account: Account) {
-        remove(account.uuid)
-    }
-
-    fun remove(uuid: UUID) {
-        val i = accounts.indexOf(accounts.byUUID(uuid))
+        val i = accounts.indexOf(accounts.byId(account.id))
         accounts.removeAt(i)
         notifyItemRemoved(i)
     }

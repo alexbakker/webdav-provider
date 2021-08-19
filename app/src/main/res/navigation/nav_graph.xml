@@ -24,10 +24,9 @@
         android:label="{title}"
         tools:layout="@layout/fragment_account">
         <argument
-            android:name="uuid"
-            app:argType="java.util.UUID"
-            app:nullable="true"
-            android:defaultValue="@null" />
+            android:name="id"
+            app:argType="long"
+            android:defaultValue="-1L" />
         <argument
             android:name="title"
             app:argType="string" />

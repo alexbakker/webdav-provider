@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable name="account" type="me.alexbakker.webdav.settings.Account" />
+        <variable name="account" type="me.alexbakker.webdav.data.Account" />
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -108,6 +108,33 @@
                 android:layout_marginStart="5dp"
                 android:text="@string/webdav_testing_connection"/>
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/label_cache_file_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/label_max_cache_file_size"
+            android:layout_marginTop="15dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_layout_password" />
+        <TextView
+            android:id="@+id/value_cache_file_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:text="@{@string/value_max_cache_file_size(account.maxCacheFileSize)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_layout_password" />
+        <com.google.android.material.slider.Slider
+            android:id="@+id/slider_max_cache_file_size"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:stepSize="5"
+            android:valueFrom="5"
+            android:valueTo="100"
+            android:value="@={account.maxCacheFileSize}"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/label_cache_file_size" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

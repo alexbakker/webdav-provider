@@ -20,13 +20,11 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.*
 import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.R
-import me.alexbakker.webdav.settings.Account
-import me.alexbakker.webdav.settings.Settings
-import me.alexbakker.webdav.settings.byUUID
+import me.alexbakker.webdav.data.Account
+import me.alexbakker.webdav.data.AccountDao
+import me.alexbakker.webdav.data.CacheDao
 import java.io.FileNotFoundException
-import java.io.IOException
 import java.io.InputStream
-import java.io.OutputStream
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
@@ -53,7 +51,8 @@ class WebDavProvider : DocumentsProvider() {
         Document.COLUMN_SIZE
     )
 
-    private lateinit var settings: Settings
+    private lateinit var accountDao: AccountDao
+    private lateinit var cache: WebDavCache
     private lateinit var looper: WebDavFileReadCallbackLooper
     private lateinit var storageManager: StorageManager
 
@@ -65,11 +64,12 @@ class WebDavProvider : DocumentsProvider() {
             context!!.applicationContext,
             WebDavEntryPoint::class.java
         )
-        settings = entryPoint.provideSettings()
+        accountDao = entryPoint.provideAccountDao()
+        cache = WebDavCache(context!!.applicationContext, entryPoint.provideCacheDao())
         looper = WebDavFileReadCallbackLooper()
         storageManager = context!!.getSystemService(Context.STORAGE_SERVICE) as StorageManager
 
-        for (account in settings.accounts) {
+        for (account in accountDao.getAll()) {
             refreshAccount(account)
         }
 
@@ -82,7 +82,7 @@ class WebDavProvider : DocumentsProvider() {
         val result = MatrixCursor(projection ?: DEFAULT_ROOT_PROJECTION)
 
         result.apply {
-            for (account in settings.accounts) {
+            for (account in accountDao.getAll()) {
                 includeAccount(this, account)
             }
         }
@@ -125,7 +125,7 @@ class WebDavProvider : DocumentsProvider() {
             if (res.isSuccessful) {
                 val file = res.body!!
                 if (parent.isRoot) {
-                    account.root = file
+                    cache.setRoot(account, file)
                 } else {
                     parent.replaceWith(file)
                 }
@@ -158,10 +158,28 @@ class WebDavProvider : DocumentsProvider() {
             return null
         }
 
+        val accessMode = ParcelFileDescriptor.parseMode(mode)
         when (mode) {
             "r" -> {
-                val callback = WebDavFileReadProxyCallback(account.client, file)
-                return storageManager.openProxyFileDescriptor(ParcelFileDescriptor.parseMode(mode), callback, getHandler())
+                synchronized(cache) {
+                    val cacheResult = cache.get(account, file)
+                    return when (cacheResult.status) {
+                        WebDavCache.Result.Status.HIT -> {
+                            val cacheFile = cache.mapPathToCache(account.id, cacheResult.entry!!.path)
+                            ParcelFileDescriptor.open(cacheFile, accessMode);
+                        }
+                        WebDavCache.Result.Status.PENDING -> {
+                            val callback = WebDavFileReadProxyCallback(account, file)
+                            storageManager.openProxyFileDescriptor(accessMode, callback, getHandler())
+                        }
+                        WebDavCache.Result.Status.MISS -> {
+                            val tryCache = file.contentLength != null
+                                    && file.contentLength!! <= (account.maxCacheFileSize * 1_000_000)
+                            val callback = WebDavFileReadProxyCallback(account, file, tryCache)
+                            storageManager.openProxyFileDescriptor(accessMode, callback, getHandler())
+                        }
+                    }
+                }
             }
             "w" -> {
                 val pipe = ParcelFileDescriptor.createReliablePipe()
@@ -261,33 +279,34 @@ class WebDavProvider : DocumentsProvider() {
         Log.d(TAG, "isChildDocument(), parentDocumentId=$parentDocumentId, documentId=$documentId")
 
         val (account, file) = findDocument(documentId)
-        val (parentUUID, parentPath) = parseDocumentId(parentDocumentId)
+        val (parentId, parentPath) = parseDocumentId(parentDocumentId)
 
-        return account.uuid == parentUUID && file?.parent?.path == parentPath
+        return account.id == parentId && file?.parent?.path == parentPath
     }
 
     @DelicateCoroutinesApi
     private fun refreshAccount(account: Account) {
         GlobalScope.launch(Dispatchers.IO) {
-            val result = account.client.propFind(account.root.path)
+            val root = cache.getRoot(account)
+            val result = account.client.propFind(root.path)
             if (result.isSuccessful) {
-                account.root = result.body!!
+                cache.setRoot(account, result.body!!)
             }
         }
     }
 
     private fun findDocument(documentId: String): Pair<Account, WebDavFile?> {
-        val (uuid, path) = parseDocumentId(documentId)
-        val account = settings.accounts.byUUID(uuid)
-        val file = account.root.findByPath(path)
+        val (id, path) = parseDocumentId(documentId)
+        val account = accountDao.getById(id)
+        val file = cache.getRoot(account).findByPath(path)
         return Pair(account, file)
     }
 
-    private fun parseDocumentId(documentId: String): Pair<UUID, String> {
+    private fun parseDocumentId(documentId: String): Pair<Long, String> {
         val parts = documentId.split("/")
-        val uuid = UUID.fromString(parts[1])
+        val id = parts[1].toLong()
         val path = parts.drop(2).joinToString("/", prefix = "/")
-        return Pair(uuid, path)
+        return Pair(id, path)
     }
 
     private fun includeFile(cursor: MatrixCursor, account: Account, file: WebDavFile) {
@@ -311,26 +330,28 @@ class WebDavProvider : DocumentsProvider() {
     }
 
     private fun includeAccount(cursor: MatrixCursor, account: Account) {
+        val root = cache.getRoot(account)
+
         cursor.newRow().apply {
-            add(Root.COLUMN_ROOT_ID, account.uuid)
+            add(Root.COLUMN_ROOT_ID, account.id)
             add(Root.COLUMN_SUMMARY, account.name)
             add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE or Root.FLAG_SUPPORTS_IS_CHILD)
             add(Root.COLUMN_TITLE, "WebDAV")
-            add(Root.COLUMN_DOCUMENT_ID, buildDocumentId(account, account.root))
+            add(Root.COLUMN_DOCUMENT_ID, buildDocumentId(account, root))
             add(Root.COLUMN_MIME_TYPES, null)
-            add(Root.COLUMN_AVAILABLE_BYTES, account.root.quotaAvailableBytes)
+            add(Root.COLUMN_AVAILABLE_BYTES, root.quotaAvailableBytes)
             add(Root.COLUMN_ICON, R.mipmap.ic_launcher)
 
-            var avail: Int? = null
-            if (account.root.quotaUsedBytes != null && account.root.quotaAvailableBytes != null) {
-                avail = account.root.quotaUsedBytes!! + account.root.quotaAvailableBytes!!
+            var avail: Long? = null
+            if (root.quotaUsedBytes != null && root.quotaAvailableBytes != null) {
+                avail = root.quotaUsedBytes!! + root.quotaAvailableBytes!!
             }
             add(Root.COLUMN_CAPACITY_BYTES, avail)
         }
     }
 
     private fun buildDocumentId(account: Account, file: WebDavFile): String {
-        return "/${account.uuid}${file.path}"
+        return "/${account.id}${file.path}"
     }
 
     private fun buildDocumentUri(documentId: String): Uri {
@@ -362,22 +383,35 @@ class WebDavProvider : DocumentsProvider() {
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface WebDavEntryPoint {
-        fun provideSettings(): Settings
+        fun provideAccountDao(): AccountDao
+        fun provideCacheDao(): CacheDao
     }
 
-    class WebDavFileReadProxyCallback @Throws(IOException::class) constructor(
-        private var client: WebDavClient,
-        private var file: WebDavFile
-    ) : ProxyFileDescriptorCallback() {
-        private var outStream: OutputStream? = null
+    inner class WebDavFileReadProxyCallback : ProxyFileDescriptorCallback {
+        private var cacheWriter: WebDavCache.Writer?
         private var inStream: InputStream? = null
-        private var contentLength = file.contentLength!!.toLong()
+        private val client: WebDavClient
+        private val file: WebDavFile
+        private val contentLength: Long
         private var nextOffset = 0L
-        private val uuid = UUID.randomUUID()
 
+        private val uuid = UUID.randomUUID()
         private val TAG: String = "WebDavFileReadProxyCallback(uuid=$uuid)"
 
-        init {
+        constructor(account: Account, webDavFile: WebDavFile, tryCache: Boolean) : super() {
+            client = account.client
+            file = webDavFile
+            contentLength = file.contentLength!!.toLong()
+            cacheWriter = if (tryCache) cache.startPut(account, file) else null
+
+            logInit()
+        }
+
+        constructor(account: Account, file: WebDavFile) : this(account, file, false) {
+            logInit()
+        }
+
+        private fun logInit() {
             Log.d(TAG, "init(file=${file.path}, contentLength=${contentLength})")
         }
 
@@ -406,25 +440,42 @@ class WebDavProvider : DocumentsProvider() {
             }
 
             nextOffset = offset + size
-            outStream?.write(data, 0, res)
+            cacheWriter?.let {
+                if (!it.broken) {
+                    it.stream.write(data, 0, res)
+                    if (contentLength == offset + res) {
+                        it.finish()
+                    }
+                }
+            }
+
             return res
         }
 
         override fun onRelease() {
             Log.d(TAG, "onRelease()")
             inStream?.close()
-            outStream?.close()
+            cacheWriter?.close()
         }
 
         private fun getStream(offset: Long): InputStream {
             val res = when {
                 inStream == null -> {
                     Log.d(TAG, "Opening stream at: offset=$offset")
+
+                    // if the caller does not start streaming at 0, give up on trying to cache the file
+                    if (cacheWriter != null && offset != 0L) {
+                        cacheWriter!!.abort()
+                    }
+
                     openWebDavStream(offset)
                 }
                 nextOffset != offset -> {
                     Log.w(TAG, "Unexpected offset: offset=$offset, expOffset=$nextOffset")
                     inStream!!.close()
+
+                    // if the caller starts seeking in the stream, give up on trying to cache the file
+                    cacheWriter?.abort()
 
                     Log.d(TAG, "Reopening stream at: offset=$offset")
                     openWebDavStream(offset)

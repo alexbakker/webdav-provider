@@ -1,32 +1,39 @@
-package me.alexbakker.webdav.settings
+package me.alexbakker.webdav.data
 
 import android.net.Uri
 import android.provider.DocumentsContract
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.Transient
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.provider.WebDavClient
 import me.alexbakker.webdav.provider.WebDavFile
-import java.util.*
 
-@Serializable
+@Entity(tableName = "account")
 data class Account(
-        @Serializable(with = UUIDSerializer::class)
-        var uuid: UUID = UUID.randomUUID(),
-        var name: String? = null,
-        var url: String? = null,
-        var verifyCerts: Boolean = true,
-        var username: String? = null,
-        var password: String? = null,
+    @PrimaryKey(autoGenerate = true)
+    var id: Long = 0,
+
+    @ColumnInfo(name = "name")
+    var name: String? = null,
+
+    @ColumnInfo(name = "url")
+    var url: String? = null,
+
+    @ColumnInfo(name = "verify_certs")
+    var verifyCerts: Boolean = true,
+
+    @ColumnInfo(name = "username")
+    var username: String? = null,
+
+    @ColumnInfo(name = "password")
+    var password: String? = null,
+
+    @ColumnInfo(name = "max_cache_file_size")
+    var maxCacheFileSize: Long = 20
 ) {
-    @Transient
+    @Ignore
     private var _root: WebDavFile? = null
 
     var root: WebDavFile
@@ -47,17 +54,17 @@ data class Account(
             return username != null && password != null
         }
 
-    private val rootPath: String
+    val rootPath: String
         get() {
             return ensureTrailingSlash(baseUrl.encodedPath!!)
         }
 
     val rootUri: Uri
         get() {
-            return DocumentsContract.buildRootUri(BuildConfig.PROVIDER_AUTHORITY, uuid.toString())
+            return DocumentsContract.buildRootUri(BuildConfig.PROVIDER_AUTHORITY, id.toString())
         }
 
-    @Transient
+    @Ignore
     private var _client: WebDavClient? = null
 
     private val baseUrl: Uri
@@ -89,16 +96,6 @@ data class Account(
     }
 }
 
-@Serializer(forClass = UUID::class)
-object UUIDSerializer : KSerializer<UUID> {
-    override val descriptor: SerialDescriptor
-        get() = PrimitiveSerialDescriptor("UUID", PrimitiveKind.STRING)
-
-    override fun serialize(encoder: Encoder, value: UUID) {
-        encoder.encodeString(value.toString())
-    }
-
-    override fun deserialize(decoder: Decoder): UUID {
-        return UUID.fromString(decoder.decodeString())
-    }
+fun List<Account>.byId(id: Long): Account {
+    return this.single { v -> v.id == id }
 }

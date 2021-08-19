@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.DialogInterface
 import androidx.appcompat.app.AlertDialog
 import me.alexbakker.webdav.R
-import me.alexbakker.webdav.settings.Account
+import me.alexbakker.webdav.data.Account
 
 class Dialogs {
     companion object {

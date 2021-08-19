@@ -13,14 +13,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.databinding.ActivityMainBinding
 import me.alexbakker.webdav.fragments.MainFragmentDirections
-import me.alexbakker.webdav.settings.Settings
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-    @Inject
-    lateinit var settings: Settings
-
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
@@ -31,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         binding.fab.setOnClickListener {
-            val action = MainFragmentDirections.actionMainFragmentToAccountFragment(null, getString(R.string.add_account))
+            val action = MainFragmentDirections.actionMainFragmentToAccountFragment(-1, getString(R.string.add_account))
             navController.navigate(action)
         }
 

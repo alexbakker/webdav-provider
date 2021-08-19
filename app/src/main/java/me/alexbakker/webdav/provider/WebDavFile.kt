@@ -15,9 +15,10 @@ class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: St
     val writable: Boolean = true
     var isRoot = false
 
-    var contentLength: Int? = null
-    var quotaUsedBytes: Int? = null
-    var quotaAvailableBytes: Int? = null
+    var etag: String? = null
+    var contentLength: Long? = null
+    var quotaUsedBytes: Long? = null
+    var quotaAvailableBytes: Long? = null
 
     var lastModified: Date? = null
 
@@ -39,10 +40,11 @@ class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: St
     constructor (res: Response, href: String = res.href)
             : this(href, res.propstat[0].prop.resourcetype.collection != null) {
         val prop = res.propstat[0].prop
+        etag = prop.getetag
         contentType = parseContentType(name, prop.getcontenttype)
-        contentLength = prop.getcontentlength?.toIntOrNull()
-        quotaUsedBytes = prop.quotaUsedBytes?.content?.firstOrNull()?.toIntOrNull()
-        quotaAvailableBytes = prop.quotaAvailableBytes?.content?.firstOrNull()?.toIntOrNull()
+        contentLength = prop.getcontentlength?.toLongOrNull()
+        quotaUsedBytes = prop.quotaUsedBytes?.content?.firstOrNull()?.toLongOrNull()
+        quotaAvailableBytes = prop.quotaAvailableBytes?.content?.firstOrNull()?.toLongOrNull()
         lastModified = parseDate(prop.getlastmodified)
     }
 

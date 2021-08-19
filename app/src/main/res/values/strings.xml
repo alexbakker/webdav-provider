@@ -35,6 +35,8 @@
     </plurals>
 
     <string name="webdav_testing_connection">Testing WebDAV connection…</string>
+    <string name="label_max_cache_file_size">Maximum size of files to cache:</string>
+    <string name="value_max_cache_file_size">%d MB</string>
 
     <string name="error_field_required">"This field is required"</string>
     <string name="error_loading_settings">Unable to load WebDAV settings. Using defaults…</string>
