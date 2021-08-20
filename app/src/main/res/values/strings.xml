@@ -58,7 +58,7 @@
         <item quantity="other">Are you sure you want to delete %d accounts?</item>
     </plurals>
 
-    <string name="webdav_testing_connection">Testing WebDAV connection…</string>
+    <string name="webdav_testing_connection">Testing WebDAV…</string>
     <string name="label_max_cache_file_size">Maximum size of files to cache:</string>
     <string name="value_max_cache_file_size">%d MB</string>
 
