@@ -15,6 +15,7 @@ import me.alexbakker.webdav.adapters.AccountAdapter
 import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
 import me.alexbakker.webdav.databinding.FragmentMainBinding
+import me.alexbakker.webdav.dialogs.Dialogs
 import me.alexbakker.webdav.provider.WebDavProvider
 import javax.inject.Inject
 

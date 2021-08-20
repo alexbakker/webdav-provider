@@ -3,12 +3,17 @@ package me.alexbakker.webdav.activities
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
+import com.mikepenz.aboutlibraries.Libs
+import com.mikepenz.aboutlibraries.LibsBuilder
+import com.mikepenz.aboutlibraries.LibsConfiguration
+import com.mikepenz.aboutlibraries.entity.Library
 import dagger.hilt.android.AndroidEntryPoint
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.databinding.ActivityMainBinding
@@ -48,6 +53,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_about -> {
+                val action = MainFragmentDirections.actionMainFragmentToAboutFragment()
+                navController.navigate(action)
+                true
+            }
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }

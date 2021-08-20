@@ -23,6 +23,7 @@ import me.alexbakker.webdav.R
 import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
 import me.alexbakker.webdav.databinding.FragmentAccountBinding
+import me.alexbakker.webdav.dialogs.Dialogs
 import me.alexbakker.webdav.provider.WebDavProvider
 import javax.inject.Inject
 

@@ -17,6 +17,13 @@
             app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_MainFragment_to_AboutFragment"
+            app:destination="@+id/AboutFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
     <fragment
         android:id="@+id/AccountFragment"
@@ -34,5 +41,32 @@
             android:id="@+id/action_AccountFragment_to_MainFragment"
             app:destination="@id/MainFragment">
         </action>
+    </fragment>
+    <fragment
+        android:id="@+id/AboutFragment"
+        android:label="@string/action_about"
+        android:name="me.alexbakker.webdav.fragments.AboutFragment"
+        tools:layout="@layout/fragment_about">
+        <action
+            android:id="@+id/action_AboutFragment_to_LicensesFragment"
+            app:destination="@+id/LicensesFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right">
+            <argument
+                android:name="data"
+                app:argType="java.io.Serializable"
+                app:nullable="true" />
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/LicensesFragment"
+        android:label="@string/about_third_party_libraries"
+        android:name="me.alexbakker.webdav.fragments.LicensesFragment">
+        <argument
+            android:name="data"
+            app:argType="java.io.Serializable"
+            app:nullable="true" />
     </fragment>
 </navigation>

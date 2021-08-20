@@ -1,4 +1,4 @@
-package me.alexbakker.webdav.fragments
+package me.alexbakker.webdav.dialogs
 
 import android.content.Context
 import android.content.DialogInterface
