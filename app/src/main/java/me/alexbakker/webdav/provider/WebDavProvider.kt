@@ -22,7 +22,6 @@ import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
-import me.alexbakker.webdav.data.CacheDao
 import java.io.FileNotFoundException
 import java.io.InputStream
 import java.util.*
@@ -65,7 +64,7 @@ class WebDavProvider : DocumentsProvider() {
             WebDavEntryPoint::class.java
         )
         accountDao = entryPoint.provideAccountDao()
-        cache = WebDavCache(context!!.applicationContext, entryPoint.provideCacheDao())
+        cache = entryPoint.provideWebDavCache()
         looper = WebDavFileReadCallbackLooper()
         storageManager = context!!.getSystemService(Context.STORAGE_SERVICE) as StorageManager
 
@@ -384,7 +383,7 @@ class WebDavProvider : DocumentsProvider() {
     @InstallIn(SingletonComponent::class)
     interface WebDavEntryPoint {
         fun provideAccountDao(): AccountDao
-        fun provideCacheDao(): CacheDao
+        fun provideWebDavCache(): WebDavCache
     }
 
     inner class WebDavFileReadProxyCallback : ProxyFileDescriptorCallback {

@@ -26,6 +26,7 @@ import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
 import me.alexbakker.webdav.databinding.FragmentAccountBinding
 import me.alexbakker.webdav.dialogs.Dialogs
+import me.alexbakker.webdav.provider.WebDavCache
 import me.alexbakker.webdav.provider.WebDavProvider
 import javax.inject.Inject
 
@@ -33,6 +34,9 @@ import javax.inject.Inject
 class AccountFragment : Fragment() {
     @Inject
     lateinit var accountDao: AccountDao
+
+    @Inject
+    lateinit var webDavCache: WebDavCache
 
     private lateinit var menu: Menu
 
@@ -87,7 +91,7 @@ class AccountFragment : Fragment() {
                         account.resetState()
                         val res = account.client.propFind(account.root.path)
                         if (res.isSuccessful) {
-                            account.root = res.body!!
+                            webDavCache.setRoot(account, res.body!!)
                             if (account.id == 0L) {
                                 accountDao.insert(account)
                             } else {
