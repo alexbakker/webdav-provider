@@ -21,4 +21,7 @@ interface CacheDao {
 
     @Delete
     fun delete(vararg entry: CacheEntry)
+
+    @Query("DELETE FROM cache_entry WHERE status='PENDING'")
+    fun deletePending()
 }

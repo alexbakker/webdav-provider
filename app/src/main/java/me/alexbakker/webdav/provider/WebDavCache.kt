@@ -12,6 +12,11 @@ import java.io.IOException
 class WebDavCache (private val context: Context, private val dao: CacheDao) {
     private val roots: MutableMap<Int, WebDavFile> = HashMap()
 
+    init {
+        // clear any pending cache entries
+        dao.deletePending()
+    }
+
     fun getRoot(account: Account): WebDavFile {
         var root = roots[account.id.toInt()]
         if (root != null) {
