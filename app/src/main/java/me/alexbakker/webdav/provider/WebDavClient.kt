@@ -26,6 +26,7 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
 
     data class Result<T>(
         val body: T? = null,
+        val headers: Headers? = null,
         val contentLength: Long? = null,
         val error: Exception? = null
     ) {
@@ -34,6 +35,8 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
                 return error == null
             }
     }
+
+    class Error(message: String) : Exception(message)
 
     suspend fun get(path: String, offset: Long = 0): Result<InputStream> {
         val res = execRequest { api.get(path, if (offset == 0L) null else "bytes=$offset-") }
@@ -46,9 +49,7 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
     }
 
     suspend fun putDir(path: String): Result<Unit> {
-        return execRequest {
-            api.putDir(path)
-        }
+        return execRequest { api.putDir(path) }
     }
 
     suspend fun putFile(path: String, inStream: InputStream? = null, contentType: String? = null): Result<Unit> {
@@ -64,6 +65,19 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
 
     suspend fun delete(path: String): Result<Unit> {
         return execRequest { api.delete(path) }
+    }
+
+    suspend fun options(path: String): Result<WebDavOptions> {
+        val res = execRequest { api.options(path) }
+        if (!res.isSuccessful) {
+            return Result(error = res.error)
+        }
+
+        val allow = res.headers!!["Allow"]
+            ?: return Result(error = Error("Header 'Allow' not present"))
+
+        val methods = allow.split(",").map { m -> m.trim() }
+        return Result(WebDavOptions(methods))
     }
 
     suspend fun propFind(path: String): Result<WebDavFile> {
@@ -104,17 +118,17 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
     }
 
     private suspend fun <T> execRequest(exec: suspend () -> Response<T>): Result<T> {
-        val res: Response<T>
+        var res: Response<T>? = null
         try {
             res = exec()
             if (!res.isSuccessful) {
                 throw IOException("Status code: ${res.code()}")
             }
         } catch (e: IOException) {
-            return Result(error = e)
+            return Result(headers = res?.headers(), error = e)
         }
 
-        return Result(res.body())
+        return Result(body = res.body(), headers = res.headers())
     }
 
     private class AuthInterceptor(val auth: String) : Interceptor {

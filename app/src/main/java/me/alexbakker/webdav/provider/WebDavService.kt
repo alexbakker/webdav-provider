@@ -26,4 +26,7 @@ interface WebDavService {
     @HTTP(method = "PROPFIND")
     @Headers("Depth: 1")
     suspend fun propFind(@Url path: String): Response<Multistatus>
+
+    @HTTP(method = "OPTIONS")
+    suspend fun options(@Url path: String): Response<Unit>
 }
