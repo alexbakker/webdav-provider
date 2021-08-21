@@ -106,8 +106,11 @@ class AccountFragment : Fragment() {
                                     .make(
                                         requireView(),
                                         getString(R.string.error_webdav_connection, res.error?.message),
-                                        BaseTransientBottomBar.LENGTH_SHORT
+                                        BaseTransientBottomBar.LENGTH_LONG
                                     )
+                                    .setAction(R.string.action_details) {
+                                        Dialogs.showErrorDialog(requireContext(), R.string.error_webdav_connection_dialog, res.error!!)
+                                    }
                                     .show()
                             }
                         }

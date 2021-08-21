@@ -4,6 +4,8 @@
     <string name="action_save">Save</string>
     <string name="action_edit">Edit</string>
     <string name="action_delete">Delete</string>
+    <string name="action_details">Details</string>
+    <string name="action_copy">Copy</string>
 
     <string name="ok">OK</string>
     <string name="yes">Yes</string>
@@ -47,6 +49,7 @@
 
     <string name="toast_version_copied">Version copied to the clipboard</string>
 
+    <string name="dialog_title_error">Error</string>
     <string name="dialog_title_discard_changes">Discard changes?</string>
     <string name="dialog_message_discard_changes">Your changes have not been saved</string>
     <plurals name="dialog_title_delete_accounts">
@@ -62,7 +65,8 @@
     <string name="label_max_cache_file_size">Maximum size of files to cache:</string>
     <string name="value_max_cache_file_size">%d MB</string>
 
-    <string name="error_field_required">"This field is required"</string>
+    <string name="error_field_required">This field is required</string>
     <string name="error_loading_settings">Unable to load WebDAV settings. Using defaults…</string>
-    <string name="error_webdav_connection">Couldn\'t establish WebDAV connection: %s</string>
+    <string name="error_webdav_connection">Couldn\'t establish a WebDAV connection: %s</string>
+    <string name="error_webdav_connection_dialog">An error occurred while trying to establish a WebDAV connection</string>
 </resources>
