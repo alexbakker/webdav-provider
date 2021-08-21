@@ -66,6 +66,7 @@
     <string name="value_max_cache_file_size">%d MB</string>
 
     <string name="error_field_required">This field is required</string>
+    <string name="error_invalid_url">This must be a valid HTTP/HTTPS URL</string>
     <string name="error_loading_settings">Unable to load WebDAV settings. Using defaults…</string>
     <string name="error_webdav_connection">Couldn\'t establish a WebDAV connection: %s</string>
     <string name="error_webdav_connection_dialog">An error occurred while trying to establish a WebDAV connection</string>

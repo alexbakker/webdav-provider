@@ -17,6 +17,7 @@ import androidx.navigation.fragment.navArgs
 import com.google.android.material.slider.Slider
 import com.google.android.material.snackbar.BaseTransientBottomBar
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -28,6 +29,7 @@ import me.alexbakker.webdav.databinding.FragmentAccountBinding
 import me.alexbakker.webdav.dialogs.Dialogs
 import me.alexbakker.webdav.provider.WebDavCache
 import me.alexbakker.webdav.provider.WebDavProvider
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -145,15 +147,23 @@ class AccountFragment : Fragment() {
 
     private fun validateForm(): Boolean {
         var res = true
-        val requiredTextFields = arrayOf(binding.textName, binding.textUrl)
-        for (field in requiredTextFields) {
-            if (field.text.toString().isBlank()) {
-                (field.parent.parent as TextInputLayout).error = getString(R.string.error_field_required)
-                res = false
-            }
+        if (binding.textName.text.toString().isBlank()) {
+            getInputLayout(binding.textName).error = getString(R.string.error_field_required)
+            res = false
+        }
+
+        try {
+            binding.textUrl.text.toString().toHttpUrl()
+        } catch (e: IllegalArgumentException) {
+            getInputLayout(binding.textUrl).error = getString(R.string.error_invalid_url)
+            res = false
         }
 
         return res
+    }
+
+    private fun getInputLayout(text: TextInputEditText): TextInputLayout {
+        return text.parent.parent as TextInputLayout
     }
 
     private fun tryClose(): Boolean {
