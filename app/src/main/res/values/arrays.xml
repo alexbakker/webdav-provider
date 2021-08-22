@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="protocol_options">
+        <item>Auto</item>
+        <item>HTTP/1.1</item>
+    </string-array>
+</resources>

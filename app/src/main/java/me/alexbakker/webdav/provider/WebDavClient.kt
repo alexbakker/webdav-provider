@@ -21,7 +21,11 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import java.io.IOException
 import java.io.InputStream
 
-class WebDavClient(private val url: String, private val creds: Pair<String, String>? = null) {
+class WebDavClient(
+    private val url: String,
+    private val creds: Pair<String, String>? = null,
+    private val noHttp2: Boolean = false
+) {
     private val api: WebDavService = buildApiService(url, creds)
 
     data class Result<T>(
@@ -157,6 +161,9 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
 
     private fun buildApiService(url: String, creds: Pair<String, String>?): WebDavService {
         val builder = OkHttpClient.Builder()
+        if (noHttp2) {
+            builder.protocols(listOf(Protocol.HTTP_1_1))
+        }
         if (BuildConfig.DEBUG) {
             val logging = HttpLoggingInterceptor()
             logging.level = HttpLoggingInterceptor.Level.BASIC

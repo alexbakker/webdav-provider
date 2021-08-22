@@ -21,6 +21,9 @@ data class Account(
     @ColumnInfo(name = "url")
     var url: String? = null,
 
+    @ColumnInfo(name = "protocol", defaultValue = "AUTO")
+    var protocol: Protocol = Protocol.AUTO,
+
     @ColumnInfo(name = "verify_certs")
     var verifyCerts: Boolean = true,
 
@@ -76,7 +79,11 @@ data class Account(
         get() {
             if (_client == null) {
                 val url = ensureTrailingSlash(baseUrl.toString())
-                _client = WebDavClient(url, if (authentication) Pair(username!!, password!!) else null)
+                _client = WebDavClient(
+                    url,
+                    if (authentication) Pair(username!!, password!!) else null,
+                    noHttp2 = protocol != Protocol.AUTO
+                )
             }
 
             return _client!!
@@ -93,6 +100,10 @@ data class Account(
         } else {
             s
         }
+    }
+
+    enum class Protocol {
+        AUTO, HTTP1
     }
 }
 

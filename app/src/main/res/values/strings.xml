@@ -13,6 +13,7 @@
 
     <string name="name">Name</string>
     <string name="url">URL</string>
+    <string name="protocol">Protocol</string>
     <string name="verify_certs">Verify certificates</string>
     <string name="authentication">Authentication</string>
     <string name="username">Username</string>

@@ -60,12 +60,32 @@
 
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/switch_verify_certs"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/verify_certs"
                 android:checked="@={account.verifyCerts}"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/text_layout_url" />
+                app:layout_constraintEnd_toStartOf="@+id/layout_dropdown_protocol"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintTop_toBottomOf="@+id/text_layout_url"
+                app:layout_constraintBottom_toTopOf="@+id/text_layout_username"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:id="@+id/layout_dropdown_protocol"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:hint="@string/protocol"
+                app:layout_constraintTop_toBottomOf="@+id/text_layout_url"
+                app:layout_constraintStart_toEndOf="@+id/switch_verify_certs"
+                app:layout_constraintEnd_toEndOf="parent">
+                <AutoCompleteTextView
+                    android:id="@+id/dropdown_protocol"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:text="@={account.protocol}" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -75,7 +95,7 @@
                 android:hint="@string/username"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/switch_verify_certs">
+                app:layout_constraintTop_toBottomOf="@+id/layout_dropdown_protocol">
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/text_username"
                     android:layout_width="match_parent"

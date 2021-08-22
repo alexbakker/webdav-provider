@@ -2,6 +2,8 @@ package me.alexbakker.webdav.fragments
 
 import android.os.Bundle
 import android.view.*
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -55,6 +57,9 @@ class AccountFragment : Fragment() {
         } else {
             binding.account = Account()
         }
+
+        val adapter = ArrayAdapter.createFromResource(requireContext(), R.array.protocol_options, R.layout.dropdown_list_item)
+        binding.dropdownProtocol.setAdapter(adapter)
 
         binding.sliderMaxCacheFileSize.apply {
             setLabelFormatter { getString(R.string.value_max_cache_file_size, it.toInt()) }
@@ -221,14 +226,16 @@ class AccountFragment : Fragment() {
 
     companion object {
         @BindingAdapter("android:valueAttrChanged")
-        @JvmStatic fun setSliderListeners(slider: Slider, attrChange: InverseBindingListener) {
+        @JvmStatic
+        fun setSliderListeners(slider: Slider, attrChange: InverseBindingListener) {
             slider.addOnChangeListener { _, _, _ ->
                 attrChange.onChange()
             }
         }
 
         @BindingAdapter("android:value")
-        @JvmStatic fun setSliderValueLong(view: Slider, newValue: Long) {
+        @JvmStatic
+        fun setSliderValueLong(view: Slider, newValue: Long) {
             val fNewValue = newValue.toFloat()
             if (view.value != fNewValue) {
                 view.value = fNewValue
@@ -236,8 +243,26 @@ class AccountFragment : Fragment() {
         }
 
         @InverseBindingAdapter(attribute = "android:value")
-        @JvmStatic fun getSliderValueLong(view: Slider): Long {
+        @JvmStatic
+        fun getSliderValueLong(view: Slider): Long {
             return view.value.toLong()
+        }
+
+        @BindingAdapter("android:text")
+        @JvmStatic
+        fun <T : Enum<T>> setDropdownValueEnum(view: AutoCompleteTextView, newValue: T) {
+            val array = view.resources!!.getStringArray(R.array.protocol_options)
+            val text = array[newValue.ordinal]
+            if (view.text.toString() != text) {
+                view.setText(text, false)
+            }
+        }
+
+        @InverseBindingAdapter(attribute = "android:text")
+        @JvmStatic
+        fun getDropdownValueProtocol(view: AutoCompleteTextView): Account.Protocol {
+            val array = view.resources!!.getStringArray(R.array.protocol_options)
+            return Account.Protocol.values()[array.indexOf(view.text.toString())]
         }
     }
 }
