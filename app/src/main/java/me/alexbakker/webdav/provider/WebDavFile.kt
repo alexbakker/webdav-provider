@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: String? = null) {
+class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: String? = null, var isGhost: Boolean = false) {
     var parent: WebDavFile? = null
     val children: MutableList<WebDavFile> = ArrayList()
     val writable: Boolean = true

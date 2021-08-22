@@ -14,9 +14,6 @@ interface WebDavService {
     @PUT
     suspend fun putFile(@Url path: String, @Body body: RequestBody): Response<Unit>
 
-    @PUT
-    suspend fun putFileEmpty(@Url path: String): Response<Unit>
-
     @HTTP(method = "MKCOL")
     suspend fun putDir(@Url path: String): Response<Unit>
 

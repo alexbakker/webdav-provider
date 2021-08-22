@@ -52,14 +52,10 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
         return execRequest { api.putDir(path) }
     }
 
-    suspend fun putFile(path: String, inStream: InputStream? = null, contentType: String? = null): Result<Unit> {
+    suspend fun putFile(path: String, inStream: InputStream, contentType: String? = null, contentLength: Long? = null): Result<Unit> {
         return execRequest {
-            if (inStream != null) {
-                val body = StreamRequestBody((contentType ?: "application/octet-stream").toMediaType(), inStream)
-                api.putFile(path, body)
-            } else {
-                api.putFileEmpty(path)
-            }
+            val body = StreamRequestBody((contentType ?: "application/octet-stream").toMediaType(), inStream, contentLength = contentLength)
+            api.putFile(path, body)
         }
     }
 
@@ -142,20 +138,19 @@ class WebDavClient(private val url: String, private val creds: Pair<String, Stri
 
     private class StreamRequestBody(
         private var contentType: MediaType,
-        private var inputStream: InputStream
+        private var inputStream: InputStream,
+        private var contentLength: Long? = null,
     ) : RequestBody() {
-        override fun contentType(): MediaType? {
-            return contentType
-        }
+        override fun contentType() = contentType
 
-        override fun isOneShot(): Boolean {
-            return true
-        }
+        override fun contentLength(): Long = if (contentLength != null) contentLength!! else -1L
+
+        override fun isOneShot() = true
 
         @Throws(IOException::class)
         override fun writeTo(sink: BufferedSink) {
-            sink.outputStream().use { outStream ->
-                inputStream.copyTo(outStream)
+            sink.outputStream().use {
+                inputStream.copyTo(it)
             }
         }
     }

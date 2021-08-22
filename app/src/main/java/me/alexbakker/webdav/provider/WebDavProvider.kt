@@ -115,12 +115,7 @@ class WebDavProvider : DocumentsProvider() {
 
         var (account, parent) = findDocument(parentDocumentId!!)
         if (parent != null) {
-            val res = runBlocking {
-                withContext(Dispatchers.IO) {
-                    account.client.propFind(parent!!.path)
-                }
-            }
-
+            val res = runBlocking(Dispatchers.IO) { account.client.propFind(parent!!.path) }
             if (res.isSuccessful) {
                 val file = res.body!!
                 if (parent.isRoot) {
@@ -182,10 +177,11 @@ class WebDavProvider : DocumentsProvider() {
             }
             "w" -> {
                 val pipe = ParcelFileDescriptor.createReliablePipe()
-                val inStream = ParcelFileDescriptor.AutoCloseInputStream(pipe[0])
+                val inDesc = pipe[0]
+                val inStream = ParcelFileDescriptor.AutoCloseInputStream(inDesc)
                 val job = GlobalScope.launch(Dispatchers.IO) {
                     inStream.use {
-                        val res = account.client.putFile(file.path, inStream, contentType = file.contentType)
+                        val res = account.client.putFile(file.path, inStream, contentType = file.contentType, contentLength = inDesc.statSize)
                         if (!res.isSuccessful) {
                             Log.e(TAG, "Error: ${res.error?.message}")
                         }
@@ -223,30 +219,29 @@ class WebDavProvider : DocumentsProvider() {
             path += "/"
         }
 
-        val res = runBlocking {
-            withContext(Dispatchers.IO) {
-                val res = if (isDirectory) {
-                    account.client.putDir(path)
-                } else {
-                    account.client.putFile(path)
-                }
-                Log.d(TAG, "createDocument(), success=${res.isSuccessful}, documentId=$documentId, mimeType=$mimeType, displayName=$displayName")
-                res
-            }
-        }
+        var resDocumentId: String? = null
+        if (isDirectory) {
+            val res = runBlocking(Dispatchers.IO) { account.client.putDir(path) }
+            if (res.isSuccessful) {
+                val file = WebDavFile(path, true, contentType = mimeType)
+                file.parent = dir
+                dir.children.add(file)
 
-        if (res.isSuccessful) {
-            val file = WebDavFile(path, isDirectory, contentType = mimeType)
+                val notifyUri = buildDocumentUri(account, file.parent!!)
+                mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
+
+                resDocumentId = buildDocumentId(account, file)
+            }
+        } else {
+            val file = WebDavFile(path, false, contentType = mimeType, isGhost = true)
             file.parent = dir
             dir.children.add(file)
 
-            val notifyUri = buildDocumentUri(account, file.parent!!)
-            mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
-
-            return buildDocumentId(account, file)
+            resDocumentId = buildDocumentId(account, file)
         }
 
-        return null
+        Log.d(TAG, "createDocument(), success=${resDocumentId != null}, documentId=$documentId, mimeType=$mimeType, displayName=$displayName")
+        return resDocumentId
     }
 
     override fun deleteDocument(documentId: String?) {
@@ -257,11 +252,7 @@ class WebDavProvider : DocumentsProvider() {
             throw FileNotFoundException(documentId)
         }
 
-        val res = runBlocking {
-            withContext(Dispatchers.IO) {
-                account.client.delete(file.path)
-            }
-        }
+        val res = runBlocking(Dispatchers.IO) { account.client.delete(file.path) }
         Log.d(TAG, "deleteDocument(), documentId=$documentId, success=${res.isSuccessful}, message=${res.error?.message}")
 
         if (res.isSuccessful) {
