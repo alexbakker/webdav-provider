@@ -155,7 +155,7 @@ class WebDavProvider : DocumentsProvider() {
                     return when (cacheResult.status) {
                         WebDavCache.Result.Status.HIT -> {
                             val cacheFile = cache.mapPathToCache(account.id, Paths.get(cacheResult.entry!!.path))
-                            ParcelFileDescriptor.open(cacheFile.toFile(), accessMode);
+                            ParcelFileDescriptor.open(cacheFile.toFile(), accessMode)
                         }
                         WebDavCache.Result.Status.PENDING -> {
                             val callback = WebDavFileReadProxyCallback(account, file)
@@ -185,9 +185,16 @@ class WebDavProvider : DocumentsProvider() {
                     }
 
                     if (res.isSuccessful) {
-                        file.isPending = false
+                        val propRes = account.client.propFindFile(file.path)
+                        if (propRes.isSuccessful) {
+                            val parent = file.parent!!
+                            parent.children.remove(file)
+                            parent.children.add(propRes.body!!)
+                        } else {
+                            Log.e(TAG, "openDocument(documentId=$documentId, mode=$mode) propFind failed: ${propRes.error?.message}\")")
+                        }
                     } else {
-                        Log.e(TAG, "Error: ${res.error?.message}")
+                        Log.e(TAG, "openDocument(documentId=$documentId, mode=$mode) upload failed: ${res.error?.message}\")")
                     }
 
                     val notifyUri = buildDocumentUri(account, file.parent!!)
@@ -419,6 +426,10 @@ class WebDavProvider : DocumentsProvider() {
 
         fun buildDocumentUri(account: Account, file: WebDavFile): Uri {
             return buildDocumentUri(buildDocumentId(account, file))
+        }
+
+        fun buildDocumentUri(account: Account, path: Path): Uri {
+            return buildDocumentUri(buildDocumentId(account, path))
         }
 
         /**

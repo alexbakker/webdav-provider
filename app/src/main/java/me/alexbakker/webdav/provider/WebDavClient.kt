@@ -50,16 +50,28 @@ class WebDavClient(
         }
 
         val contentLength = res.body?.contentLength()
-        return Result(res.body?.byteStream(), contentLength = if (contentLength == -1L) null else contentLength)
+        return Result(
+            res.body?.byteStream(),
+            contentLength = if (contentLength == -1L) null else contentLength
+        )
     }
 
     suspend fun putDir(path: String): Result<Unit> {
         return execRequest { api.putDir(path) }
     }
 
-    suspend fun putFile(path: String, inStream: InputStream, contentType: String? = null, contentLength: Long = -1L): Result<Unit> {
+    suspend fun putFile(
+        path: String,
+        inStream: InputStream,
+        contentType: String? = null,
+        contentLength: Long = -1L
+    ): Result<Unit> {
         return execRequest {
-            val body = OneShotRequestBody((contentType ?: "application/octet-stream").toMediaType(), inStream, contentLength = contentLength)
+            val body = OneShotRequestBody(
+                (contentType ?: "application/octet-stream").toMediaType(),
+                inStream,
+                contentLength = contentLength
+            )
             api.putFile(path, body)
         }
     }
@@ -81,40 +93,40 @@ class WebDavClient(
         return Result(WebDavOptions(methods))
     }
 
-    suspend fun propFind(path: Path): Result<WebDavFile> {
-        val res = execRequest { api.propFind(path.toString()) }
+    suspend fun propFindFile(path: Path): Result<WebDavFile> {
+        return propFind(path, depth = 0)
+    }
+
+    suspend fun propFind(path: Path, depth: Int = 1): Result<WebDavFile> {
+        val res = execRequest { api.propFind(path.toString(), depth = depth) }
         if (!res.isSuccessful) {
             return Result(error = res.error)
         }
 
-        val root = WebDavFile(path, true)
-        for (desc in res.body!!.response) {
-            val file = WebDavFile(desc)
+        var root: WebDavFile? = null
+        val children: MutableList<WebDavFile> = ArrayList()
 
-            var parent = root
-            for (part in file.path.toString().removePrefix(path.toString()).split("/")) {
-                if (part.isEmpty()) {
-                    continue
-                }
-
-                var next: WebDavFile? = null
-                for (child in parent.children) {
-                    if (child.name == part) {
-                        next = child
-                        break
+        try {
+            for (desc in res.body!!.response) {
+                val file = WebDavFile(desc)
+                if (file.path == path) {
+                    if (root != null) {
+                        throw Error("Two roots found in PROPFIND response")
                     }
+                    root = file
+                } else if (file.path.parent == path) {
+                    children.add(file)
                 }
-
-                if (next == null) {
-                    file.parent = parent
-                    parent.children.add(file)
-                    break
-                }
-
-                parent = next
             }
+
+            if (root == null) {
+                throw Error("Root not found in PROPFIND response")
+            }
+        } catch (e: Error) {
+            return Result(error = e)
         }
 
+        root.children = children
         return Result(root)
     }
 

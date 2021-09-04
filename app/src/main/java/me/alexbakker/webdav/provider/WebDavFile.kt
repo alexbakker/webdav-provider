@@ -18,7 +18,7 @@ class WebDavFile(
     var isPending: Boolean = false
 ) {
     var parent: WebDavFile? = null
-    val children: MutableList<WebDavFile> = ArrayList()
+    var children: MutableList<WebDavFile> = ArrayList()
     val writable: Boolean = true
 
     var etag: String? = null

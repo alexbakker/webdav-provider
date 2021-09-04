@@ -1,0 +1,30 @@
+name: build
+on: [pull_request, push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        run: ./gradlew build
+  test:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Start WebDAV server
+        run: |
+          ./scripts/run-webdav-server.sh &
+          sleep 5
+      - name: Test WebDAV Server
+        run: |
+          curl -u test:test -X PROPFIND http://localhost:8000
+      - name: Tests
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME_11_X64 }}
+        with:
+          api-level: 29
+          profile: pixel_3a
+          script: ./gradlew connectedCheck

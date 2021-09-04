@@ -21,8 +21,7 @@ interface WebDavService {
     suspend fun delete(@Url path: String): Response<Unit>
 
     @HTTP(method = "PROPFIND")
-    @Headers("Depth: 1")
-    suspend fun propFind(@Url path: String): Response<Multistatus>
+    suspend fun propFind(@Url path: String, @Header("Depth") depth: Int): Response<Multistatus>
 
     @HTTP(method = "OPTIONS")
     suspend fun options(@Url path: String): Response<Unit>

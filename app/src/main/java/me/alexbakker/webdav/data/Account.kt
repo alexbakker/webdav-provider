@@ -44,7 +44,8 @@ data class Account(
 
     val rootPath: Path
         get() {
-            return Paths.get(baseUrl.encodedPath!!)
+            val path = ensureTrailingSlash(baseUrl.encodedPath!!)
+            return Paths.get(path)
         }
 
     val rootId: String
