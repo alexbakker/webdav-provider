@@ -271,7 +271,7 @@ class WebDavProvider : DocumentsProvider() {
         // NOTE: This does not check whether the file actually exists
         val (account, filePath) = lookupDocumentId(documentId)
         val (parentAccount, parentPath) = lookupDocumentId(parentDocumentId)
-        val isChild = account.id == parentAccount.id && filePath.parent == parentPath
+        val isChild = account.id == parentAccount.id && filePath.startsWith(parentPath)
 
         Log.d(TAG, "isChildDocument(parentDocumentId=$parentDocumentId, documentId=$documentId): isChild=$isChild")
         return isChild
