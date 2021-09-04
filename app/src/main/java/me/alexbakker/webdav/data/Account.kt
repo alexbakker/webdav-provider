@@ -8,7 +8,8 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.provider.WebDavClient
-import me.alexbakker.webdav.provider.WebDavFile
+import java.nio.file.Path
+import java.nio.file.Paths
 
 @Entity(tableName = "account")
 data class Account(
@@ -36,35 +37,24 @@ data class Account(
     @ColumnInfo(name = "max_cache_file_size")
     var maxCacheFileSize: Long = 20
 ) {
-    @Ignore
-    private var _root: WebDavFile? = null
-
-    var root: WebDavFile
-        get() {
-            if (_root == null) {
-                _root = WebDavFile(rootPath, true)
-            }
-
-            return _root!!
-        }
-        set(value) {
-            value.isRoot = true
-            _root = value
-        }
-
     private val authentication: Boolean
         get() {
             return username != null && password != null
         }
 
-    val rootPath: String
+    val rootPath: Path
         get() {
-            return ensureTrailingSlash(baseUrl.encodedPath!!)
+            return Paths.get(baseUrl.encodedPath!!)
+        }
+
+    val rootId: String
+        get() {
+            return id.toString()
         }
 
     val rootUri: Uri
         get() {
-            return DocumentsContract.buildRootUri(BuildConfig.PROVIDER_AUTHORITY, id.toString())
+            return DocumentsContract.buildRootUri(BuildConfig.PROVIDER_AUTHORITY, rootId)
         }
 
     @Ignore
@@ -78,9 +68,8 @@ data class Account(
     val client: WebDavClient
         get() {
             if (_client == null) {
-                val url = ensureTrailingSlash(baseUrl.toString())
                 _client = WebDavClient(
-                    url,
+                    ensureTrailingSlash(baseUrl.toString()),
                     if (authentication) Pair(username!!, password!!) else null,
                     noHttp2 = protocol != Protocol.AUTO
                 )
@@ -91,7 +80,6 @@ data class Account(
 
     fun resetState() {
         _client = null
-        _root = null
     }
 
     private fun ensureTrailingSlash(s: String): String {

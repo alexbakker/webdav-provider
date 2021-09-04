@@ -11,7 +11,7 @@ interface AccountDao {
     fun getAll(): List<Account>
 
     @Query("SELECT * FROM account WHERE id=:id")
-    fun getById(id: Long): Account
+    fun getById(id: Long): Account?
 
     @Insert
     fun insert(account: Account): Long

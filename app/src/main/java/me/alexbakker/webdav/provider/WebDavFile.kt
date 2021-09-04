@@ -4,16 +4,22 @@ import android.webkit.MimeTypeMap
 import com.thegrizzlylabs.sardineandroid.model.Response
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: String? = null, var isGhost: Boolean = false) {
+class WebDavFile(
+    var path: Path,
+    var isDirectory: Boolean,
+    var contentType: String? = null,
+    var isPending: Boolean = false
+) {
     var parent: WebDavFile? = null
     val children: MutableList<WebDavFile> = ArrayList()
     val writable: Boolean = true
-    var isRoot = false
 
     var etag: String? = null
     var contentLength: Long? = null
@@ -24,11 +30,8 @@ class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: St
 
     val name: String
         get() {
-            val parts = path.split("/")
-            for (part in parts.asReversed()) {
-                if (part.isNotEmpty()) {
-                    return part
-                }
+            if (path.fileName != null) {
+                return path.fileName.toString()
             }
 
             return "/"
@@ -38,7 +41,7 @@ class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: St
         get() = URLDecoder.decode(name, StandardCharsets.UTF_8.toString())
 
     constructor (res: Response, href: String = res.href)
-            : this(href, res.propstat[0].prop.resourcetype.collection != null) {
+            : this(Paths.get(href), res.propstat[0].prop.resourcetype.collection != null) {
         val prop = res.propstat[0].prop
         etag = prop.getetag
         contentType = parseContentType(name, prop.getcontenttype)
@@ -46,37 +49,6 @@ class WebDavFile(var path: String, var isDirectory: Boolean, var contentType: St
         quotaUsedBytes = prop.quotaUsedBytes?.content?.firstOrNull()?.toLongOrNull()
         quotaAvailableBytes = prop.quotaAvailableBytes?.content?.firstOrNull()?.toLongOrNull()
         lastModified = parseDate(prop.getlastmodified)
-    }
-
-    fun findByPath(path: String): WebDavFile? {
-        if (this.path == path) {
-            return this
-        }
-
-        for (child in children) {
-            if (child.path == path) {
-                return child
-            }
-
-            val file = child.findByPath(path)
-            if (file != null) {
-                return file
-            }
-        }
-
-        return null
-    }
-
-    fun replaceWith(file: WebDavFile) {
-        if (parent != null) {
-            val i = parent!!.children.indexOf(this)
-            if (i != -1) {
-                parent!!.children[i] = file
-            } else {
-                parent!!.children.add(file)
-            }
-            file.parent = parent
-        }
     }
 
     private fun parseDate(s: String?): Date? {

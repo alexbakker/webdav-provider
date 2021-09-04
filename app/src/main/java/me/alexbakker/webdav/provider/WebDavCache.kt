@@ -5,43 +5,67 @@ import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.CacheDao
 import me.alexbakker.webdav.data.CacheEntry
 import java.io.Closeable
-import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import kotlin.io.path.relativeTo
 
 class WebDavCache (private val context: Context, private val dao: CacheDao) {
-    private val roots: MutableMap<Int, WebDavFile> = HashMap()
+    private val fsCache: MutableMap<Long, MutableMap<Path, WebDavFile>> = HashMap()
 
     init {
         // clear any pending cache entries
         dao.deletePending()
     }
 
-    fun getRoot(account: Account): WebDavFile {
-        var root = roots[account.id.toInt()]
-        if (root != null) {
-            return root
+    fun setFileMeta(account: Account, file: WebDavFile) {
+        if (!file.isDirectory) {
+            throw IllegalArgumentException("${file.path} is not a directory")
         }
 
-        root = WebDavFile(account.rootPath, true)
-        setRoot(account, root)
-        return root
+        val cache = getFileMetaCache(account)
+        cache[file.path] = file
     }
 
-    fun setRoot(account: Account, file: WebDavFile) {
-        file.isRoot = true
-        roots[account.id.toInt()] = file
+    fun getFileMeta(account: Account, path: Path): WebDavFile? {
+        val cache = getFileMetaCache(account)
+        val file = cache[path]
+        if (file != null) {
+            return file
+        }
+
+        if (path.parent != null) {
+            val parentFile = cache[path.parent]
+            if (parentFile != null) {
+                return parentFile.children.find { f -> f.path == path }
+            }
+        }
+
+        return null
+    }
+
+    private fun getFileMetaCache(account: Account): MutableMap<Path, WebDavFile> {
+        var cache = fsCache[account.id]
+        if (cache == null) {
+            cache = HashMap()
+            fsCache[account.id] = cache
+        }
+
+        return cache
     }
 
     fun get(account: Account, file: WebDavFile): Result {
-        val entry = dao.getByPath(account.id, file.path)
+        val entry = dao.getByPath(account.id, file.path.toString())
             ?: return Result(status = Result.Status.MISS)
 
         if (entry.status == CacheEntry.Status.PENDING) {
             return Result(entry, Result.Status.PENDING)
         }
 
-        if (!mapPathToCache(account.id, file.path).exists()) {
+        val cachePath = mapPathToCache(account.id, file.path)
+        if (!Files.exists(cachePath)) {
             return Result(entry, Result.Status.MISS)
         }
 
@@ -65,15 +89,15 @@ class WebDavCache (private val context: Context, private val dao: CacheDao) {
     @Throws(IOException::class)
     fun startPut(account: Account, file: WebDavFile): Writer {
         val cacheFile = mapPathToCache(account.id, file.path)
-        val cacheDir = cacheFile.parentFile!!
-        if (!cacheDir.exists()) {
-            cacheDir.mkdirs()
+        val cacheDir = cacheFile.parent!!
+        if (!Files.exists(cacheDir)) {
+            Files.createDirectories(cacheDir)
         }
 
         val entry = CacheEntry(
             accountId = account.id,
             status = CacheEntry.Status.PENDING,
-            path = file.path,
+            path = file.path.toString(),
             etag = file.etag,
             contentLength = file.contentLength,
             lastModified = file.lastModified?.time
@@ -83,18 +107,20 @@ class WebDavCache (private val context: Context, private val dao: CacheDao) {
         return Writer(entry, cacheFile)
     }
 
-    fun mapPathToCache(accountId: Long, path: String): File {
-        return File(File(context.cacheDir, accountId.toString()), path)
+    fun mapPathToCache(accountId: Long, path: Path): Path {
+        val cacheDir = Paths.get(context.cacheDir.toString(), accountId.toString())
+        return cacheDir.resolve(path.relativeTo(path.root))
     }
 
     inner class Writer @Throws(IOException::class) constructor(
         private val entry: CacheEntry,
-        private val file: File
+        private val path: Path
     ) : Closeable {
         var done = false
             private set
         var broken = false
             private set
+        private val file = path.toFile()
 
         private var closed = false
         val stream = FileOutputStream(file)

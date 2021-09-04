@@ -12,7 +12,6 @@ import androidx.appcompat.app.AlertDialog
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.data.Account
 
-
 class Dialogs {
     companion object {
         fun showRemoveAccountsDialog(context: Context, accounts: List<Account>, listener: DialogInterface.OnClickListener) {
@@ -24,21 +23,21 @@ class Dialogs {
                 .show()
         }
 
-        fun showErrorDialog(context: Context?, @StringRes message: Int, e: Exception) {
+        fun showErrorDialog(context: Context, @StringRes message: Int, e: Exception) {
             showErrorDialog(context, message, e, null)
         }
 
-        fun showErrorDialog(context: Context?, @StringRes message: Int, error: CharSequence?) {
-            showErrorDialog(context!!, message, error, null)
+        fun showErrorDialog(context: Context, @StringRes message: Int, error: CharSequence?) {
+            showErrorDialog(context, message, error, null)
         }
 
         private fun showErrorDialog(
-            context: Context?,
+            context: Context,
             @StringRes message: Int,
             e: Exception,
             listener: DialogInterface.OnClickListener?
         ) {
-            showErrorDialog(context!!, message, e.toString(), listener)
+            showErrorDialog(context, message, e.toString(), listener)
         }
 
         private fun showErrorDialog(

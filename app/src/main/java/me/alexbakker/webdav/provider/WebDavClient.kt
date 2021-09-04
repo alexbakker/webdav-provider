@@ -20,6 +20,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import java.io.IOException
 import java.io.InputStream
+import java.nio.file.Path
 
 class WebDavClient(
     private val url: String,
@@ -56,9 +57,9 @@ class WebDavClient(
         return execRequest { api.putDir(path) }
     }
 
-    suspend fun putFile(path: String, inStream: InputStream, contentType: String? = null, contentLength: Long? = null): Result<Unit> {
+    suspend fun putFile(path: String, inStream: InputStream, contentType: String? = null, contentLength: Long = -1L): Result<Unit> {
         return execRequest {
-            val body = StreamRequestBody((contentType ?: "application/octet-stream").toMediaType(), inStream, contentLength = contentLength)
+            val body = OneShotRequestBody((contentType ?: "application/octet-stream").toMediaType(), inStream, contentLength = contentLength)
             api.putFile(path, body)
         }
     }
@@ -80,8 +81,8 @@ class WebDavClient(
         return Result(WebDavOptions(methods))
     }
 
-    suspend fun propFind(path: String): Result<WebDavFile> {
-        val res = execRequest { api.propFind(path) }
+    suspend fun propFind(path: Path): Result<WebDavFile> {
+        val res = execRequest { api.propFind(path.toString()) }
         if (!res.isSuccessful) {
             return Result(error = res.error)
         }
@@ -91,7 +92,7 @@ class WebDavClient(
             val file = WebDavFile(desc)
 
             var parent = root
-            for (part in file.path.removePrefix(path).split("/")) {
+            for (part in file.path.toString().removePrefix(path.toString()).split("/")) {
                 if (part.isEmpty()) {
                     continue
                 }
@@ -140,19 +141,30 @@ class WebDavClient(
         }
     }
 
-    private class StreamRequestBody(
+    private class OneShotRequestBody(
         private var contentType: MediaType,
         private var inputStream: InputStream,
-        private var contentLength: Long? = null,
+        private var contentLength: Long = -1L,
     ) : RequestBody() {
+        private var exhausted: Boolean = false
+
         override fun contentType() = contentType
 
-        override fun contentLength(): Long = if (contentLength != null) contentLength!! else -1L
+        override fun contentLength(): Long = contentLength
 
         override fun isOneShot() = true
 
         @Throws(IOException::class)
         override fun writeTo(sink: BufferedSink) {
+            // Believe it or not, certain developer environment configurations can cause
+            // writeTo to be called twice. This happens when running the app with a debugger
+            // attached and Database Inspector enabled, for instance. As a result, a 0-byte
+            // file would appear on the server after a WebDAV upload action.
+            if (exhausted) {
+                throw RuntimeException("writeTo was called twice on a OneShotRequestBody")
+            }
+
+            exhausted = true
             sink.outputStream().use {
                 inputStream.copyTo(it)
             }

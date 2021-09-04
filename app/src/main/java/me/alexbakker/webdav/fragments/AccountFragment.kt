@@ -53,7 +53,7 @@ class AccountFragment : Fragment() {
     ): View {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_account, container, false)
         if (args.id != -1L) {
-            binding.account = accountDao.getById(args.id).copy()
+            binding.account = accountDao.getById(args.id)!!.copy()
         } else {
             binding.account = Account()
         }
@@ -96,9 +96,9 @@ class AccountFragment : Fragment() {
                     updateTestStatus(true)
                     val job = lifecycleScope.launch(Dispatchers.IO) {
                         account.resetState()
-                        val res = account.client.propFind(account.root.path)
+                        val res = account.client.propFind(account.rootPath)
                         if (res.isSuccessful) {
-                            webDavCache.setRoot(account, res.body!!)
+                            webDavCache.setFileMeta(account, res.body!!)
                             if (account.id == 0L) {
                                 accountDao.insert(account)
                             } else {
@@ -173,7 +173,7 @@ class AccountFragment : Fragment() {
 
     private fun tryClose(): Boolean {
         val origAccount = if (args.id == -1L) Account() else accountDao.getById(args.id)
-        val formAccount = binding.account!!.copy(id = origAccount.id)
+        val formAccount = binding.account!!.copy(id = origAccount!!.id)
 
         if (origAccount != formAccount) {
             AlertDialog.Builder(requireContext())

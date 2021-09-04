@@ -14,8 +14,8 @@ import android.system.ErrnoException
 import android.system.OsConstants
 import android.util.Log
 import dagger.hilt.EntryPoint
+import dagger.hilt.EntryPoints
 import dagger.hilt.InstallIn
-import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.*
 import me.alexbakker.webdav.BuildConfig
@@ -24,6 +24,8 @@ import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
 import java.io.FileNotFoundException
 import java.io.InputStream
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
@@ -50,35 +52,31 @@ class WebDavProvider : DocumentsProvider() {
         Document.COLUMN_SIZE
     )
 
-    private lateinit var accountDao: AccountDao
-    private lateinit var cache: WebDavCache
+    private val accountDao: AccountDao
+        get() { return entryPoint.provideAccountDao() }
+
+    private val cache: WebDavCache
+        get() { return entryPoint.provideWebDavCache() }
+
+    private val entryPoint: WebDavEntryPoint
+        get() { return EntryPoints.get(mustGetContext(), WebDavEntryPoint::class.java) }
+
     private lateinit var looper: WebDavFileReadCallbackLooper
     private lateinit var storageManager: StorageManager
 
-    @DelicateCoroutinesApi
     override fun onCreate(): Boolean {
         Log.d(TAG, "onCreate()")
 
-        val entryPoint = EntryPointAccessors.fromApplication(
-            context!!.applicationContext,
-            WebDavEntryPoint::class.java
-        )
-        accountDao = entryPoint.provideAccountDao()
-        cache = entryPoint.provideWebDavCache()
+        val context = mustGetContext()
         looper = WebDavFileReadCallbackLooper()
-        storageManager = context!!.getSystemService(Context.STORAGE_SERVICE) as StorageManager
-
-        for (account in accountDao.getAll()) {
-            refreshAccount(account)
-        }
-
+        storageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
         return true
     }
 
     override fun queryRoots(projection: Array<out String>?): Cursor {
         Log.d(TAG, "queryRoots()")
 
-        val result = MatrixCursor(projection ?: DEFAULT_ROOT_PROJECTION)
+        val result = WebDavCursor(projection ?: DEFAULT_ROOT_PROJECTION)
 
         result.apply {
             for (account in accountDao.getAll()) {
@@ -90,12 +88,12 @@ class WebDavProvider : DocumentsProvider() {
     }
 
     override fun queryDocument(documentId: String?, projection: Array<out String>?): Cursor {
-        Log.d(TAG, "queryDocument(), documentId=$documentId")
+        Log.d(TAG, "queryDocument(documentId=$documentId)")
 
-        val result = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
+        val result = WebDavCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
 
         result.apply {
-            val (account, file) = findDocument(documentId!!)
+            val (account, _, file) = findDocument(documentId!!)
             if (file != null) {
                 includeFile(this, account, file)
             }
@@ -105,35 +103,32 @@ class WebDavProvider : DocumentsProvider() {
     }
 
     override fun queryChildDocuments(
-        parentDocumentId: String?,
+        parentDocumentId: String,
         projection: Array<out String>?,
         sortOrder: String?
     ): Cursor {
-        Log.d(TAG, "queryChildDocuments(), parentDocumentId=$parentDocumentId, sortOrder=$sortOrder")
+        Log.d(TAG, "queryChildDocuments(parentDocumentId=$parentDocumentId, sortOrder=$sortOrder)")
 
-        val result = MatrixCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
+        val result = WebDavCursor(projection ?: DEFAULT_DOCUMENT_PROJECTION)
 
-        var (account, parent) = findDocument(parentDocumentId!!)
-        if (parent != null) {
-            val res = runBlocking(Dispatchers.IO) { account.client.propFind(parent!!.path) }
-            if (res.isSuccessful) {
-                val file = res.body!!
-                if (parent.isRoot) {
-                    cache.setRoot(account, file)
-                } else {
-                    parent.replaceWith(file)
-                }
-                parent = file
-            }
+        val (account, parentPath) = lookupDocumentId(parentDocumentId)
+        val res = runBlocking(Dispatchers.IO) { account.client.propFind(parentPath) }
+        if (res.isSuccessful) {
+            val parentFile = res.body!!
+            cache.setFileMeta(account, parentFile)
 
             result.apply {
-                for (file in parent.children) {
-                    includeFile(this, account, file)
+                for (file in parentFile.children) {
+                    if (!file.isPending) {
+                        includeFile(this, account, file)
+                    }
                 }
 
-                val notifyUri = buildDocumentUri(account, parent)
+                val notifyUri = buildDocumentUri(account, parentFile)
                 setNotificationUri(mustGetContext().contentResolver, notifyUri)
             }
+        } else {
+            result.errorMsg = mustGetContext().getString(R.string.error_list_dir_contents, parentPath.toString(), res.error)
         }
 
         return result
@@ -145,11 +140,11 @@ class WebDavProvider : DocumentsProvider() {
         mode: String,
         signal: CancellationSignal?
     ): ParcelFileDescriptor? {
-        Log.d(TAG, "openDocument(), documentId=$documentId, mode=$mode")
+        Log.d(TAG, "openDocument(documentId=$documentId, mode=$mode)")
 
-        val (account, file) = findDocument(documentId)
+        val (account, _, file) = findDocument(documentId)
         if (file == null) {
-            return null
+            throw FileNotFoundException(documentId)
         }
 
         val accessMode = ParcelFileDescriptor.parseMode(mode)
@@ -159,8 +154,8 @@ class WebDavProvider : DocumentsProvider() {
                     val cacheResult = cache.get(account, file)
                     return when (cacheResult.status) {
                         WebDavCache.Result.Status.HIT -> {
-                            val cacheFile = cache.mapPathToCache(account.id, cacheResult.entry!!.path)
-                            ParcelFileDescriptor.open(cacheFile, accessMode);
+                            val cacheFile = cache.mapPathToCache(account.id, Paths.get(cacheResult.entry!!.path))
+                            ParcelFileDescriptor.open(cacheFile.toFile(), accessMode);
                         }
                         WebDavCache.Result.Status.PENDING -> {
                             val callback = WebDavFileReadProxyCallback(account, file)
@@ -180,18 +175,29 @@ class WebDavProvider : DocumentsProvider() {
                 val inDesc = pipe[0]
                 val inStream = ParcelFileDescriptor.AutoCloseInputStream(inDesc)
                 val job = GlobalScope.launch(Dispatchers.IO) {
-                    inStream.use {
-                        val res = account.client.putFile(file.path, inStream, contentType = file.contentType, contentLength = inDesc.statSize)
-                        if (!res.isSuccessful) {
-                            Log.e(TAG, "Error: ${res.error?.message}")
-                        }
+                    val res = inStream.use {
+                        account.client.putFile(
+                            file.path.toString(),
+                            inStream,
+                            contentType = file.contentType,
+                            contentLength = inDesc.statSize
+                        )
+                    }
+
+                    if (res.isSuccessful) {
+                        file.isPending = false
+                    } else {
+                        Log.e(TAG, "Error: ${res.error?.message}")
                     }
 
                     val notifyUri = buildDocumentUri(account, file.parent!!)
                     mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
                 }
 
-                signal?.setOnCancelListener { job.cancel("openDocument() cancellation signal received") }
+                signal?.setOnCancelListener {
+                    job.cancel("openDocument(documentId=$documentId, mode=$mode): cancellation signal received")
+                }
+
                 return pipe[1]
             }
             else -> {
@@ -206,22 +212,19 @@ class WebDavProvider : DocumentsProvider() {
         mimeType: String?,
         displayName: String?
     ): String? {
-        Log.d(TAG, "createDocument(), documentId=$documentId, mimeType=$mimeType, displayName=$displayName")
+        Log.d(TAG, "createDocument(documentId=$documentId, mimeType=$mimeType, displayName=$displayName)")
 
-        val (account, dir) = findDocument(documentId)
+        val (account, _, dir) = findDocument(documentId)
         if (dir == null || !dir.isDirectory) {
             throw FileNotFoundException(documentId)
         }
 
-        var path = dir.path + displayName
+        val path = dir.path.resolve(displayName)
         val isDirectory = mimeType.equals(Document.MIME_TYPE_DIR, ignoreCase = true)
-        if (isDirectory) {
-            path += "/"
-        }
 
         var resDocumentId: String? = null
         if (isDirectory) {
-            val res = runBlocking(Dispatchers.IO) { account.client.putDir(path) }
+            val res = runBlocking(Dispatchers.IO) { account.client.putDir(path.toString()) }
             if (res.isSuccessful) {
                 val file = WebDavFile(path, true, contentType = mimeType)
                 file.parent = dir
@@ -233,27 +236,26 @@ class WebDavProvider : DocumentsProvider() {
                 resDocumentId = buildDocumentId(account, file)
             }
         } else {
-            val file = WebDavFile(path, false, contentType = mimeType, isGhost = true)
+            val file = WebDavFile(path, false, contentType = mimeType, isPending = true)
             file.parent = dir
             dir.children.add(file)
 
             resDocumentId = buildDocumentId(account, file)
         }
 
-        Log.d(TAG, "createDocument(), success=${resDocumentId != null}, documentId=$documentId, mimeType=$mimeType, displayName=$displayName")
+        Log.d(TAG, "createDocument(documentId=$documentId, mimeType=$mimeType, displayName=$displayName): success=${resDocumentId != null}")
         return resDocumentId
     }
 
     override fun deleteDocument(documentId: String?) {
-        Log.d(TAG, "deleteDocument(), documentId=$documentId")
-
-        val (account, file) = findDocument(documentId!!)
+        Log.d(TAG, "deleteDocument(documentId=$documentId)")
+        val (account, _, file) = findDocument(documentId!!)
         if (file == null) {
             throw FileNotFoundException(documentId)
         }
 
-        val res = runBlocking(Dispatchers.IO) { account.client.delete(file.path) }
-        Log.d(TAG, "deleteDocument(), documentId=$documentId, success=${res.isSuccessful}, message=${res.error?.message}")
+        val res = runBlocking(Dispatchers.IO) { account.client.delete(file.path.toString()) }
+        Log.d(TAG, "deleteDocument(documentId=$documentId): success=${res.isSuccessful}, message=${res.error?.message}")
 
         if (res.isSuccessful) {
             if (file.parent != null) {
@@ -266,40 +268,74 @@ class WebDavProvider : DocumentsProvider() {
     }
 
     override fun isChildDocument(parentDocumentId: String, documentId: String): Boolean {
-        Log.d(TAG, "isChildDocument(), parentDocumentId=$parentDocumentId, documentId=$documentId")
+        // NOTE: This does not check whether the file actually exists
+        val (account, filePath) = lookupDocumentId(documentId)
+        val (parentAccount, parentPath) = lookupDocumentId(parentDocumentId)
+        val isChild = account.id == parentAccount.id && filePath.parent == parentPath
 
-        val (account, file) = findDocument(documentId)
-        val (parentId, parentPath) = parseDocumentId(parentDocumentId)
-
-        return account.id == parentId && file?.parent?.path == parentPath
+        Log.d(TAG, "isChildDocument(parentDocumentId=$parentDocumentId, documentId=$documentId): isChild=$isChild")
+        return isChild
     }
 
-    @DelicateCoroutinesApi
-    private fun refreshAccount(account: Account) {
-        GlobalScope.launch(Dispatchers.IO) {
-            val root = cache.getRoot(account)
-            val result = account.client.propFind(root.path)
-            if (result.isSuccessful) {
-                cache.setRoot(account, result.body!!)
+    /**
+     * Tries to find the document with the given ID. If metadata for this document is
+     * not available in the cache, a PROPFIND request is performed for the parent path.
+     */
+    private fun findDocument(documentId: String): WebDavDocument {
+        val doc = findCachedDocument(documentId)
+        if (doc.file != null) {
+            return doc
+        }
+
+        val isRoot = doc.account.rootPath == doc.path
+        val res = runBlocking(Dispatchers.IO) {
+            val path = if (isRoot) doc.path else doc.path.parent
+            doc.account.client.propFind(path)
+        }
+        if (res.isSuccessful) {
+            val resFile = res.body!!
+            if (resFile.isDirectory) {
+                cache.setFileMeta(doc.account, resFile)
+            }
+
+            val file = if (isRoot) {
+                resFile
+            } else {
+                resFile.children.find { f -> f.path == doc.path }
+            }
+
+            if (file != null) {
+                return doc.copy(file = file)
             }
         }
+
+        return doc
     }
 
-    private fun findDocument(documentId: String): Pair<Account, WebDavFile?> {
-        val (id, path) = parseDocumentId(documentId)
-        val account = accountDao.getById(id)
-        val file = cache.getRoot(account).findByPath(path)
-        return Pair(account, file)
+    /**
+     * Tries to find the document with the given ID and its metadata in the cache.
+     */
+    private fun findCachedDocument(documentId: String): WebDavDocument {
+        val (account, path) = lookupDocumentId(documentId)
+        val file = cache.getFileMeta(account, path)
+        return WebDavDocument(account, path, file)
     }
 
-    private fun parseDocumentId(documentId: String): Pair<Long, String> {
-        val parts = documentId.split("/")
-        val id = parts[1].toLong()
-        val path = parts.drop(2).joinToString("/", prefix = "/")
-        return Pair(id, path)
+    private fun lookupDocumentId(documentId: String): Pair<Account, Path> {
+        val (accountId, path) = parseDocumentId(documentId)
+        val account = accountDao.getById(accountId)
+            ?: throw IllegalArgumentException("Invalid document ID: '$documentId' (Account $accountId not found")
+
+        return Pair(account, path)
     }
 
-    private fun includeFile(cursor: MatrixCursor, account: Account, file: WebDavFile) {
+    private data class WebDavDocument(
+        val account: Account,
+        val path: Path,
+        val file: WebDavFile? = null,
+    )
+
+    private fun includeFile(cursor: WebDavCursor, account: Account, file: WebDavFile) {
         var flags = 0
         if (file.isDirectory) {
             flags = flags or Document.FLAG_DIR_SUPPORTS_CREATE
@@ -319,37 +355,25 @@ class WebDavProvider : DocumentsProvider() {
         }
     }
 
-    private fun includeAccount(cursor: MatrixCursor, account: Account) {
-        val root = cache.getRoot(account)
+    private fun includeAccount(cursor: WebDavCursor, account: Account) {
+        val root = cache.getFileMeta(account, account.rootPath)
 
         cursor.newRow().apply {
             add(Root.COLUMN_ROOT_ID, account.id)
             add(Root.COLUMN_SUMMARY, account.name)
             add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE or Root.FLAG_SUPPORTS_IS_CHILD)
             add(Root.COLUMN_TITLE, "WebDAV")
-            add(Root.COLUMN_DOCUMENT_ID, buildDocumentId(account, root))
+            add(Root.COLUMN_DOCUMENT_ID, buildDocumentId(account, account.rootPath))
             add(Root.COLUMN_MIME_TYPES, null)
-            add(Root.COLUMN_AVAILABLE_BYTES, root.quotaAvailableBytes)
+            add(Root.COLUMN_AVAILABLE_BYTES, root?.quotaAvailableBytes)
             add(Root.COLUMN_ICON, R.mipmap.ic_launcher)
 
             var avail: Long? = null
-            if (root.quotaUsedBytes != null && root.quotaAvailableBytes != null) {
+            if (root?.quotaUsedBytes != null && root.quotaAvailableBytes != null) {
                 avail = root.quotaUsedBytes!! + root.quotaAvailableBytes!!
             }
             add(Root.COLUMN_CAPACITY_BYTES, avail)
         }
-    }
-
-    private fun buildDocumentId(account: Account, file: WebDavFile): String {
-        return "/${account.id}${file.path}"
-    }
-
-    private fun buildDocumentUri(documentId: String): Uri {
-        return DocumentsContract.buildDocumentUri(BuildConfig.PROVIDER_AUTHORITY, documentId)
-    }
-
-    private fun buildDocumentUri(account: Account, file: WebDavFile): Uri {
-        return buildDocumentUri(buildDocumentId(account, file))
     }
 
     private fun mustGetContext(): Context {
@@ -361,12 +385,65 @@ class WebDavProvider : DocumentsProvider() {
     }
 
     companion object {
+        fun parseDocumentId(documentId: String): Pair<Long, Path> {
+            val parts = documentId.split("/")
+            if (parts.size < 3) {
+                throw IllegalArgumentException("Invalid document ID: '$documentId'")
+            }
+
+            val id = try {
+                parts[1].toLong()
+            } catch (e: NumberFormatException) {
+                throw IllegalArgumentException("Invalid document ID: '$documentId' (Bad account ID: ${parts[1]}")
+            }
+
+            val path = Paths.get(parts.drop(2).joinToString("/", prefix = "/"))
+            return Pair(id, path)
+        }
+
+        fun buildDocumentId(account: Account, path: Path): String {
+            return "/${account.id}${path}"
+        }
+
+        fun buildDocumentId(account: Account, file: WebDavFile): String {
+            return buildDocumentId(account, file.path)
+        }
+
+        fun buildDocumentUri(documentId: String): Uri {
+            return DocumentsContract.buildDocumentUri(BuildConfig.PROVIDER_AUTHORITY, documentId)
+        }
+
+        fun buildTreeDocumentUri(documentId: String): Uri {
+            return DocumentsContract.buildTreeDocumentUri(BuildConfig.PROVIDER_AUTHORITY, documentId)
+        }
+
+        fun buildDocumentUri(account: Account, file: WebDavFile): Uri {
+            return buildDocumentUri(buildDocumentId(account, file))
+        }
+
         /**
          * Notify any observers that the roots of our provider have changed.
          */
         fun notifyChangeRoots(context: Context) {
             val rootsUri = DocumentsContract.buildRootsUri(BuildConfig.PROVIDER_AUTHORITY)
             context.contentResolver.notifyChange(rootsUri, null, 0)
+        }
+    }
+
+    private class WebDavCursor(
+        columnNames: Array<out String>,
+        var infoMsg: String? = null,
+        var errorMsg: String? = null
+    ) : MatrixCursor(columnNames) {
+        override fun getExtras(): Bundle {
+            val bundle = Bundle()
+            if (infoMsg != null) {
+                bundle.putString(DocumentsContract.EXTRA_INFO, infoMsg)
+            }
+            if (errorMsg != null) {
+                bundle.putString(DocumentsContract.EXTRA_ERROR, errorMsg)
+            }
+            return bundle
         }
     }
 
@@ -480,7 +557,7 @@ class WebDavProvider : DocumentsProvider() {
         }
 
         private fun openWebDavStream(offset: Long): InputStream {
-            val res = runBlocking { client.get(file.path, offset) }
+            val res = runBlocking { client.get(file.path.toString(), offset) }
             if (!res.isSuccessful) {
                 throw ErrnoException("openWebDavStream", OsConstants.EBADF)
             }

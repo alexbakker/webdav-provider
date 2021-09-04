@@ -71,4 +71,5 @@
     <string name="error_loading_settings">Unable to load WebDAV settings. Using defaults…</string>
     <string name="error_webdav_connection">Couldn\'t establish a WebDAV connection: %s</string>
     <string name="error_webdav_connection_dialog">An error occurred while trying to establish a WebDAV connection</string>
+    <string name="error_list_dir_contents">An error occurred while trying to list the contents of %s:\n\n%s</string>
 </resources>
