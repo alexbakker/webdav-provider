@@ -98,6 +98,7 @@ class AccountFragment : Fragment() {
                         account.resetState()
                         val res = account.client.propFind(account.rootPath)
                         if (res.isSuccessful) {
+                            webDavCache.clearFileMeta(account)
                             webDavCache.setFileMeta(account, res.body!!)
                             if (account.id == 0L) {
                                 accountDao.insert(account)

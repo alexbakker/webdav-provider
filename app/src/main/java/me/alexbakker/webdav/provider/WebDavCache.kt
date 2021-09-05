@@ -46,6 +46,10 @@ class WebDavCache (private val context: Context, private val dao: CacheDao) {
         return null
     }
 
+    fun clearFileMeta(account: Account) {
+        getFileMetaCache(account).clear()
+    }
+
     private fun getFileMetaCache(account: Account): MutableMap<Path, WebDavFile> {
         var cache = fsCache[account.id]
         if (cache == null) {
