@@ -39,7 +39,7 @@ class WebDavTest {
 
     private val fileNames = arrayOf("1.bin", "2.bin", "3.bin")
     private val dirNames = arrayOf("a")
-    private val subDirNames = arrayOf("b")
+    private val subDirNames = arrayOf("a", "b")
 
     @Before
     fun init() {
@@ -76,6 +76,15 @@ class WebDavTest {
         val path = Paths.get("/${dirNames[0]}/${fileNames[0]}")
         val file = getFile(path)
         Assert.assertTrue("Unable to delete file: ${file.uri}", file.delete())
+        Assert.assertFalse("Deleted file still exists: ${file.uri}", file.exists())
+    }
+
+    @Test
+    fun deleteDirectory() {
+        val path = Paths.get("/${dirNames[0]}/${subDirNames[1]}")
+        val dir = getDirFile(path)
+        Assert.assertTrue("Unable to delete directory: ${dir.uri}", dir.delete())
+        Assert.assertFalse("Deleted directory still exists: ${dir.uri}", dir.exists())
     }
 
     @Test

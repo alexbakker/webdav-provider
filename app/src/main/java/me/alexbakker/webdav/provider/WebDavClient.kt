@@ -104,29 +104,25 @@ class WebDavClient(
         }
 
         var root: WebDavFile? = null
-        val children: MutableList<WebDavFile> = ArrayList()
-
-        try {
-            for (desc in res.body!!.response) {
-                val file = WebDavFile(desc)
-                if (file.path == path) {
-                    if (root != null) {
-                        throw Error("Two roots found in PROPFIND response")
-                    }
-                    root = file
-                } else if (file.path.parent == path) {
-                    children.add(file)
-                }
+        for (desc in res.body!!.response) {
+            val file = WebDavFile(desc)
+            if (file.path == path) {
+                root = file
+                break
             }
-
-            if (root == null) {
-                throw Error("Root not found in PROPFIND response")
-            }
-        } catch (e: Error) {
-            return Result(error = e)
+        }
+        if (root == null) {
+            return Result(error = Error("Root not found in PROPFIND response"))
         }
 
-        root.children = children
+        for (desc in res.body.response) {
+            val file = WebDavFile(desc)
+            if (file.path != path) {
+                file.parent = root
+                root.children.add(file)
+            }
+        }
+
         return Result(root)
     }
 

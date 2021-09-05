@@ -264,10 +264,7 @@ class WebDavProvider : DocumentsProvider() {
 
         if (res.isSuccessful) {
             cache.removeFileMeta(account, file.path)
-
-            if (file.parent != null) {
-                file.parent!!.children.remove(file)
-            }
+            file.parent?.children?.remove(file)
 
             val notifyUri = buildDocumentUri(account, file.path.parent)
             mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)

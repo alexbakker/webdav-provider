@@ -30,7 +30,11 @@ class WebDavCache (private val context: Context, private val dao: CacheDao) {
         if (path.parent != null) {
             val parentFile = cache[path.parent]
             if (parentFile != null) {
-                return parentFile.children.find { f -> f.path == path }
+                // only return the cached metadata if the given path does not refer to a directory
+                val childFile = parentFile.children.find { f -> f.path == path }
+                if (childFile != null && !childFile.isDirectory) {
+                    return childFile
+                }
             }
         }
 
