@@ -10,8 +10,6 @@ import android.provider.DocumentsContract
 import android.provider.DocumentsContract.Document
 import android.provider.DocumentsContract.Root
 import android.provider.DocumentsProvider
-import android.system.ErrnoException
-import android.system.OsConstants
 import android.util.Log
 import dagger.hilt.EntryPoint
 import dagger.hilt.EntryPoints
@@ -23,10 +21,8 @@ import me.alexbakker.webdav.R
 import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
 import java.io.FileNotFoundException
-import java.io.InputStream
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.*
 import java.util.concurrent.CountDownLatch
 
 class WebDavProvider : DocumentsProvider() {
@@ -158,13 +154,14 @@ class WebDavProvider : DocumentsProvider() {
                             ParcelFileDescriptor.open(cacheFile.toFile(), accessMode)
                         }
                         WebDavCache.Result.Status.PENDING -> {
-                            val callback = WebDavFileReadProxyCallback(account, file)
+                            val callback = WebDavReadProxyCallback(account, file)
                             storageManager.openProxyFileDescriptor(accessMode, callback, getHandler())
                         }
                         WebDavCache.Result.Status.MISS -> {
-                            val tryCache = file.contentLength != null
-                                    && file.contentLength!! <= (account.maxCacheFileSize * 1_000_000)
-                            val callback = WebDavFileReadProxyCallback(account, file, tryCache)
+                            val cacheWriter = if (isFileCacheable(account, file)) {
+                                    cache.startPut(account, file)
+                            } else null
+                            val callback = WebDavReadProxyCallback(account, file, cacheWriter)
                             storageManager.openProxyFileDescriptor(accessMode, callback, getHandler())
                         }
                     }
@@ -339,6 +336,11 @@ class WebDavProvider : DocumentsProvider() {
         return Pair(account, path)
     }
 
+    private fun isFileCacheable(account: Account, file: WebDavFile): Boolean {
+        return file.contentLength != null
+                && file.contentLength!! <= (account.maxCacheFileSize * 1_000_000)
+    }
+
     private data class WebDavDocument(
         val account: Account,
         val path: Path,
@@ -466,117 +468,6 @@ class WebDavProvider : DocumentsProvider() {
     interface WebDavEntryPoint {
         fun provideAccountDao(): AccountDao
         fun provideWebDavCache(): WebDavCache
-    }
-
-    inner class WebDavFileReadProxyCallback : ProxyFileDescriptorCallback {
-        private var cacheWriter: WebDavCache.Writer?
-        private var inStream: InputStream? = null
-        private val client: WebDavClient
-        private val file: WebDavFile
-        private val contentLength: Long
-        private var nextOffset = 0L
-
-        private val uuid = UUID.randomUUID()
-        private val TAG: String = "WebDavFileReadProxyCallback(uuid=$uuid)"
-
-        constructor(account: Account, webDavFile: WebDavFile, tryCache: Boolean) : super() {
-            client = account.client
-            file = webDavFile
-            contentLength = file.contentLength!!.toLong()
-            cacheWriter = if (tryCache) cache.startPut(account, file) else null
-
-            logInit()
-        }
-
-        constructor(account: Account, file: WebDavFile) : this(account, file, false) {
-            logInit()
-        }
-
-        private fun logInit() {
-            Log.d(TAG, "init(file=${file.path}, contentLength=${contentLength})")
-        }
-
-        @Throws(ErrnoException::class)
-        override fun onGetSize(): Long {
-            Log.d(TAG, "onGetSize(contentLength=${contentLength})")
-            return contentLength
-        }
-
-        @Throws(ErrnoException::class)
-        override fun onRead(offset: Long, size: Int, data: ByteArray?): Int {
-            Log.d(TAG, "onRead(offset=$offset, size=$size)")
-            val inStream = getStream(offset)
-
-            var res = 0
-            while (true) {
-                val read = inStream.read(data, res, size - res)
-                if (read == -1) {
-                    break
-                }
-
-                res += read
-                if (res == size) {
-                    break
-                }
-            }
-
-            nextOffset = offset + size
-            cacheWriter?.let {
-                if (!it.broken) {
-                    it.stream.write(data, 0, res)
-                    if (contentLength == offset + res) {
-                        it.finish()
-                    }
-                }
-            }
-
-            return res
-        }
-
-        override fun onRelease() {
-            Log.d(TAG, "onRelease()")
-            inStream?.close()
-            cacheWriter?.close()
-        }
-
-        private fun getStream(offset: Long): InputStream {
-            val res = when {
-                inStream == null -> {
-                    Log.d(TAG, "Opening stream at: offset=$offset")
-
-                    // if the caller does not start streaming at 0, give up on trying to cache the file
-                    if (cacheWriter != null && offset != 0L) {
-                        cacheWriter!!.abort()
-                    }
-
-                    openWebDavStream(offset)
-                }
-                nextOffset != offset -> {
-                    Log.w(TAG, "Unexpected offset: offset=$offset, expOffset=$nextOffset")
-                    inStream!!.close()
-
-                    // if the caller starts seeking in the stream, give up on trying to cache the file
-                    cacheWriter?.abort()
-
-                    Log.d(TAG, "Reopening stream at: offset=$offset")
-                    openWebDavStream(offset)
-                }
-                else -> {
-                    inStream!!
-                }
-            }
-
-            inStream = res
-            return res
-        }
-
-        private fun openWebDavStream(offset: Long): InputStream {
-            val res = runBlocking { client.get(file.path.toString(), offset) }
-            if (!res.isSuccessful) {
-                throw ErrnoException("openWebDavStream", OsConstants.EBADF)
-            }
-            return res.body!!
-        }
     }
 
     class WebDavFileReadCallbackLooper {

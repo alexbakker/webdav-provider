@@ -76,7 +76,6 @@ class WebDavTest {
         val path = Paths.get("/${dirNames[0]}/${fileNames[0]}")
         val file = getFile(path)
         Assert.assertTrue("Unable to delete file: ${file.uri}", file.delete())
-        Assert.assertFalse("Still able to delete file: ${file.uri}", file.delete())
     }
 
     @Test
