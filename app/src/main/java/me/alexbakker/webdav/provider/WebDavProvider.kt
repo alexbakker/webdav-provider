@@ -236,6 +236,7 @@ class WebDavProvider : DocumentsProvider() {
                 val file = WebDavFile(path, true, contentType = mimeType)
                 file.parent = dir
                 dir.children.add(file)
+                cache.setFileMeta(account, file)
 
                 val notifyUri = buildDocumentUri(account, file.parent!!)
                 mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
@@ -265,12 +266,14 @@ class WebDavProvider : DocumentsProvider() {
         Log.d(TAG, "deleteDocument(documentId=$documentId): success=${res.isSuccessful}, message=${res.error?.message}")
 
         if (res.isSuccessful) {
+            cache.removeFileMeta(account, file.path)
+
             if (file.parent != null) {
                 file.parent!!.children.remove(file)
-
-                val notifyUri = buildDocumentUri(account, file.parent!!)
-                mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
             }
+
+            val notifyUri = buildDocumentUri(account, file.path.parent)
+            mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
         }
     }
 

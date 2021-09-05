@@ -20,15 +20,6 @@ class WebDavCache (private val context: Context, private val dao: CacheDao) {
         dao.deletePending()
     }
 
-    fun setFileMeta(account: Account, file: WebDavFile) {
-        if (!file.isDirectory) {
-            throw IllegalArgumentException("${file.path} is not a directory")
-        }
-
-        val cache = getFileMetaCache(account)
-        cache[file.path] = file
-    }
-
     fun getFileMeta(account: Account, path: Path): WebDavFile? {
         val cache = getFileMetaCache(account)
         val file = cache[path]
@@ -44,6 +35,20 @@ class WebDavCache (private val context: Context, private val dao: CacheDao) {
         }
 
         return null
+    }
+
+    fun setFileMeta(account: Account, file: WebDavFile) {
+        if (!file.isDirectory) {
+            throw IllegalArgumentException("${file.path} is not a directory")
+        }
+
+        val cache = getFileMetaCache(account)
+        cache[file.path] = file
+    }
+
+    fun removeFileMeta(account: Account, path: Path) {
+        val cache = getFileMetaCache(account)
+        cache.remove(path)
     }
 
     fun clearFileMeta(account: Account) {

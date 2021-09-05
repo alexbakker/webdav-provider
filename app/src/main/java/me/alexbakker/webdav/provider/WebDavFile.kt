@@ -51,6 +51,10 @@ class WebDavFile(
         lastModified = parseDate(prop.getlastmodified)
     }
 
+    override fun toString(): String {
+        return path.toString()
+    }
+
     private fun parseDate(s: String?): Date? {
         if (s == null) {
             return s

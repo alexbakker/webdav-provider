@@ -38,6 +38,8 @@ class WebDavTest {
     private lateinit var context: Context
 
     private val fileNames = arrayOf("1.bin", "2.bin", "3.bin")
+    private val dirNames = arrayOf("a")
+    private val subDirNames = arrayOf("b")
 
     @Before
     fun init() {
@@ -55,30 +57,78 @@ class WebDavTest {
 
     @Test
     fun createAndReadRandomFile() {
-        val dir = getRootDir()
-        val fileName = "${UUID.randomUUID()}.bin"
-        val file = dir.createFile("application/octet-stream", fileName)
-        Assert.assertNotNull("createFile(file=$fileName) failed", file)
-
-        val bytes = ByteArray(1_000_000)
-        SecureRandom().nextBytes(bytes)
-
-        val outStream = context.contentResolver.openOutputStream(file!!.uri)
-        Assert.assertNotNull("openOutputStream(uri=${file.uri}) failed", outStream)
-        outStream.use { it!!.write(bytes) }
-
-        // TODO: find out why this seems to be race-y
-        Thread.sleep(500)
-
-        val inStream = context.contentResolver.openInputStream(file.uri)
-        Assert.assertNotNull("openInputStream(uri=${file.uri}) failed", inStream)
-        val readBytes = inStream.use { it!!.readBytes() }
-        Assert.assertArrayEquals(bytes, readBytes)
+        val dir = getDirFile(account.rootPath)
+        createAndVerifyRandomFile(dir)
     }
 
     @Test
-    fun readFileAndVerifyCache() {
+    fun createDirectoryAndChildFile() {
+        val rootDir = getDirFile(account.rootPath)
+        val dirName = "${UUID.randomUUID()}"
+        val dir = rootDir.createDirectory(dirName)
+        Assert.assertNotNull("createDirectory(dirName=$dirName) failed", dir)
+
+        createAndVerifyRandomFile(dir!!)
+    }
+
+    @Test
+    fun deleteFile() {
+        val path = Paths.get("/${dirNames[0]}/${fileNames[0]}")
+        val file = getFile(path)
+        Assert.assertTrue("Unable to delete file: ${file.uri}", file.delete())
+        Assert.assertFalse("Still able to delete file: ${file.uri}", file.delete())
+    }
+
+    @Test
+    fun listDirectoryContents() {
+        listDirectoryContents(getDirFile(account.rootPath))
+    }
+
+    @Test
+    fun listChildDirectoryContents() {
+        val path = Paths.get("/${dirNames[0]}/${subDirNames[0]}")
+        listDirectoryContents(getDirFile(path), checkDirs = false)
+    }
+
+    @Test
+    fun readRootFileAndVerifyCache() {
         val path = Paths.get("/${fileNames[0]}")
+        readFileAndVerifyCache(path)
+    }
+
+    @Test
+    fun readChildFileAndVerifyCache() {
+        val path = Paths.get("/${dirNames[0]}/${subDirNames[0]}/${fileNames[0]}")
+        readFileAndVerifyCache(path)
+    }
+
+    private fun listDirectoryContents(rootDir: DocumentFile, checkDirs: Boolean = true) {
+        val files = rootDir.listFiles()
+        Assert.assertNotNull("listFiles() failed", files)
+
+        verifyFilesPresent(files)
+        if (checkDirs) {
+            verifyDirectoriesPresent(files)
+        }
+    }
+
+    private fun verifyFilesPresent(files: Array<DocumentFile>) {
+        for (name in fileNames) {
+            val file = files.find { it.name == name }
+            Assert.assertNotNull("File '$name' not found in listing", file)
+            Assert.assertTrue("Not a file: ${file!!.uri}", file.isFile)
+        }
+    }
+
+    private fun verifyDirectoriesPresent(files: Array<DocumentFile>) {
+        for (name in dirNames) {
+            val dir = files.find { it.name == name }
+            Assert.assertNotNull("Directory '$name' not found in listing", dir)
+            Assert.assertTrue("Not a directory: ${dir!!.uri}", dir.isDirectory)
+        }
+    }
+
+    private fun readFileAndVerifyCache(path: Path) {
         val uri = WebDavProvider.buildDocumentUri(account, path)
 
         val inStream = context.contentResolver.openInputStream(uri)
@@ -94,25 +144,44 @@ class WebDavTest {
         Assert.assertArrayEquals("Read bytes and cached bytes are not equal", readBytes, readCacheBytes)
     }
 
-    @Test
-    fun listDirectoryContents() {
-        val dir = getRootDir()
-        val files = dir.listFiles()
-        Assert.assertNotNull("listFiles() failed", files)
+    private fun createAndVerifyRandomFile(dir: DocumentFile) {
+        val fileName = "${UUID.randomUUID()}.bin"
+        val file = dir.createFile("application/octet-stream", fileName)
+        Assert.assertNotNull("createFile(fileName=$fileName) failed", file)
 
-        for (name in fileNames) {
-            Assert.assertNotNull("File $name not found in listing", files.find { it.name == name })
-        }
+        val bytes = generateRandomBytes()
+        val outStream = context.contentResolver.openOutputStream(file!!.uri)
+        Assert.assertNotNull("openOutputStream(uri=${file.uri}) failed", outStream)
+        outStream.use { it!!.write(bytes) }
+
+        // TODO: find out why this seems to be race-y
+        Thread.sleep(500)
+
+        val inStream = context.contentResolver.openInputStream(file.uri)
+        Assert.assertNotNull("openInputStream(uri=${file.uri}) failed", inStream)
+        val readBytes = inStream.use { it!!.readBytes() }
+        Assert.assertArrayEquals(bytes, readBytes)
     }
 
-    private fun getRootDir(): DocumentFile {
-        val uri = WebDavProvider.buildTreeDocumentUri(WebDavProvider.buildDocumentId(account, account.rootPath))
-        val dir = DocumentFile.fromTreeUri(context, uri)
-        return dir!!
+    private fun getDirFile(path: Path): DocumentFile {
+        val id = WebDavProvider.buildDocumentId(account, path)
+        val uri = WebDavProvider.buildTreeDocumentUri(id)
+        return DocumentFile.fromTreeUri(context, uri)!!
+    }
+
+    private fun getFile(path: Path): DocumentFile {
+        val uri = WebDavProvider.buildDocumentUri(account, path)
+        return DocumentFile.fromSingleUri(context, uri)!!
     }
 
     private fun assertCacheEntryStatus(account: Account, path: Path, status: CacheEntry.Status) {
         val cacheEntry = cacheDao.getByPath(account.id, path.toString())!!
         Assert.assertEquals("Unexpected cache entry status", status, cacheEntry.status)
+    }
+
+    private fun generateRandomBytes(n: Int = 1_000_000): ByteArray {
+        val bytes = ByteArray(n)
+        SecureRandom().nextBytes(bytes)
+        return bytes
     }
 }
