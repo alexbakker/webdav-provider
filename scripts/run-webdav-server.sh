@@ -8,6 +8,11 @@ cat > "${CONFIG_FILE}" <<EOF
 address: 0.0.0.0
 port: 8000
 auth: true
+
+scope: .
+modify: true
+rules: []
+
 users:
 - username: test
   password: test
