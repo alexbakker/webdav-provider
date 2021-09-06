@@ -39,7 +39,7 @@ class WebDavTest {
 
     private val fileNames = arrayOf("1.bin", "2.bin", "3.bin")
     private val dirNames = arrayOf("a")
-    private val subDirNames = arrayOf("a", "b")
+    private val subDirNames = arrayOf("a", "b", "c")
 
     @Before
     fun init() {
@@ -57,13 +57,13 @@ class WebDavTest {
 
     @Test
     fun createAndReadRandomFile() {
-        val dir = getDirFile(account.rootPath)
+        val dir = getTreeFile(account.rootPath)
         createAndVerifyRandomFile(dir)
     }
 
     @Test
     fun createDirectoryAndChildFile() {
-        val rootDir = getDirFile(account.rootPath)
+        val rootDir = getTreeFile(account.rootPath)
         val dirName = "${UUID.randomUUID()}"
         val dir = rootDir.createDirectory(dirName)
         Assert.assertNotNull("createDirectory(dirName=$dirName) failed", dir)
@@ -82,20 +82,20 @@ class WebDavTest {
     @Test
     fun deleteDirectory() {
         val path = Paths.get("/${dirNames[0]}/${subDirNames[1]}")
-        val dir = getDirFile(path)
+        val dir = getTreeFile(path)
         Assert.assertTrue("Unable to delete directory: ${dir.uri}", dir.delete())
         Assert.assertFalse("Deleted directory still exists: ${dir.uri}", dir.exists())
     }
 
     @Test
     fun listDirectoryContents() {
-        listDirectoryContents(getDirFile(account.rootPath))
+        listDirectoryContents(getTreeFile(account.rootPath))
     }
 
     @Test
     fun listChildDirectoryContents() {
         val path = Paths.get("/${dirNames[0]}/${subDirNames[0]}")
-        listDirectoryContents(getDirFile(path), checkDirs = false)
+        listDirectoryContents(getTreeFile(path), checkDirs = false)
     }
 
     @Test
@@ -108,6 +108,20 @@ class WebDavTest {
     fun readChildFileAndVerifyCache() {
         val path = Paths.get("/${dirNames[0]}/${subDirNames[0]}/${fileNames[0]}")
         readFileAndVerifyCache(path)
+    }
+
+    @Test
+    fun renameFile() {
+        val newName = "4.bin"
+        val path = Paths.get("/${dirNames[0]}/${subDirNames[2]}/${fileNames[0]}")
+
+        val file = getTreeFile(path)
+        Assert.assertTrue("Unable to rename file: ${file.uri}", file.renameTo(newName))
+        Assert.assertFalse("Old filename is still valid: ${file.uri}", file.exists())
+
+        val newPath = path.parent.resolve(newName)
+        val newFile = getFile(newPath)
+        Assert.assertEquals("Unexpected filename for: ${file.uri}", newFile.name, newName)
     }
 
     private fun listDirectoryContents(rootDir: DocumentFile, checkDirs: Boolean = true) {
@@ -171,7 +185,7 @@ class WebDavTest {
         Assert.assertArrayEquals(bytes, readBytes)
     }
 
-    private fun getDirFile(path: Path): DocumentFile {
+    private fun getTreeFile(path: Path): DocumentFile {
         val id = WebDavProvider.buildDocumentId(account, path)
         val uri = WebDavProvider.buildTreeDocumentUri(id)
         return DocumentFile.fromTreeUri(context, uri)!!

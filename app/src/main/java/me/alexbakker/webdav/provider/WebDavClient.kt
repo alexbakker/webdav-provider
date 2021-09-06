@@ -1,5 +1,6 @@
 package me.alexbakker.webdav.provider
 
+import android.util.Log
 import com.thegrizzlylabs.sardineandroid.model.Prop
 import com.thegrizzlylabs.sardineandroid.model.Property
 import com.thegrizzlylabs.sardineandroid.model.Resourcetype
@@ -23,7 +24,7 @@ import java.io.InputStream
 import java.nio.file.Path
 
 class WebDavClient(
-    private val url: String,
+    private val url: HttpUrl,
     private val creds: Pair<String, String>? = null,
     private val noHttp2: Boolean = false
 ) {
@@ -126,6 +127,11 @@ class WebDavClient(
         return Result(root)
     }
 
+    suspend fun move(path: Path, newPath: Path): Result<Unit> {
+        val dest = url.newBuilder().encodedPath(newPath.toString()).build()
+        return execRequest { api.move(path.toString(), dest.toString()) }
+    }
+
     private suspend fun <T> execRequest(exec: suspend () -> Response<T>): Result<T> {
         var res: Response<T>? = null
         try {
@@ -179,7 +185,7 @@ class WebDavClient(
         }
     }
 
-    private fun buildApiService(url: String, creds: Pair<String, String>?): WebDavService {
+    private fun buildApiService(url: HttpUrl, creds: Pair<String, String>?): WebDavService {
         val builder = OkHttpClient.Builder()
         if (noHttp2) {
             builder.protocols(listOf(Protocol.HTTP_1_1))

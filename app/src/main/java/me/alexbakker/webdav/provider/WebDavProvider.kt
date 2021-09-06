@@ -21,6 +21,8 @@ import me.alexbakker.webdav.R
 import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
 import java.io.FileNotFoundException
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.CountDownLatch
@@ -252,9 +254,9 @@ class WebDavProvider : DocumentsProvider() {
         return resDocumentId
     }
 
-    override fun deleteDocument(documentId: String?) {
+    override fun deleteDocument(documentId: String) {
         Log.d(TAG, "deleteDocument(documentId=$documentId)")
-        val (account, _, file) = findDocument(documentId!!)
+        val (account, _, file) = findDocument(documentId)
         if (file == null) {
             throw FileNotFoundException(documentId)
         }
@@ -269,6 +271,34 @@ class WebDavProvider : DocumentsProvider() {
             val notifyUri = buildDocumentUri(account, file.path.parent)
             mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
         }
+    }
+
+    override fun renameDocument(documentId: String, displayName: String): String? {
+        Log.d(TAG, "renameDocument(documentId=$documentId, displayName=$displayName)")
+
+        val (account, _, file) = findDocument(documentId)
+        if (file == null) {
+            throw FileNotFoundException(documentId)
+        }
+
+        val oldPath = file.path
+        val encodedName = URLEncoder.encode(displayName, StandardCharsets.UTF_8.name())
+        val newPath = oldPath.parent.resolve(encodedName)
+        val res = runBlocking(Dispatchers.IO) { account.client.move(oldPath, newPath) }
+        if (res.isSuccessful) {
+            file.path = newPath
+            if (file.isDirectory) {
+                cache.removeFileMeta(account, oldPath)
+                cache.setFileMeta(account, file)
+            }
+
+            val notifyUri = buildDocumentUri(account, file.path.parent)
+            mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
+
+            return buildDocumentId(account, newPath)
+        }
+
+        return null
     }
 
     override fun isChildDocument(parentDocumentId: String, documentId: String): Boolean {
@@ -350,8 +380,10 @@ class WebDavProvider : DocumentsProvider() {
             flags = flags or Document.FLAG_DIR_SUPPORTS_CREATE
         }
         if (file.writable) {
-            flags = flags or Document.FLAG_SUPPORTS_WRITE
-            flags = flags or Document.FLAG_SUPPORTS_DELETE
+            flags = flags or
+                    Document.FLAG_SUPPORTS_DELETE or
+                    Document.FLAG_SUPPORTS_RENAME or
+                    Document.FLAG_SUPPORTS_WRITE
         }
 
         cursor.newRow().apply {

@@ -31,6 +31,7 @@ populate_dir "${WEBDAV_DIR}"
 populate_dir "${WEBDAV_DIR}/a"
 populate_dir "${WEBDAV_DIR}/a/a"
 populate_dir "${WEBDAV_DIR}/a/b"
+populate_dir "${WEBDAV_DIR}/a/c"
 printf "WebDAV root: %s\n" "${WEBDAV_DIR}"
 
 cd "${WEBDAV_DIR}" || false

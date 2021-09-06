@@ -38,7 +38,7 @@ class WebDavFile(
         }
 
     val decodedName: String
-        get() = URLDecoder.decode(name, StandardCharsets.UTF_8.toString())
+        get() = URLDecoder.decode(name, StandardCharsets.UTF_8.name())
 
     constructor (res: Response, href: String = res.href)
             : this(Paths.get(href), res.propstat[0].prop.resourcetype.collection != null) {

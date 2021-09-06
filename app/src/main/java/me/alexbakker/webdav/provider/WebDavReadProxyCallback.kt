@@ -33,7 +33,7 @@ class WebDavReadProxyCallback(
     }
 
     @Throws(ErrnoException::class)
-    override fun onRead(offset: Long, size: Int, data: ByteArray?): Int {
+    override fun onRead(offset: Long, size: Int, data: ByteArray): Int {
         Log.d(TAG, "onRead(offset=$offset, size=$size)")
         val inStream = getStream(offset)
 

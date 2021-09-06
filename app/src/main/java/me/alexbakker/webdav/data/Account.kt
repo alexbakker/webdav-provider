@@ -8,6 +8,8 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.provider.WebDavClient
+import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -44,7 +46,7 @@ data class Account(
 
     val rootPath: Path
         get() {
-            val path = ensureTrailingSlash(baseUrl.encodedPath!!)
+            val path = ensureTrailingSlash(baseUrl.encodedPath)
             return Paths.get(path)
         }
 
@@ -61,19 +63,16 @@ data class Account(
     @Ignore
     private var _client: WebDavClient? = null
 
-    private val baseUrl: Uri
+    private val baseUrl: HttpUrl
         get() {
-            return Uri.parse(url)
+            return ensureTrailingSlash(url!!).toHttpUrl()
         }
 
     val client: WebDavClient
         get() {
             if (_client == null) {
-                _client = WebDavClient(
-                    ensureTrailingSlash(baseUrl.toString()),
-                    if (authentication) Pair(username!!, password!!) else null,
-                    noHttp2 = protocol != Protocol.AUTO
-                )
+                val creds = if (authentication) Pair(username!!, password!!) else null
+                _client = WebDavClient(baseUrl, creds, noHttp2 = protocol != Protocol.AUTO)
             }
 
             return _client!!
