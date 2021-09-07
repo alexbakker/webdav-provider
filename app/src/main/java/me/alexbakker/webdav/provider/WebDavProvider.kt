@@ -225,7 +225,8 @@ class WebDavProvider : DocumentsProvider() {
             throw FileNotFoundException(documentId)
         }
 
-        val path = dir.path.resolve(displayName)
+        val encodedName = URLEncoder.encode(displayName, StandardCharsets.UTF_8.name())
+        val path = dir.path.resolve(encodedName)
         val isDirectory = mimeType.equals(Document.MIME_TYPE_DIR, ignoreCase = true)
 
         var resDocumentId: String? = null
