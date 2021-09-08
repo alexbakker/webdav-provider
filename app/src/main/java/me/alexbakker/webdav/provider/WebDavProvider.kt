@@ -274,6 +274,10 @@ class WebDavProvider : DocumentsProvider() {
         }
     }
 
+    override fun removeDocument(documentId: String, parentDocumentId: String) {
+        deleteDocument(documentId)
+    }
+
     override fun renameDocument(documentId: String, displayName: String): String? {
         Log.d(TAG, "renameDocument(documentId=$documentId, displayName=$displayName)")
 
