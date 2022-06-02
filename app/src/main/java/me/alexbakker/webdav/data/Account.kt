@@ -44,7 +44,10 @@ data class Account(
     var clientCert: String? = null,
 
     @ColumnInfo(name = "max_cache_file_size")
-    var maxCacheFileSize: Long = 20
+    var maxCacheFileSize: Long = 20,
+
+    @ColumnInfo(name = "act_as_local_storage", defaultValue = "false")
+    var actAsLocalStorage: Boolean = false
 ) {
     private val authentication: Boolean
         get() {
