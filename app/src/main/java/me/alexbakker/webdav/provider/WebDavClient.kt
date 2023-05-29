@@ -1,6 +1,6 @@
 package me.alexbakker.webdav.provider
 
-import android.util.Log
+import android.annotation.SuppressLint
 import com.thegrizzlylabs.sardineandroid.model.Prop
 import com.thegrizzlylabs.sardineandroid.model.Property
 import com.thegrizzlylabs.sardineandroid.model.Resourcetype
@@ -21,11 +21,26 @@ import retrofit2.Retrofit
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import java.io.IOException
 import java.io.InputStream
+import java.net.Socket
 import java.nio.file.Path
+import java.security.KeyStore
+import java.security.Principal
+import java.security.PrivateKey
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.KeyManager
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.TrustManagerFactory
+import javax.net.ssl.X509KeyManager
+import javax.net.ssl.X509TrustManager
+
 
 class WebDavClient(
     private val url: HttpUrl,
     private val creds: Pair<String, String>? = null,
+    private val mutualCreds: Triple<String, PrivateKey, Array<X509Certificate>>? = null,
+    private val verify: Boolean = true,
     private val noHttp2: Boolean = false
 ) {
     private val api: WebDavService = buildApiService(url, creds)
@@ -186,7 +201,11 @@ class WebDavClient(
     }
 
     private fun buildApiService(url: HttpUrl, creds: Pair<String, String>?): WebDavService {
-        val builder = OkHttpClient.Builder()
+        val builder = OkHttpClient.Builder().apply {
+            if (mutualCreds != null || !verify) {
+                useCustomTLS(mutualCreds != null, verify)
+            }
+        }
         if (noHttp2) {
             builder.protocols(listOf(Protocol.HTTP_1_1))
         }
@@ -208,6 +227,69 @@ class WebDavClient(
             .addConverterFactory(converter)
             .build()
             .create(WebDavService::class.java)
+    }
+
+    private fun OkHttpClient.Builder.useCustomTLS(mutual: Boolean, verify: Boolean): OkHttpClient.Builder {
+        val sslContext = SSLContext.getInstance("TLS")
+        val keyManager = if (mutual) {
+            arrayOf<KeyManager>(object : X509KeyManager {
+                override fun getClientAliases(
+                    keyType: String?,
+                    issuers: Array<Principal>
+                ): Array<String> {
+                    return arrayOf(mutualCreds!!.first)
+                }
+
+                override fun chooseClientAlias(
+                    keyType: Array<out String>?,
+                    issuers: Array<out Principal>?,
+                    socket: Socket?
+                ): String {
+                    return mutualCreds!!.first
+                }
+
+                override fun getServerAliases(
+                    keyType: String?,
+                    issuers: Array<Principal>
+                ): Array<String> {
+                    return arrayOf()
+                }
+
+                override fun chooseServerAlias(
+                    keyType: String?,
+                    issuers: Array<Principal>,
+                    socket: Socket
+                ): String {
+                    return ""
+                }
+
+                override fun getPrivateKey(alias: String?): PrivateKey {
+                    return mutualCreds!!.second
+                }
+
+                override fun getCertificateChain(alias: String?): Array<X509Certificate> {
+                    return mutualCreds!!.third
+                }
+            })
+        } else {
+            null
+        }
+        val trustManager: Array<TrustManager> = if (verify) {
+            val trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+            trustManagerFactory.init(null as KeyStore?)
+            trustManagerFactory.trustManagers
+        } else {
+            hostnameVerifier { _, _ -> true }
+            arrayOf(@SuppressLint("CustomX509TrustManager")
+            object : X509TrustManager {
+                override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+                override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) = Unit
+                override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) = Unit
+            })
+        }
+        sslContext.init(keyManager, trustManager, SecureRandom())
+        sslSocketFactory(sslContext.socketFactory, trustManager.first() as X509TrustManager)
+        return this
     }
 
     private fun buildSerializer(): Serializer {

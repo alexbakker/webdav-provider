@@ -1,7 +1,9 @@
 package me.alexbakker.webdav.data
 
+import android.content.Context
 import android.net.Uri
 import android.provider.DocumentsContract
+import android.security.KeyChain
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
@@ -12,6 +14,8 @@ import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.security.PrivateKey
+import java.security.cert.X509Certificate
 
 @Entity(tableName = "account")
 data class Account(
@@ -36,12 +40,20 @@ data class Account(
     @ColumnInfo(name = "password")
     var password: String? = null,
 
+    @ColumnInfo(name = "client_cert")
+    var clientCert: String? = null,
+
     @ColumnInfo(name = "max_cache_file_size")
     var maxCacheFileSize: Long = 20
 ) {
     private val authentication: Boolean
         get() {
             return username != null && password != null
+        }
+
+    private val mutualAuth: Boolean
+        get() {
+            return !clientCert.isNullOrBlank()
         }
 
     val rootPath: Path
@@ -68,15 +80,29 @@ data class Account(
             return ensureTrailingSlash(url!!).toHttpUrl()
         }
 
-    val client: WebDavClient
-        get() {
-            if (_client == null) {
-                val creds = if (authentication) Pair(username!!, password!!) else null
-                _client = WebDavClient(baseUrl, creds, noHttp2 = protocol != Protocol.AUTO)
-            }
+    fun getClient(context: Context): WebDavClient {
+        _client?.let{ return it }
 
-            return _client!!
+        // TODO: Notify the user if the client certificate was removed without updating the WebDAV account
+        var mutualCreds: Triple<String, PrivateKey, Array<X509Certificate>>? = null
+        if (mutualAuth) {
+            val privateKey = KeyChain.getPrivateKey(context, clientCert!!)
+            val certChain = KeyChain.getCertificateChain(context, clientCert!!)
+            if (privateKey != null && certChain != null) {
+                mutualCreds = Triple(
+                    clientCert!!,
+                    privateKey,
+                    certChain
+                )
+            }
         }
+
+        val creds = if (authentication) Pair(username!!, password!!) else null
+        WebDavClient(baseUrl, creds, mutualCreds, verifyCerts, noHttp2 = protocol != Protocol.AUTO).let{
+            _client = it
+            return it
+        }
+    }
 
     fun resetState() {
         _client = null
