@@ -37,11 +37,11 @@ abstract class SimpleWebViewDialog protected constructor(@StringRes private val 
 
     protected val backgroundColor: String
         get() {
-            return colorToCSS(getThemeColor(R.attr.colorBackgroundFloating, requireContext().theme))
+            return colorToCSS(getThemeColor(com.google.android.material.R.attr.colorBackgroundFloating, requireContext().theme))
         }
 
     protected val textColor: String
-        get() = colorToCSS(0xFFFFFF and getThemeColor(R.attr.colorOnBackground, requireContext().theme))
+        get() = colorToCSS(0xFFFFFF and getThemeColor(com.google.android.material.R.attr.colorOnBackground, requireContext().theme))
 
     companion object {
         @SuppressLint("DefaultLocale")

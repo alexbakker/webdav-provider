@@ -3,17 +3,12 @@ package me.alexbakker.webdav.activities
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
-import com.mikepenz.aboutlibraries.Libs
-import com.mikepenz.aboutlibraries.LibsBuilder
-import com.mikepenz.aboutlibraries.LibsConfiguration
-import com.mikepenz.aboutlibraries.entity.Library
 import dagger.hilt.android.AndroidEntryPoint
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.databinding.ActivityMainBinding
@@ -31,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(findViewById(R.id.toolbar))
 
         binding.fab.setOnClickListener {
-            val action = MainFragmentDirections.actionMainFragmentToAccountFragment(-1, getString(R.string.add_account))
+            val action = MainFragmentDirections.actionMainFragmentToAccountFragment(getString(R.string.add_account), -1)
             navController.navigate(action)
         }
 
