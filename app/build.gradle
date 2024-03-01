@@ -113,7 +113,6 @@ android {
 
 dependencies {
     def roomVersion = "2.6.1"
-    def testVersion = '1.5.2'
     def espressoVersion = "3.5.1"
 
     implementation 'androidx.appcompat:appcompat:1.6.1'
@@ -138,9 +137,9 @@ dependencies {
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
 
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation "androidx.test:core:$testVersion"
-    androidTestImplementation "androidx.test:runner:$testVersion"
-    androidTestImplementation "androidx.test:rules:$testVersion"
+    androidTestImplementation "androidx.test:core:1.5.0"
+    androidTestImplementation "androidx.test:runner:1.5.2"
+    androidTestImplementation "androidx.test:rules:1.5.0"
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "androidx.test.espresso:espresso-intents:$espressoVersion"
