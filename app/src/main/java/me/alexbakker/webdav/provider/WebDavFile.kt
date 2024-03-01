@@ -2,18 +2,19 @@ package me.alexbakker.webdav.provider
 
 import android.webkit.MimeTypeMap
 import com.thegrizzlylabs.sardineandroid.model.Response
+import me.alexbakker.webdav.extensions.toDavPath
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
+import java.util.Date
+import java.util.Locale
 
 class WebDavFile(
     var path: Path,
-    var isDirectory: Boolean,
+    var isDirectory: Boolean = false,
     var contentType: String? = null,
     var isPending: Boolean = false
 ) {
@@ -36,6 +37,9 @@ class WebDavFile(
 
             return "/"
         }
+
+    val davPath: String
+        get() = path.toDavPath(isDirectory)
 
     val decodedName: String
         get() = URLDecoder.decode(name, StandardCharsets.UTF_8.name())

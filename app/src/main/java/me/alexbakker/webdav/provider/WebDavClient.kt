@@ -77,6 +77,15 @@ class WebDavClient(
     }
 
     suspend fun putFile(
+        file: WebDavFile,
+        inStream: InputStream,
+        contentType: String? = null,
+        contentLength: Long = -1L
+    ): Result<Unit> {
+        return putFile(file.davPath, inStream, contentType, contentLength)
+    }
+
+    suspend fun putFile(
         path: String,
         inStream: InputStream,
         contentType: String? = null,
@@ -90,6 +99,10 @@ class WebDavClient(
             )
             api.putFile(path, body)
         }
+    }
+
+    suspend fun delete(file: WebDavFile): Result<Unit> {
+        return delete(file.davPath)
     }
 
     suspend fun delete(path: String): Result<Unit> {
@@ -142,9 +155,9 @@ class WebDavClient(
         return Result(root)
     }
 
-    suspend fun move(path: Path, newPath: Path): Result<Unit> {
-        val dest = url.newBuilder().encodedPath(newPath.toString()).build()
-        return execRequest { api.move(path.toString(), dest.toString()) }
+    suspend fun move(path: String, newPath: String): Result<Unit> {
+        val dest = url.newBuilder().encodedPath(newPath).build()
+        return execRequest { api.move(path, dest.toString()) }
     }
 
     private suspend fun <T> execRequest(exec: suspend () -> Response<T>): Result<T> {

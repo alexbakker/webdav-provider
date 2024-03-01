@@ -9,6 +9,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import me.alexbakker.webdav.BuildConfig
+import me.alexbakker.webdav.extensions.ensureTrailingSlash
 import me.alexbakker.webdav.provider.WebDavClient
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -61,7 +62,7 @@ data class Account(
 
     val rootPath: Path
         get() {
-            val path = ensureTrailingSlash(baseUrl.encodedPath)
+            val path = baseUrl.encodedPath.ensureTrailingSlash()
             return Paths.get(path)
         }
 
@@ -80,7 +81,7 @@ data class Account(
 
     private val baseUrl: HttpUrl
         get() {
-            return ensureTrailingSlash(url!!).toHttpUrl()
+            return url!!.ensureTrailingSlash().toHttpUrl()
         }
 
     fun getClient(context: Context): WebDavClient {
@@ -109,14 +110,6 @@ data class Account(
 
     fun resetState() {
         _client = null
-    }
-
-    private fun ensureTrailingSlash(s: String): String {
-        return if (!s.endsWith("/")) {
-            "$s/"
-        } else {
-            s
-        }
     }
 
     enum class Protocol {
