@@ -14,7 +14,7 @@ jobs:
       - name: Build
         run: ./gradlew build
   test:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -23,16 +23,23 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'gradle'
-      - name: Start WebDAV server
+      - name: Start WebDAV servers
         run: |
-          ./scripts/run-webdav-server.sh &
-          sleep 5
-      - name: Test WebDAV Server
+          cd tests && docker compose up -d --wait
+      - name: Enable KVM group perms
         run: |
-          curl -u test:test -X PROPFIND http://localhost:8000
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
       - name: Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 29
+          api-level: 31
+          arch: x86_64
           profile: pixel_3a
+          heap-size: 512M
+          ram-size: 4096M
+          emulator-options: -memory 4096 -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          disk-size: 8G
           script: ./gradlew connectedCheck

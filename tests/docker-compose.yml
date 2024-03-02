@@ -1,0 +1,10 @@
+version: "3"
+services:
+  hacdias-webdav:
+    build: ./hacdias-webdav
+    ports:
+      - "8001:8000"
+    healthcheck:
+      test: "curl -v --fail-with-body -u test:test -X PROPFIND http://127.0.0.1:8000 || exit 1"
+      interval: 1s
+      timeout: 5s
