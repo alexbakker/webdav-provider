@@ -407,7 +407,13 @@ class WebDavProvider : DocumentsProvider() {
         cursor.newRow().apply {
             add(Root.COLUMN_ROOT_ID, account.id)
             add(Root.COLUMN_SUMMARY, account.name)
-            add(Root.COLUMN_FLAGS, Root.FLAG_SUPPORTS_CREATE or Root.FLAG_SUPPORTS_IS_CHILD)
+            // Some Android apps only support opening files from DocumentsProviders that claim
+            // to offer content that's local to the device (i.e. no network requests are made)
+            var flags = Root.FLAG_SUPPORTS_CREATE or Root.FLAG_SUPPORTS_IS_CHILD
+            if (account.actAsLocalStorage){
+                flags = flags or Root.FLAG_LOCAL_ONLY
+            }
+            add(Root.COLUMN_FLAGS, flags)
             add(Root.COLUMN_TITLE, "WebDAV")
             add(Root.COLUMN_DOCUMENT_ID, buildDocumentId(account, account.rootPath))
             add(Root.COLUMN_MIME_TYPES, null)
