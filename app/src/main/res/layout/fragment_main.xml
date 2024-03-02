@@ -9,7 +9,9 @@
     <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingHorizontal="8dp"
         android:scrollbars="vertical"
+        android:scrollbarStyle="outsideOverlay"
         android:id="@+id/rvAccounts"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

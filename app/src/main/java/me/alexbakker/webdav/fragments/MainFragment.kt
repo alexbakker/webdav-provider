@@ -1,6 +1,7 @@
 package me.alexbakker.webdav.fragments
 
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.view.LayoutInflater
@@ -14,7 +15,9 @@ import androidx.appcompat.view.ActionMode
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
+import me.alexbakker.webdav.helpers.MetricsHelper
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.adapters.AccountAdapter
 import me.alexbakker.webdav.data.Account
@@ -23,6 +26,7 @@ import me.alexbakker.webdav.databinding.FragmentMainBinding
 import me.alexbakker.webdav.dialogs.Dialogs
 import me.alexbakker.webdav.provider.WebDavProvider
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
@@ -47,6 +51,7 @@ class MainFragment : Fragment() {
         accountAdapter = AccountAdapter(accountDao.getAll(), Listener())
         binding.rvAccounts.layoutManager = LinearLayoutManager(context)
         binding.rvAccounts.adapter = accountAdapter
+        binding.rvAccounts.addItemDecoration(VerticalSpaceItemDecoration(8f))
 
         val navController = findNavController()
         navController.addOnDestinationChangedListener { _, _, _ ->
@@ -139,6 +144,20 @@ class MainFragment : Fragment() {
         override fun onDestroyActionMode(mode: ActionMode?) {
             actionMode = null
             accountAdapter.clearSelection()
+        }
+    }
+
+
+    private inner class VerticalSpaceItemDecoration(dp: Float) : RecyclerView.ItemDecoration() {
+        private val pixels: Int = MetricsHelper.convertDpToPixels(requireContext(), dp)
+
+        override fun getItemOffsets(
+            outRect: Rect,
+            view: View,
+            parent: RecyclerView,
+            state: RecyclerView.State
+        ) {
+            outRect.top = pixels
         }
     }
 }

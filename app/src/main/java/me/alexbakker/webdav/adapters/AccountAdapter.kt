@@ -3,7 +3,7 @@ package me.alexbakker.webdav.adapters
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import me.alexbakker.webdav.R
+import com.google.android.material.color.MaterialColors
 import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.byId
 import me.alexbakker.webdav.databinding.CardAccountBinding
@@ -80,10 +80,10 @@ class AccountAdapter(
         var selected: Boolean = false
             set(value) {
                 field = value
-                binding.cardAccount.setBackgroundResource(if (value) {
-                    R.color.select_background
+                binding.cardAccount.setCardBackgroundColor(if (value) {
+                    MaterialColors.getColor(itemView, com.google.android.material.R.attr.colorSurfaceContainerHighest)
                 } else {
-                    android.R.color.transparent
+                    MaterialColors.getColor(itemView, com.google.android.material.R.attr.colorSurfaceContainerLow)
                 })
             }
 

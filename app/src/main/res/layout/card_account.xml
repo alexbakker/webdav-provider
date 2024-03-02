@@ -6,38 +6,41 @@
         <import type="android.view.View"/>
         <variable name="account" type="me.alexbakker.webdav.data.Account" />
     </data>
-    <LinearLayout
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_account"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingVertical="10dp"
-        android:paddingHorizontal="17.5dp"
-        android:foreground="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true">
-        <TextView
-            android:layout_width="wrap_content"
+        app:cardCornerRadius="5dp"
+        style="@style/Widget.Material3.CardView.Outlined">
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{account.name}"
-            android:textStyle="bold"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:textSize="16sp" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="italic"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:text="@{@string/url + `: ` + account.url}" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="italic"
-            android:singleLine="true"
-            android:ellipsize="end"
-            android:visibility="@{account.username != null ? View.VISIBLE : View.GONE}"
-            android:text="@{@string/username + `: ` + account.username}" />
-    </LinearLayout>
+            android:paddingVertical="10dp"
+            android:paddingHorizontal="17.5dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{account.name}"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="italic"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:text="@{@string/url + `: ` + account.url}" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="italic"
+                android:singleLine="true"
+                android:ellipsize="end"
+                android:visibility="@{account.username != null ? View.VISIBLE : View.GONE}"
+                android:text="@{@string/username + `: ` + account.username}" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
 </layout>

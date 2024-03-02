@@ -9,13 +9,14 @@ import android.view.View
 import android.widget.TextView
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.data.Account
 
 class Dialogs {
     companion object {
         fun showRemoveAccountsDialog(context: Context, accounts: List<Account>, listener: DialogInterface.OnClickListener) {
-            AlertDialog.Builder(context)
+            MaterialAlertDialogBuilder(context)
                 .setTitle(context.resources.getQuantityString(R.plurals.dialog_title_delete_accounts, accounts.size))
                 .setMessage(context.resources.getQuantityString(R.plurals.dialog_message_delete_accounts, accounts.size, accounts.size))
                 .setPositiveButton(R.string.yes, listener)
@@ -51,7 +52,7 @@ class Dialogs {
             textDetails.text = error
             val textMessage = view.findViewById<TextView>(R.id.error_message)
             textMessage.setText(message)
-            val dialog = AlertDialog.Builder(context)
+            val dialog = MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.dialog_title_error)
                 .setView(view)
                 .setCancelable(false)

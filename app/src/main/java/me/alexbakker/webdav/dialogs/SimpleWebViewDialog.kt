@@ -7,11 +7,10 @@ import android.content.res.Resources.Theme
 import android.graphics.Color
 import android.os.Bundle
 import android.util.TypedValue
-import android.view.LayoutInflater
 import android.webkit.WebView
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import me.alexbakker.webdav.R
 import java.io.IOException
 import java.io.InputStreamReader
@@ -22,8 +21,8 @@ abstract class SimpleWebViewDialog protected constructor(@StringRes private val 
     protected abstract fun getContent(context: Context): String
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val view = LayoutInflater.from(requireActivity()).inflate(R.layout.dialog_web_view, null)
-        val dialog: AlertDialog = AlertDialog.Builder(requireActivity())
+        val view = layoutInflater.inflate(R.layout.dialog_web_view, null)
+        val dialog = MaterialAlertDialogBuilder(requireActivity())
             .setTitle(title)
             .setView(view)
             .setPositiveButton(R.string.ok, null)
@@ -37,11 +36,11 @@ abstract class SimpleWebViewDialog protected constructor(@StringRes private val 
 
     protected val backgroundColor: String
         get() {
-            return colorToCSS(getThemeColor(com.google.android.material.R.attr.colorBackgroundFloating, requireContext().theme))
+            return colorToCSS(getThemeColor(com.google.android.material.R.attr.colorSurfaceContainerHigh, requireContext().theme))
         }
 
     protected val textColor: String
-        get() = colorToCSS(0xFFFFFF and getThemeColor(com.google.android.material.R.attr.colorOnBackground, requireContext().theme))
+        get() = colorToCSS(0xFFFFFF and getThemeColor(com.google.android.material.R.attr.colorOnSurface, requireContext().theme))
 
     companion object {
         @SuppressLint("DefaultLocale")
