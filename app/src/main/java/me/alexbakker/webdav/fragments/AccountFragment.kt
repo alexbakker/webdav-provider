@@ -1,9 +1,11 @@
 package me.alexbakker.webdav.fragments
 
 import android.os.Bundle
+import android.security.KeyChain
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -61,6 +63,44 @@ class AccountFragment : Fragment() {
         val adapter = ArrayAdapter.createFromResource(requireContext(), R.array.protocol_options, R.layout.dropdown_list_item)
         binding.dropdownProtocol.setAdapter(adapter)
 
+        if (binding.account!!.clientCert.isNullOrBlank()) {
+            binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_add_black_24dp)
+        } else {
+            binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_delete)
+        }
+        binding.textLayoutCertificate.setEndIconOnClickListener {
+            if (binding.textCertificate.text.toString().isBlank()) {
+                if (validateForm(true)) {
+                    val url = binding.textUrl.text.toString().toHttpUrl()
+                    KeyChain.choosePrivateKeyAlias(
+                        requireActivity(), { alias ->
+                            requireActivity().runOnUiThread {
+                                if (alias != null) {
+                                    binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_delete)
+                                    binding.textCertificate.setText(alias)
+                                } else {
+                                    // TODO: there is probably a better way to only show the toast if no certificate(s) are installed
+                                    Toast.makeText(
+                                        requireActivity(),
+                                        getString(R.string.notice_no_client_certificate),
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            }
+                        },
+                        null,
+                        null,
+                        url.host,
+                        url.port,
+                        url.host
+                    )
+                }
+            } else {
+                binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_add_black_24dp)
+                binding.textLayoutCertificate.editText?.text?.clear()
+            }
+        }
+
         binding.sliderMaxCacheFileSize.apply {
             setLabelFormatter { getString(R.string.value_max_cache_file_size, it.toInt()) }
             addOnChangeListener(Slider.OnChangeListener { _, value, _ ->
@@ -92,11 +132,11 @@ class AccountFragment : Fragment() {
 
         when (item.itemId) {
             R.id.action_save -> {
-                if (validateForm()) {
+                if (validateForm(binding.textCertificate.text.toString().isNotBlank())) {
                     updateTestStatus(true)
                     val job = lifecycleScope.launch(Dispatchers.IO) {
                         account.resetState()
-                        val res = account.client.propFind(account.rootPath)
+                        val res = account.getClient(requireContext()).propFind(account.rootPath)
                         if (res.isSuccessful) {
                             webDavCache.clearFileMeta(account)
                             webDavCache.setFileMeta(account, res.body!!)
@@ -151,15 +191,23 @@ class AccountFragment : Fragment() {
         return true
     }
 
-    private fun validateForm(): Boolean {
+    private fun validateForm(clientCert: Boolean = false): Boolean {
         var res = true
         if (binding.textName.text.toString().isBlank()) {
             getInputLayout(binding.textName).error = getString(R.string.error_field_required)
             res = false
+        } else {
+            getInputLayout(binding.textName).error = null
         }
 
         try {
-            binding.textUrl.text.toString().toHttpUrl()
+            val url = binding.textUrl.text.toString().toHttpUrl()
+            if (clientCert && !url.isHttps) {
+                getInputLayout(binding.textUrl).error = getString(R.string.notice_http_client_certificate)
+                res = false
+            } else {
+                getInputLayout(binding.textUrl).error = null
+            }
         } catch (e: IllegalArgumentException) {
             getInputLayout(binding.textUrl).error = getString(R.string.error_invalid_url)
             res = false

@@ -18,6 +18,9 @@
     <string name="authentication">Authentication</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
+    <string name="client_certificate">Client certificate</string>
+    <string name="notice_no_client_certificate">No certificate selected or no certificate(s) installed, see: Settings > Security > Encryption &amp; credentials</string>
+    <string name="notice_http_client_certificate">Client certificate requires an HTTPS connection</string>
 
     <string name="add_account">Add account</string>
     <string name="edit_account">Edit account</string>
