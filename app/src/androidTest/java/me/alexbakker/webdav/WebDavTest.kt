@@ -60,6 +60,14 @@ class WebDavTest(private val testName: String, private val account: Account) {
                     username = "test",
                     password = "test"
                 )),
+                arrayOf("apache", Account(
+                    name = "Test",
+                    url = "http://${HOST}:8004",
+                )),
+                arrayOf("nginx", Account(
+                    name = "Test",
+                    url = "http://${HOST}:8002",
+                )),
             )
         }
     }
@@ -77,7 +85,7 @@ class WebDavTest(private val testName: String, private val account: Account) {
     private fun resetEnvironment() {
         val req = Request.Builder()
             .post(EMPTY_REQUEST)
-            .url("http://${HOST}:8000/reset/hacdias")
+            .url("http://${HOST}:8000/reset/${testName}")
             .build()
         val res = httpClient.newCall(req).execute()
         assertThat(res.code, equalTo(200))

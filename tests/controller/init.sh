@@ -2,6 +2,8 @@
 
 set -e
 
+umask 002
+
 populate_dir() {
     mkdir -p "$1"
     head -c 1000000 < /dev/urandom > "$1/1.bin"
@@ -10,6 +12,11 @@ populate_dir() {
 }
 
 WEBDAV_DIR="$1"
+if [ ! -d "${WEBDAV_DIR}"]; then
+    echo "No such directory: ${WEBDAV_DIR}"
+    exit 1
+fi
+
 find "${WEBDAV_DIR}" -mindepth 1 -delete
 
 populate_dir "${WEBDAV_DIR}"
