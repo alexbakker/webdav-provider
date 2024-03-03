@@ -11,6 +11,11 @@ import me.alexbakker.webdav.data.AccountDao
 import me.alexbakker.webdav.data.CacheDao
 import me.alexbakker.webdav.data.CacheEntry
 import me.alexbakker.webdav.provider.WebDavProvider
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.internal.EMPTY_REQUEST
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
@@ -41,6 +46,12 @@ class WebDavTest {
     private val dirNames = arrayOf("a")
     private val subDirNames = arrayOf("a", "b", "c")
 
+    private val httpClient = OkHttpClient()
+
+    companion object {
+        const val HOST = "10.0.2.2"
+    }
+
     @Before
     fun init() {
         hiltRule.inject()
@@ -48,11 +59,22 @@ class WebDavTest {
 
         account = Account(
             name = "Test",
-            url = "http://10.0.2.2:8001",
+            url = "http://${HOST}:8001",
             username = "test",
             password = "test"
         )
         account.id = accountDao.insert(account)
+
+        resetEnvironment()
+    }
+
+    private fun resetEnvironment() {
+        val req = Request.Builder()
+            .post(EMPTY_REQUEST)
+            .url("http://${HOST}:8000/reset/hacdias")
+            .build()
+        val res = httpClient.newCall(req).execute()
+        assertThat(res.code, equalTo(200))
     }
 
     @Test

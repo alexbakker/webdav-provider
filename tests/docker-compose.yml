@@ -1,14 +1,35 @@
 version: "3"
+volumes:
+  data:
+x-base: &base
+  volumes:
+    - type: volume
+      source: data
+      target: /dav
+      volume:
+        nocopy: true
 services:
-  hacdias-webdav:
-    build: ./hacdias-webdav
+  webdav-controller:
+    <<: *base
+    build: ./controller
+    ports:
+      - "8000:80"
+    healthcheck:
+      test: "curl -v -L --fail-with-body http://127.0.0.1/health"
+      interval: 1s
+      timeout: 5s
+      retries: 30
+  webdav-hacdias:
+    <<: *base
+    build: ./hacdias
     ports:
       - "8001:80"
     healthcheck:
       test: "curl -v --fail-with-body -u test:test -X PROPFIND http://127.0.0.1 || exit 1"
       interval: 1s
       timeout: 5s
-  nginx-webdav:
+  webdav-nginx:
+    <<: *base
     build: ./nginx
     ports:
       - "8002:80"
@@ -18,7 +39,8 @@ services:
       test: "curl -v --fail-with-body -X PROPFIND http://127.0.0.1 || exit 1"
       interval: 1s
       timeout: 5s
-  nextcloud-webdav:
+  webdav-nextcloud:
+    <<: *base
     build: ./nextcloud
     ports:
       - "8003:80"
@@ -30,7 +52,8 @@ services:
       interval: 1s
       timeout: 5s
       retries: 30
-  apache-webdav:
+  webdav-apache:
+    <<: *base
     build: ./apache
     ports:
       - "8004:80"

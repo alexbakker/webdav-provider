@@ -1,5 +1,4 @@
 FROM alpine:3
-WORKDIR /
 COPY ./run.sh /
 COPY ./config.yml /etc/webdav/config.yml
 RUN apk add curl
