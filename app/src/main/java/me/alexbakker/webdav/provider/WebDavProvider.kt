@@ -57,6 +57,9 @@ class WebDavProvider : DocumentsProvider() {
     private val cache: WebDavCache
         get() { return entryPoint.provideWebDavCache() }
 
+    private val clients: WebDavClientManager
+        get() { return entryPoint.provideWebDavClientManager() }
+
     private val entryPoint: WebDavEntryPoint
         get() { return EntryPoints.get(mustGetContext(), WebDavEntryPoint::class.java) }
 
@@ -112,7 +115,7 @@ class WebDavProvider : DocumentsProvider() {
 
         val (account, parentPath) = lookupDocumentId(parentDocumentId)
         val res = runBlocking(Dispatchers.IO) {
-            account.getClient(mustGetContext()).propFind(parentPath)
+            clients.get(account).propFind(parentPath)
         }
         if (res.isSuccessful) {
             val parentFile = res.body!!
@@ -159,14 +162,14 @@ class WebDavProvider : DocumentsProvider() {
                             ParcelFileDescriptor.open(cacheFile.toFile(), accessMode)
                         }
                         WebDavCache.Result.Status.PENDING -> {
-                            val callback = WebDavReadProxyCallback(mustGetContext(), account, file)
+                            val callback = WebDavReadProxyCallback(clients.get(account), file)
                             storageManager.openProxyFileDescriptor(accessMode, callback, getHandler())
                         }
                         WebDavCache.Result.Status.MISS -> {
                             val cacheWriter = if (isFileCacheable(account, file)) {
                                 cache.startPut(account, file)
                             } else null
-                            val callback = WebDavReadProxyCallback(mustGetContext(), account, file, cacheWriter)
+                            val callback = WebDavReadProxyCallback(clients.get(account), file, cacheWriter)
                             storageManager.openProxyFileDescriptor(accessMode, callback, getHandler())
                         }
                     }
@@ -178,7 +181,7 @@ class WebDavProvider : DocumentsProvider() {
                 val inStream = ParcelFileDescriptor.AutoCloseInputStream(inDesc)
                 val job = GlobalScope.launch(Dispatchers.IO) {
                     val res = inStream.use {
-                        account.getClient(mustGetContext()).putFile(
+                        clients.get(account).putFile(
                             file,
                             inStream,
                             contentType = file.contentType,
@@ -187,7 +190,7 @@ class WebDavProvider : DocumentsProvider() {
                     }
 
                     if (res.isSuccessful) {
-                        val propRes = account.getClient(mustGetContext()).propFindFile(file.path)
+                        val propRes = clients.get(account).propFindFile(file.path)
                         if (propRes.isSuccessful) {
                             val parent = file.parent!!
                             parent.children.remove(file)
@@ -235,7 +238,7 @@ class WebDavProvider : DocumentsProvider() {
         var resDocumentId: String? = null
         if (isDirectory) {
             val res = runBlocking(Dispatchers.IO) {
-                account.getClient(mustGetContext()).putDir(path.toDavPath(true))
+                clients.get(account).putDir(path.toDavPath(true))
             }
             if (res.isSuccessful) {
                 val file = WebDavFile(path, true, contentType = mimeType)
@@ -268,7 +271,7 @@ class WebDavProvider : DocumentsProvider() {
         }
 
         val res = runBlocking(Dispatchers.IO) {
-            account.getClient(mustGetContext()).delete(file)
+            clients.get(account).delete(file)
         }
         Log.d(TAG, "deleteDocument(documentId=$documentId): success=${res.isSuccessful}, message=${res.error?.message}")
 
@@ -298,7 +301,7 @@ class WebDavProvider : DocumentsProvider() {
         val newPath = oldPath.parent.resolve(encodedName)
 
         val res = runBlocking(Dispatchers.IO) {
-            account.getClient(mustGetContext()).move(file.davPath, newPath.toDavPath(file.isDirectory))
+            clients.get(account).move(file.davPath, newPath.toDavPath(file.isDirectory))
         }
         if (res.isSuccessful) {
             file.path = newPath
@@ -339,7 +342,7 @@ class WebDavProvider : DocumentsProvider() {
         val isRoot = doc.account.rootPath == doc.path
         val res = runBlocking(Dispatchers.IO) {
             val path = if (isRoot) doc.path else doc.path.parent
-            doc.account.getClient(mustGetContext()).propFind(path)
+            clients.get(doc.account).propFind(path)
         }
         if (res.isSuccessful) {
             val resFile = res.body!!
@@ -518,6 +521,7 @@ class WebDavProvider : DocumentsProvider() {
     interface WebDavEntryPoint {
         fun provideAccountDao(): AccountDao
         fun provideWebDavCache(): WebDavCache
+        fun provideWebDavClientManager(): WebDavClientManager
     }
 
     class WebDavFileReadCallbackLooper {

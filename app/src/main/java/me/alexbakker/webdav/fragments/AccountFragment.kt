@@ -32,6 +32,7 @@ import me.alexbakker.webdav.data.AccountDao
 import me.alexbakker.webdav.databinding.FragmentAccountBinding
 import me.alexbakker.webdav.dialogs.Dialogs
 import me.alexbakker.webdav.provider.WebDavCache
+import me.alexbakker.webdav.provider.WebDavClientManager
 import me.alexbakker.webdav.provider.WebDavProvider
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import javax.inject.Inject
@@ -43,6 +44,9 @@ class AccountFragment : Fragment() {
 
     @Inject
     lateinit var webDavCache: WebDavCache
+
+    @Inject
+    lateinit var clients: WebDavClientManager
 
     private lateinit var menu: Menu
 
@@ -135,8 +139,8 @@ class AccountFragment : Fragment() {
                 if (validateForm(binding.textCertificate.text.toString().isNotBlank())) {
                     updateTestStatus(true)
                     val job = lifecycleScope.launch(Dispatchers.IO) {
-                        account.resetState()
-                        val res = account.getClient(requireContext()).propFind(account.rootPath)
+                        clients.delete(account)
+                        val res = clients.get(account).propFind(account.rootPath)
                         if (res.isSuccessful) {
                             webDavCache.clearFileMeta(account)
                             webDavCache.setFileMeta(account, res.body!!)

@@ -1,6 +1,8 @@
 package me.alexbakker.webdav.provider
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.security.KeyChain
 import com.thegrizzlylabs.sardineandroid.model.Prop
 import com.thegrizzlylabs.sardineandroid.model.Property
 import com.thegrizzlylabs.sardineandroid.model.Resourcetype
@@ -35,15 +37,15 @@ import javax.net.ssl.TrustManagerFactory
 import javax.net.ssl.X509KeyManager
 import javax.net.ssl.X509TrustManager
 
-
 class WebDavClient(
+    context: Context,
     private val url: HttpUrl,
     private val creds: Pair<String, String>? = null,
-    private val mutualCreds: Triple<String, PrivateKey, Array<X509Certificate>>? = null,
+    private val clientCert: String? = null,
     private val verify: Boolean = true,
     private val noHttp2: Boolean = false
 ) {
-    private val api: WebDavService = buildApiService(url, creds)
+    private val api: WebDavService = buildApiService(context, url, creds)
 
     data class Result<T>(
         val body: T? = null,
@@ -213,10 +215,10 @@ class WebDavClient(
         }
     }
 
-    private fun buildApiService(url: HttpUrl, creds: Pair<String, String>?): WebDavService {
+    private fun buildApiService(context: Context, url: HttpUrl, creds: Pair<String, String>?): WebDavService {
         val builder = OkHttpClient.Builder().apply {
-            if (mutualCreds != null || !verify) {
-                useCustomTLS(mutualCreds != null, verify)
+            if (clientCert != null || !verify) {
+                useCustomTLS(context, clientCert, verify)
             }
         }
         if (noHttp2) {
@@ -242,48 +244,55 @@ class WebDavClient(
             .create(WebDavService::class.java)
     }
 
-    private fun OkHttpClient.Builder.useCustomTLS(mutual: Boolean, verify: Boolean): OkHttpClient.Builder {
+    private fun OkHttpClient.Builder.useCustomTLS(context: Context, clientCert: String?, verify: Boolean): OkHttpClient.Builder {
         val sslContext = SSLContext.getInstance("TLS")
-        val keyManager = if (mutual) {
-            arrayOf<KeyManager>(object : X509KeyManager {
-                override fun getClientAliases(
-                    keyType: String?,
-                    issuers: Array<Principal>
-                ): Array<String> {
-                    return arrayOf(mutualCreds!!.first)
-                }
+        val keyManager = if (!clientCert.isNullOrBlank()) {
+            // TODO: Notify the user if the client certificate was removed without updating the WebDAV account
+            val privateKey = KeyChain.getPrivateKey(context, clientCert)
+            val certChain = KeyChain.getCertificateChain(context, clientCert)
+            if (privateKey != null && certChain != null) {
+                arrayOf<KeyManager>(object : X509KeyManager {
+                    override fun getClientAliases(
+                        keyType: String?,
+                        issuers: Array<Principal>
+                    ): Array<String> {
+                        return arrayOf(clientCert)
+                    }
 
-                override fun chooseClientAlias(
-                    keyType: Array<out String>?,
-                    issuers: Array<out Principal>?,
-                    socket: Socket?
-                ): String {
-                    return mutualCreds!!.first
-                }
+                    override fun chooseClientAlias(
+                        keyType: Array<out String>?,
+                        issuers: Array<out Principal>?,
+                        socket: Socket?
+                    ): String {
+                        return clientCert
+                    }
 
-                override fun getServerAliases(
-                    keyType: String?,
-                    issuers: Array<Principal>
-                ): Array<String> {
-                    return arrayOf()
-                }
+                    override fun getServerAliases(
+                        keyType: String?,
+                        issuers: Array<Principal>
+                    ): Array<String> {
+                        return arrayOf()
+                    }
 
-                override fun chooseServerAlias(
-                    keyType: String?,
-                    issuers: Array<Principal>,
-                    socket: Socket
-                ): String {
-                    return ""
-                }
+                    override fun chooseServerAlias(
+                        keyType: String?,
+                        issuers: Array<Principal>,
+                        socket: Socket
+                    ): String {
+                        return ""
+                    }
 
-                override fun getPrivateKey(alias: String?): PrivateKey {
-                    return mutualCreds!!.second
-                }
+                    override fun getPrivateKey(alias: String?): PrivateKey {
+                        return privateKey
+                    }
 
-                override fun getCertificateChain(alias: String?): Array<X509Certificate> {
-                    return mutualCreds!!.third
-                }
-            })
+                    override fun getCertificateChain(alias: String?): Array<X509Certificate> {
+                        return certChain
+                    }
+                })
+            } else {
+                null
+            }
         } else {
             null
         }

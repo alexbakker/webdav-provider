@@ -1,24 +1,20 @@
 package me.alexbakker.webdav.provider
 
-import android.content.Context
 import android.os.ProxyFileDescriptorCallback
 import android.system.ErrnoException
 import android.system.OsConstants
 import android.util.Log
 import kotlinx.coroutines.runBlocking
-import me.alexbakker.webdav.data.Account
 import java.io.InputStream
 import java.util.*
 
 class WebDavReadProxyCallback(
-    context: Context,
-    account: Account,
+    private val client: WebDavClient,
     private val file: WebDavFile,
     private val cacheWriter: WebDavCache.Writer? = null
 ) : ProxyFileDescriptorCallback() {
     private var nextOffset = 0L
     private var inStream: InputStream? = null
-    private val client: WebDavClient = account.getClient(context)
     private val contentLength: Long = file.contentLength!!.toLong()
 
     private val uuid = UUID.randomUUID()
