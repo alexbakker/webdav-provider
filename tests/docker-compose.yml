@@ -3,9 +3,9 @@ services:
   hacdias-webdav:
     build: ./hacdias-webdav
     ports:
-      - "8001:8000"
+      - "8001:80"
     healthcheck:
-      test: "curl -v --fail-with-body -u test:test -X PROPFIND http://127.0.0.1:8000 || exit 1"
+      test: "curl -v --fail-with-body -u test:test -X PROPFIND http://127.0.0.1 || exit 1"
       interval: 1s
       timeout: 5s
   nginx-webdav:
@@ -29,4 +29,12 @@ services:
       test: "curl -v -L --fail-with-body -u admin:admin -X PROPFIND http://127.0.0.1/remote.php/dav/files/admin"
       interval: 1s
       timeout: 5s
-      retries: 10
+      retries: 30
+  apache-webdav:
+    build: ./apache
+    ports:
+      - "8004:80"
+    healthcheck:
+      test: "curl -v --fail-with-body -X PROPFIND -H 'Depth: 1' http://127.0.0.1 || exit 1"
+      interval: 1s
+      timeout: 5s
