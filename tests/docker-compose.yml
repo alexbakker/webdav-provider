@@ -21,7 +21,7 @@ services:
       retries: 30
   webdav-hacdias:
     <<: *base
-    build: ./hacdias
+    build: ./servers/hacdias
     ports:
       - "8001:80"
     healthcheck:
@@ -30,7 +30,7 @@ services:
       timeout: 5s
   webdav-nginx:
     <<: *base
-    build: ./nginx
+    build: ./servers/nginx
     ports:
       - "8002:80"
     environment:
@@ -41,7 +41,7 @@ services:
       timeout: 5s
   webdav-nextcloud:
     <<: *base
-    build: ./nextcloud
+    build: ./servers/nextcloud
     ports:
       - "8003:80"
     environment:
@@ -54,7 +54,7 @@ services:
       retries: 30
   webdav-apache:
     <<: *base
-    build: ./apache
+    build: ./servers/apache
     ports:
       - "8004:80"
     healthcheck:
