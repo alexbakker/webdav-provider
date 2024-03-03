@@ -2,7 +2,6 @@ package me.alexbakker.webdav
 
 import android.content.Context
 import androidx.documentfile.provider.DocumentFile
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -21,15 +20,16 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.security.SecureRandom
 import java.util.*
 import javax.inject.Inject
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @HiltAndroidTest
-class WebDavTest {
+class WebDavTest(private val testName: String, private val account: Account) {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
@@ -39,7 +39,6 @@ class WebDavTest {
     @Inject
     lateinit var cacheDao: CacheDao
 
-    private lateinit var account: Account
     private lateinit var context: Context
 
     private val fileNames = arrayOf("1.bin", "2.bin", "3.bin")
@@ -50,6 +49,19 @@ class WebDavTest {
 
     companion object {
         const val HOST = "10.0.2.2"
+
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun params(): Collection<Array<Any>> {
+            return listOf(
+                arrayOf("hacdias", Account(
+                    name = "Test",
+                    url = "http://${HOST}:8001",
+                    username = "test",
+                    password = "test"
+                )),
+            )
+        }
     }
 
     @Before
@@ -57,12 +69,6 @@ class WebDavTest {
         hiltRule.inject()
         context = InstrumentationRegistry.getInstrumentation().targetContext
 
-        account = Account(
-            name = "Test",
-            url = "http://${HOST}:8001",
-            username = "test",
-            password = "test"
-        )
         account.id = accountDao.insert(account)
 
         resetEnvironment()
