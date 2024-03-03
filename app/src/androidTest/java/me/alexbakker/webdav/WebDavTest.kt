@@ -22,7 +22,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.security.SecureRandom
 import java.util.*
 import javax.inject.Inject
@@ -60,13 +59,19 @@ class WebDavTest(private val testName: String, private val account: Account) {
                     username = "test",
                     password = "test"
                 )),
-                arrayOf("apache", Account(
-                    name = "Test",
-                    url = "http://${HOST}:8004",
-                )),
                 arrayOf("nginx", Account(
                     name = "Test",
-                    url = "http://${HOST}:8002",
+                    url = "http://${HOST}:8002"
+                )),
+                arrayOf("nextcloud", Account(
+                    name = "Test",
+                    url = "http://${HOST}:8003/remote.php/dav/files/test",
+                    username = "test",
+                    password = "ilovepasswordstrengthchecks"
+                )),
+                arrayOf("apache", Account(
+                    name = "Test",
+                    url = "http://${HOST}:8004"
                 )),
             )
         }
@@ -109,7 +114,7 @@ class WebDavTest(private val testName: String, private val account: Account) {
 
     @Test
     fun deleteFile() {
-        val path = Paths.get("/${dirNames[0]}/${fileNames[0]}")
+        val path = getPath("${dirNames[0]}/${fileNames[0]}")
         val file = getFile(path)
         Assert.assertTrue("Unable to delete file: ${file.uri}", file.delete())
         Assert.assertFalse("Deleted file still exists: ${file.uri}", file.exists())
@@ -117,7 +122,7 @@ class WebDavTest(private val testName: String, private val account: Account) {
 
     @Test
     fun deleteDirectory() {
-        val path = Paths.get("/${dirNames[0]}/${subDirNames[1]}")
+        val path = getPath("${dirNames[0]}/${subDirNames[1]}")
         val dir = getTreeFile(path)
         Assert.assertTrue("Unable to delete directory: ${dir.uri}", dir.delete())
         Assert.assertFalse("Deleted directory still exists: ${dir.uri}", dir.exists())
@@ -130,26 +135,26 @@ class WebDavTest(private val testName: String, private val account: Account) {
 
     @Test
     fun listChildDirectoryContents() {
-        val path = Paths.get("/${dirNames[0]}/${subDirNames[0]}")
+        val path = getPath("${dirNames[0]}/${subDirNames[0]}")
         listDirectoryContents(getTreeFile(path), checkDirs = false)
     }
 
     @Test
     fun readRootFileAndVerifyCache() {
-        val path = Paths.get("/${fileNames[0]}")
+        val path = getPath("${fileNames[0]}")
         readFileAndVerifyCache(path)
     }
 
     @Test
     fun readChildFileAndVerifyCache() {
-        val path = Paths.get("/${dirNames[0]}/${subDirNames[0]}/${fileNames[0]}")
+        val path = getPath("${dirNames[0]}/${subDirNames[0]}/${fileNames[0]}")
         readFileAndVerifyCache(path)
     }
 
     @Test
     fun renameFile() {
         val newName = "4.bin"
-        val path = Paths.get("/${dirNames[0]}/${subDirNames[2]}/${fileNames[0]}")
+        val path = getPath("${dirNames[0]}/${subDirNames[2]}/${fileNames[0]}")
 
         val file = getTreeFile(path)
         Assert.assertTrue("Unable to rename file: ${file.uri}", file.renameTo(newName))
@@ -230,6 +235,10 @@ class WebDavTest(private val testName: String, private val account: Account) {
     private fun getFile(path: Path): DocumentFile {
         val uri = WebDavProvider.buildDocumentUri(account, path)
         return DocumentFile.fromSingleUri(context, uri)!!
+    }
+
+    private fun getPath(sub: String): Path {
+        return account.rootPath.resolve(sub)
     }
 
     private fun assertCacheEntryStatus(account: Account, path: Path, status: CacheEntry.Status) {
