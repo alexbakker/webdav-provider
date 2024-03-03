@@ -8,3 +8,13 @@ services:
       test: "curl -v --fail-with-body -u test:test -X PROPFIND http://127.0.0.1:8000 || exit 1"
       interval: 1s
       timeout: 5s
+  nginx-webdav:
+    build: ./nginx
+    ports:
+      - "8002:80"
+    environment:
+      - NGINX_PORT=80
+    healthcheck:
+      test: "curl -v --fail-with-body -X PROPFIND http://127.0.0.1 || exit 1"
+      interval: 1s
+      timeout: 5s
