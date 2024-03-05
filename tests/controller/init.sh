@@ -12,7 +12,7 @@ populate_dir() {
 }
 
 WEBDAV_DIR="$1"
-if [ ! -d "${WEBDAV_DIR}"]; then
+if [ ! -d "${WEBDAV_DIR}" ]; then
     echo "No such directory: ${WEBDAV_DIR}"
     exit 1
 fi
