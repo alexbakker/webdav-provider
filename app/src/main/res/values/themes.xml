@@ -57,9 +57,15 @@
         <item name="android:windowLightNavigationBar">?attr/isLightTheme</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+        <item name="actionModeTheme">@style/ThemeOverlay.WebDAVProvider.ActionMode</item>
     </style>
 
     <style name="Widget.WebDAVProvider.AccountCardView" parent="Widget.Material3.CardView.Outlined">
         <item name="cardBackgroundColor">?attr/colorSurfaceContainer</item>
+    </style>
+
+    <style name="ThemeOverlay.WebDAVProvider.ActionMode" parent="">
+        <!-- Magically give the action mode icons the right color -->
+        <item name="actionButtonStyle">@style/Widget.AppCompat.ActionButton</item>
     </style>
 </resources>
