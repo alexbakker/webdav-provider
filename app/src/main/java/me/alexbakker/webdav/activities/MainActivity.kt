@@ -5,25 +5,34 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View.GONE
 import android.view.View.VISIBLE
+import android.view.ViewGroup
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.view.ActionMode
+import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
+import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.databinding.ActivityMainBinding
 import me.alexbakker.webdav.fragments.MainFragmentDirections
+import java.lang.reflect.Field
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
+    private lateinit var statusGuardHack: ActionModeStatusGuardHack
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(findViewById(R.id.toolbar))
+        statusGuardHack = ActionModeStatusGuardHack()
 
         binding.fab.setOnClickListener {
             val action = MainFragmentDirections.actionMainFragmentToAccountFragment(getString(R.string.add_account), -1)
@@ -55,6 +64,76 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onSupportActionModeStarted(mode: ActionMode) {
+        super.onSupportActionModeStarted(mode)
+        statusGuardHack.apply(VISIBLE)
+    }
+
+    override fun onSupportActionModeFinished(mode: ActionMode) {
+        super.onSupportActionModeFinished(mode)
+        statusGuardHack.apply(GONE)
+    }
+
+    /**
+     * When starting/finishing an action mode, forcefully cancel the fade in/out animation and
+     * set the status bar color. This requires the abc_decor_view_status_guard colors to be set
+     * to transparent.
+     *
+     * This should fix any inconsistencies between the color of the action bar and the status bar
+     * when an action mode is active.
+     */
+    private inner class ActionModeStatusGuardHack {
+        private var fadeAnimField: Field? = null
+        private var actionModeViewField: Field? = null
+
+        @ColorInt
+        private val statusBarColor: Int = window.statusBarColor
+
+        init {
+            try {
+                fadeAnimField = delegate.javaClass.getDeclaredField("mFadeAnim").apply {
+                    isAccessible = true
+                }
+                actionModeViewField = delegate.javaClass.getDeclaredField("mActionModeView").apply {
+                    isAccessible = true
+                }
+            } catch (ignored: NoSuchFieldException) {
+            }
+        }
+
+        public fun apply(visibility: Int) {
+            if (fadeAnimField == null || actionModeViewField == null) {
+                return
+            }
+
+            val fadeAnim: ViewPropertyAnimatorCompat?
+            val actionModeView: ViewGroup?
+            try {
+                fadeAnim = fadeAnimField?.get(getDelegate()) as ViewPropertyAnimatorCompat?
+                actionModeView = actionModeViewField?.get(getDelegate()) as ViewGroup?
+            } catch (e: IllegalAccessException) {
+                return
+            }
+
+            if (fadeAnim == null || actionModeView == null) {
+                return
+            }
+
+            fadeAnim.cancel()
+            actionModeView.visibility = visibility
+            actionModeView.setAlpha(if (visibility == VISIBLE) 1f else 0f)
+
+            window.statusBarColor = if (visibility == VISIBLE) {
+                MaterialColors.getColor(
+                    actionModeView,
+                    com.google.android.material.R.attr.colorSurfaceContainer
+                )
+            } else {
+                statusBarColor
+            }
         }
     }
 }

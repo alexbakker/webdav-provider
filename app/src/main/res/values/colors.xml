@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <color name="md_theme_light_primary">#29638A</color>
     <color name="md_theme_light_surfaceTint">#29638A</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>
@@ -98,4 +98,8 @@
     <color name="md_theme_dark_surfaceContainer">#1C2024</color>
     <color name="md_theme_dark_surfaceContainerHigh">#262A2E</color>
     <color name="md_theme_dark_surfaceContainerHighest">#313539</color>
+    <!-- Hacks to force the status bar to the correct color during action mode.
+     These colors are used by AppCompatDelegateImpl.updateStatusGuardColor -->
+    <color name="abc_decor_view_status_guard_light" tools:override="true">@android:color/transparent</color>
+    <color name="abc_decor_view_status_guard" tools:override="true">@android:color/transparent</color>
 </resources>
