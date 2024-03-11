@@ -54,4 +54,8 @@
     </style>
 
     <style name="Theme.WebDAVProvider" parent="Base.Theme.WebDAVProvider" />
+
+    <style name="Widget.WebDAVProvider.AccountCardView" parent="Widget.Material3.CardView.Outlined">
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainer</item>
+    </style>
 </resources>
