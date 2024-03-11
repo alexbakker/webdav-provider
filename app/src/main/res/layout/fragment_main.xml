@@ -37,7 +37,7 @@
                 android:id="@+id/imageView"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:src="@drawable/ic_account_box_black_24dp" />
+                android:src="@drawable/ic_outline_account_box_24" />
 
             <TextView
                 android:id="@+id/textView"

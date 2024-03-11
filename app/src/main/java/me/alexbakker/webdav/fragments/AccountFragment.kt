@@ -68,9 +68,9 @@ class AccountFragment : Fragment() {
         binding.dropdownProtocol.setAdapter(adapter)
 
         if (binding.account!!.clientCert.isNullOrBlank()) {
-            binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_add_black_24dp)
+            binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_outline_add_24)
         } else {
-            binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_delete)
+            binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_outline_delete_24)
         }
         binding.textLayoutCertificate.setEndIconOnClickListener {
             if (binding.textCertificate.text.toString().isBlank()) {
@@ -80,7 +80,7 @@ class AccountFragment : Fragment() {
                         requireActivity(), { alias ->
                             requireActivity().runOnUiThread {
                                 if (alias != null) {
-                                    binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_delete)
+                                    binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_outline_delete_24)
                                     binding.textCertificate.setText(alias)
                                 } else {
                                     // TODO: there is probably a better way to only show the toast if no certificate(s) are installed
@@ -100,7 +100,7 @@ class AccountFragment : Fragment() {
                     )
                 }
             } else {
-                binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_add_black_24dp)
+                binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_outline_add_24)
                 binding.textLayoutCertificate.editText?.text?.clear()
             }
         }
