@@ -74,8 +74,8 @@ Licenced under GPLv3
                             android:focusable="true">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:importantForAccessibility="no"
                                 android:src="@drawable/ic_info" />
 
@@ -117,8 +117,8 @@ Licenced under GPLv3
                             android:focusable="true">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:src="@drawable/ic_history"
                                 android:importantForAccessibility="no" />
 
@@ -157,10 +157,10 @@ Licenced under GPLv3
                             android:focusable="true">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
-                                android:src="@drawable/ic_github"
-                                android:importantForAccessibility="no" />
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:importantForAccessibility="no"
+                                android:src="@drawable/ic_github" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
@@ -197,8 +197,8 @@ Licenced under GPLv3
                             android:focusable="true">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:src="@drawable/ic_description"
                                 android:importantForAccessibility="no" />
 
@@ -238,8 +238,8 @@ Licenced under GPLv3
                             android:focusable="true">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:src="@drawable/ic_description"
                                 android:importantForAccessibility="no" />
 
@@ -307,8 +307,8 @@ Licenced under GPLv3
                             android:focusable="true">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:src="@drawable/ic_person"
                                 android:importantForAccessibility="no" />
 
@@ -349,8 +349,8 @@ Licenced under GPLv3
                             android:focusable="true">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:src="@drawable/ic_mail"
                                 android:importantForAccessibility="no" />
 
@@ -406,8 +406,8 @@ Licenced under GPLv3
                             android:focusable="true">
 
                             <ImageView
-                                android:layout_width="20dp"
-                                android:layout_height="20dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:src="@drawable/ic_star"
                                 android:importantForAccessibility="no" />
 
