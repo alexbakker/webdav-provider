@@ -16,7 +16,9 @@
     <string name="protocol">Protocol</string>
     <string name="verify_certs">Verify certificates</string>
     <string name="act_as_local_storage">Act as Local Storage</string>
-    <string name="authentication">Authentication</string>
+    <string name="section_authentication">Authentication</string>
+    <string name="section_connection_info">Connection info</string>
+    <string name="section_advanced">Advanced</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="client_certificate">Client certificate</string>

@@ -26,15 +26,26 @@
             android:layout_marginTop="10dp"
             android:paddingHorizontal="17.5dp">
 
+            <TextView
+                android:id="@+id/tvConnInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/section_connection_info"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/text_layout_name"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/name"
+                android:layout_marginTop="10dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@+id/tvConnInfo">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/text_name"
@@ -68,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:checked="@={account.verifyCerts}"
                 android:text="@string/verify_certs"
-                app:layout_constraintBottom_toTopOf="@+id/text_layout_username"
+                app:layout_constraintBottom_toTopOf="@+id/tvAuth"
                 app:layout_constraintEnd_toStartOf="@+id/layout_dropdown_protocol"
                 app:layout_constraintHorizontal_chainStyle="spread"
                 app:layout_constraintStart_toStartOf="parent"
@@ -92,15 +103,27 @@
                     android:text="@={account.protocol}" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <TextView
+                android:id="@+id/tvAuth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/section_authentication"
+                android:layout_marginTop="10dp"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/layout_dropdown_protocol" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/text_layout_username"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:hint="@string/username"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/layout_dropdown_protocol">
+                app:layout_constraintTop_toBottomOf="@+id/tvAuth">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/text_username"
@@ -151,6 +174,28 @@
                     android:text="@={account.clientCert}" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <TextView
+                android:id="@+id/tvAdvanced"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/section_advanced"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:layout_marginTop="20dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/text_layout_certificate" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/checkbox_act_as_local_storage"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:checked="@={account.actAsLocalStorage}"
+                android:text="@string/act_as_local_storage"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_chainStyle="spread"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvAdvanced" />
 
             <TextView
                 android:id="@+id/label_cache_file_size"
@@ -159,7 +204,7 @@
                 android:text="@string/label_max_cache_file_size"
                 android:layout_marginTop="15dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/text_layout_certificate" />
+                app:layout_constraintTop_toBottomOf="@+id/checkbox_act_as_local_storage" />
             <TextView
                 android:id="@+id/value_cache_file_size"
                 android:layout_width="wrap_content"
@@ -167,7 +212,7 @@
                 android:layout_marginTop="15dp"
                 android:text="@{@string/value_max_cache_file_size(account.maxCacheFileSize)}"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/text_layout_certificate" />
+                app:layout_constraintTop_toBottomOf="@+id/checkbox_act_as_local_storage" />
             <com.google.android.material.slider.Slider
                 android:id="@+id/slider_max_cache_file_size"
                 android:layout_width="match_parent"
@@ -179,17 +224,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/label_cache_file_size"
                 tools:ignore="SpeakableTextPresentCheck" />
-
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/checkbox_act_as_local_storage"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:checked="@={account.actAsLocalStorage}"
-                android:text="@string/act_as_local_storage"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_chainStyle="spread"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/slider_max_cache_file_size" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
