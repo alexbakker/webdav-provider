@@ -20,7 +20,6 @@ import me.alexbakker.webdav.databinding.ActivityMainBinding
 import me.alexbakker.webdav.fragments.MainFragmentDirections
 import java.lang.reflect.Field
 
-
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding

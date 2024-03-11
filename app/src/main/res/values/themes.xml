@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <style name="Base.Theme.WebDAVProvider" parent="Theme.Material3.DayNight">
         <!-- Material colors -->
         <item name="colorPrimary">@color/md_theme_light_primary</item>
@@ -47,13 +47,17 @@
         <item name="colorSurfaceContainerLowest">@color/md_theme_light_surfaceContainerLowest</item>
         <item name="colorSurfaceDim">@color/md_theme_light_surfaceDim</item>
         <item name="colorSurfaceBright">@color/md_theme_light_surfaceBright</item>
-        <!-- Settings -->
+    </style>
+
+    <style name="Theme.WebDAVProvider" parent="Base.Theme.WebDAVProvider">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="windowActionModeOverlay">true</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar">?attr/isLightTheme</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
     </style>
-
-    <style name="Theme.WebDAVProvider" parent="Base.Theme.WebDAVProvider" />
 
     <style name="Widget.WebDAVProvider.AccountCardView" parent="Widget.Material3.CardView.Outlined">
         <item name="cardBackgroundColor">?attr/colorSurfaceContainer</item>

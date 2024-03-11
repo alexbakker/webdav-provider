@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <style name="Base.Theme.WebDAVProvider" parent="Theme.Material3.DayNight">
         <!-- Material colors -->
         <item name="colorPrimary">@color/md_theme_dark_primary</item>
