@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -ex
+
 DATA_DIR="/dav/nextcloud"
 mkdir -p "${DATA_DIR}"
 chown -R www-data:www-data "${DATA_DIR}"

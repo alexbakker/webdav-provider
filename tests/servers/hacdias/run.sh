@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -ex
+
 DATA_DIR="/dav/hacdias"
 mkdir -p "${DATA_DIR}"
 ln -s "${DATA_DIR}" /data
