@@ -1,4 +1,5 @@
 import subprocess
+import sys
 
 from flask import Flask
 
@@ -10,5 +11,5 @@ def health():
 
 @app.post("/reset/<container>")
 def reset_container(container: str):
-    subprocess.check_output(["/init.sh", f"/dav/{container}"]) 
+    subprocess.check_call(["/init.sh", f"/dav/{container}"], stdout=sys.stdout, stderr=sys.stderr)
     return "OK"

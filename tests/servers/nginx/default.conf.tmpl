@@ -1,6 +1,7 @@
 server {
     listen 80;
     server_name _;
+    resolver;
     location / {
         root /data;
         autoindex on;

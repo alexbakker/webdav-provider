@@ -23,7 +23,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.nio.file.Path
 import java.security.SecureRandom
-import java.util.*
+import java.util.UUID
 import javax.inject.Inject
 
 @RunWith(Parameterized::class)
@@ -54,24 +54,28 @@ class WebDavTest(private val testName: String, private val account: Account) {
         fun params(): Collection<Array<Any>> {
             return listOf(
                 arrayOf("hacdias", Account(
-                    name = "Test",
+                    name = "Hacdias",
                     url = "http://${HOST}:8001",
                     username = "test",
                     password = "test"
                 )),
                 arrayOf("nginx", Account(
-                    name = "Test",
+                    name = "Nginx",
                     url = "http://${HOST}:8002"
                 )),
                 arrayOf("nextcloud", Account(
-                    name = "Test",
+                    name = "Nextcloud",
                     url = "http://${HOST}:8003/remote.php/dav/files/test",
                     username = "test",
                     password = "ilovepasswordstrengthchecks"
                 )),
                 arrayOf("apache", Account(
-                    name = "Test",
+                    name = "Apache",
                     url = "http://${HOST}:8004"
+                )),
+                arrayOf("apache-subpath", Account(
+                    name = "Apache (subpath) proxied through Nginx",
+                    url = "http://${HOST}:8005/webdav"
                 )),
             )
         }
