@@ -109,6 +109,16 @@ android {
         abortOnError true
         disable 'MissingTranslation'
     }
+
+    aboutLibraries {
+        // Tasks for aboutLibraries are not run automatically to keep the build reproducible
+        // To update manually: ./gradlew app:exportLibraryDefinitions -PaboutLibraries.exportPath=src/main/res/raw
+        prettyPrint = true
+        fetchRemoteFunding = false
+        registerAndroidTasks = false
+        exclusionPatterns = [~"javax.annotation.*"]
+        duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
+    }
 }
 
 dependencies {
