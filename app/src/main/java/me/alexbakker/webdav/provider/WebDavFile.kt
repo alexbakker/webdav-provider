@@ -2,7 +2,6 @@ package me.alexbakker.webdav.provider
 
 import android.webkit.MimeTypeMap
 import com.thegrizzlylabs.sardineandroid.model.Response
-import me.alexbakker.webdav.extensions.toDavPath
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
@@ -38,8 +37,8 @@ class WebDavFile(
             return "/"
         }
 
-    val davPath: String
-        get() = path.toDavPath(isDirectory)
+    val davPath: WebDavPath
+        get() = WebDavPath(path, isDirectory)
 
     val decodedName: String
         get() = URLDecoder.decode(name, StandardCharsets.UTF_8.name())

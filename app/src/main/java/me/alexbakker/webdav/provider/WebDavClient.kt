@@ -24,7 +24,6 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory
 import java.io.IOException
 import java.io.InputStream
 import java.net.Socket
-import java.nio.file.Path
 import java.security.KeyStore
 import java.security.Principal
 import java.security.PrivateKey
@@ -61,8 +60,8 @@ class WebDavClient(
 
     class Error(message: String) : Exception(message)
 
-    suspend fun get(path: String, offset: Long = 0): Result<InputStream> {
-        val res = execRequest { api.get(path, if (offset == 0L) null else "bytes=$offset-") }
+    suspend fun get(path: WebDavPath, offset: Long = 0): Result<InputStream> {
+        val res = execRequest { api.get(path.toString(), if (offset == 0L) null else "bytes=$offset-") }
         if (!res.isSuccessful) {
             return Result(error = res.error)
         }
@@ -74,8 +73,8 @@ class WebDavClient(
         )
     }
 
-    suspend fun putDir(path: String): Result<Unit> {
-        return execRequest { api.putDir(path) }
+    suspend fun putDir(path: WebDavPath): Result<Unit> {
+        return execRequest { api.putDir(path.toString()) }
     }
 
     suspend fun putFile(
@@ -87,8 +86,8 @@ class WebDavClient(
         return putFile(file.davPath, inStream, contentType, contentLength)
     }
 
-    suspend fun putFile(
-        path: String,
+    private suspend fun putFile(
+        path: WebDavPath,
         inStream: InputStream,
         contentType: String? = null,
         contentLength: Long = -1L
@@ -99,7 +98,7 @@ class WebDavClient(
                 inStream,
                 contentLength = contentLength
             )
-            api.putFile(path, body)
+            api.putFile(path.toString(), body)
         }
     }
 
@@ -107,12 +106,12 @@ class WebDavClient(
         return delete(file.davPath)
     }
 
-    suspend fun delete(path: String): Result<Unit> {
-        return execRequest { api.delete(path) }
+    private suspend fun delete(path: WebDavPath): Result<Unit> {
+        return execRequest { api.delete(path.toString()) }
     }
 
-    suspend fun options(path: String): Result<WebDavOptions> {
-        val res = execRequest { api.options(path) }
+    suspend fun options(path: WebDavPath): Result<WebDavOptions> {
+        val res = execRequest { api.options(path.toString()) }
         if (!res.isSuccessful) {
             return Result(error = res.error)
         }
@@ -124,12 +123,16 @@ class WebDavClient(
         return Result(WebDavOptions(methods))
     }
 
-    suspend fun propFindFile(path: Path): Result<WebDavFile> {
-        return propFind(path, depth = 0)
-    }
-
-    suspend fun propFind(path: Path, depth: Int = 1): Result<WebDavFile> {
-        val res = execRequest { api.propFind(path.toString(), depth = depth) }
+    suspend fun propFind(path: WebDavPath, depth: Int = 1): Result<WebDavFile> {
+        val res = execRequest {
+            api.propFind(
+                path.toString(), depth = if (path.isDirectory) {
+                    depth
+                } else {
+                    0
+                }
+            )
+        }
         if (!res.isSuccessful) {
             return Result(error = res.error)
         }
@@ -137,7 +140,7 @@ class WebDavClient(
         var root: WebDavFile? = null
         for (desc in res.body!!.response) {
             val file = WebDavFile(desc)
-            if (file.path == path) {
+            if (file.path == path.path) {
                 root = file
                 break
             }
@@ -148,7 +151,7 @@ class WebDavClient(
 
         for (desc in res.body.response) {
             val file = WebDavFile(desc)
-            if (file.path != path) {
+            if (file.path != path.path) {
                 file.parent = root
                 root.children.add(file)
             }
@@ -157,9 +160,9 @@ class WebDavClient(
         return Result(root)
     }
 
-    suspend fun move(path: String, newPath: String): Result<Unit> {
-        val dest = url.newBuilder().encodedPath(newPath).build()
-        return execRequest { api.move(path, dest.toString()) }
+    suspend fun move(path: WebDavPath, newPath: WebDavPath): Result<Unit> {
+        val dest = url.newBuilder().encodedPath(newPath.toString()).build()
+        return execRequest { api.move(path.toString(), dest.toString()) }
     }
 
     private suspend fun <T> execRequest(exec: suspend () -> Response<T>): Result<T> {

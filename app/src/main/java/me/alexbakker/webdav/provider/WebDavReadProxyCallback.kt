@@ -99,7 +99,7 @@ class WebDavReadProxyCallback(
     }
 
     private fun openWebDavStream(offset: Long): InputStream {
-        val res = runBlocking { client.get(file.path.toString(), offset) }
+        val res = runBlocking { client.get(file.davPath, offset) }
         if (!res.isSuccessful) {
             throw ErrnoException("openWebDavStream", OsConstants.EBADF)
         }

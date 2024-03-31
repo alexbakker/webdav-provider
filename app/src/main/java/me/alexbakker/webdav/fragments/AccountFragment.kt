@@ -2,7 +2,12 @@ package me.alexbakker.webdav.fragments
 
 import android.os.Bundle
 import android.security.KeyChain
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
@@ -33,6 +38,7 @@ import me.alexbakker.webdav.databinding.FragmentAccountBinding
 import me.alexbakker.webdav.dialogs.Dialogs
 import me.alexbakker.webdav.provider.WebDavCache
 import me.alexbakker.webdav.provider.WebDavClientManager
+import me.alexbakker.webdav.provider.WebDavPath
 import me.alexbakker.webdav.provider.WebDavProvider
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import javax.inject.Inject
@@ -140,7 +146,7 @@ class AccountFragment : Fragment() {
                     updateTestStatus(true)
                     val job = lifecycleScope.launch(Dispatchers.IO) {
                         clients.delete(account)
-                        val res = clients.get(account).propFind(account.rootPath)
+                        val res = clients.get(account).propFind(WebDavPath(account.rootPath, true))
                         if (res.isSuccessful) {
                             webDavCache.clearFileMeta(account)
                             webDavCache.setFileMeta(account, res.body!!)

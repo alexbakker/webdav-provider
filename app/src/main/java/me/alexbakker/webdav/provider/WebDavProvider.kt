@@ -20,7 +20,6 @@ import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
-import me.alexbakker.webdav.extensions.toDavPath
 import java.io.FileNotFoundException
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -115,7 +114,7 @@ class WebDavProvider : DocumentsProvider() {
 
         val (account, parentPath) = lookupDocumentId(parentDocumentId)
         val res = runBlocking(Dispatchers.IO) {
-            clients.get(account).propFind(parentPath)
+            clients.get(account).propFind(WebDavPath(parentPath, true))
         }
         if (res.isSuccessful) {
             val parentFile = res.body!!
@@ -190,7 +189,7 @@ class WebDavProvider : DocumentsProvider() {
                     }
 
                     if (res.isSuccessful) {
-                        val propRes = clients.get(account).propFindFile(file.path)
+                        val propRes = clients.get(account).propFind(file.davPath)
                         if (propRes.isSuccessful) {
                             val parent = file.parent!!
                             parent.children.remove(file)
@@ -238,7 +237,7 @@ class WebDavProvider : DocumentsProvider() {
         var resDocumentId: String? = null
         if (isDirectory) {
             val res = runBlocking(Dispatchers.IO) {
-                clients.get(account).putDir(path.toDavPath(true))
+                clients.get(account).putDir(WebDavPath(path, true))
             }
             if (res.isSuccessful) {
                 val file = WebDavFile(path, true, contentType = mimeType)
@@ -301,7 +300,7 @@ class WebDavProvider : DocumentsProvider() {
         val newPath = oldPath.parent.resolve(encodedName)
 
         val res = runBlocking(Dispatchers.IO) {
-            clients.get(account).move(file.davPath, newPath.toDavPath(file.isDirectory))
+            clients.get(account).move(file.davPath, WebDavPath(newPath, file.isDirectory))
         }
         if (res.isSuccessful) {
             file.path = newPath
@@ -342,7 +341,7 @@ class WebDavProvider : DocumentsProvider() {
         val isRoot = doc.account.rootPath == doc.path
         val res = runBlocking(Dispatchers.IO) {
             val path = if (isRoot) doc.path else doc.path.parent
-            clients.get(doc.account).propFind(path)
+            clients.get(doc.account).propFind(WebDavPath(path, true))
         }
         if (res.isSuccessful) {
             val resFile = res.body!!
