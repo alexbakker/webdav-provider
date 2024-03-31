@@ -1,8 +1,8 @@
 server {
     listen 80;
     server_name _;
-    resolver;
     location /webdav {
+        resolver;
         access_log /dev/stdout;
         error_log /dev/stdout;
 
