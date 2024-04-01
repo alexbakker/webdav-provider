@@ -174,7 +174,7 @@ class WebDavProvider : DocumentsProvider() {
                     }
                 }
             }
-            "w" -> {
+            "w", "wt" -> {
                 val pipe = ParcelFileDescriptor.createReliablePipe()
                 val inDesc = pipe[0]
                 val inStream = ParcelFileDescriptor.AutoCloseInputStream(inDesc)
@@ -212,7 +212,7 @@ class WebDavProvider : DocumentsProvider() {
                 return pipe[1]
             }
             else -> {
-                throw UnsupportedOperationException("Mode '$mode' is not supported")
+                throw UnsupportedOperationException("Mode $mode is not supported")
             }
         }
     }
