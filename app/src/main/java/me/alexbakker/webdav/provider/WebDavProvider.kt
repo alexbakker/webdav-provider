@@ -191,9 +191,10 @@ class WebDavProvider : DocumentsProvider() {
                     if (res.isSuccessful) {
                         val propRes = clients.get(account).propFind(file.davPath)
                         if (propRes.isSuccessful) {
-                            val parent = file.parent!!
-                            parent.children.remove(file)
-                            parent.children.add(propRes.body!!)
+                            file.parent?.let {
+                                it.children.remove(file)
+                                it.children.add(propRes.body!!)
+                            }
                         } else {
                             Log.e(TAG, "openDocument(documentId=$documentId, mode=$mode) propFind failed: ${propRes.error?.message}\")")
                         }
@@ -201,8 +202,10 @@ class WebDavProvider : DocumentsProvider() {
                         Log.e(TAG, "openDocument(documentId=$documentId, mode=$mode) upload failed: ${res.error?.message}\")")
                     }
 
-                    val notifyUri = buildDocumentUri(account, file.parent!!)
-                    mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
+                    file.parent?.let {
+                        val notifyUri = buildDocumentUri(account, it)
+                        mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
+                    }
                 }
 
                 signal?.setOnCancelListener {
