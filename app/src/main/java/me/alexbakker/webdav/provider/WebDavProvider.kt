@@ -20,9 +20,8 @@ import me.alexbakker.webdav.BuildConfig
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
+import me.alexbakker.webdav.extensions.urlEncode
 import java.io.FileNotFoundException
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.CountDownLatch
@@ -233,8 +232,7 @@ class WebDavProvider : DocumentsProvider() {
             throw FileNotFoundException(documentId)
         }
 
-        val encodedName = URLEncoder.encode(displayName, StandardCharsets.UTF_8.name())
-        val path = dir.path.resolve(encodedName)
+        val path = dir.path.resolve(displayName).urlEncode()
         val isDirectory = mimeType.equals(Document.MIME_TYPE_DIR, ignoreCase = true)
 
         var resDocumentId: String? = null
@@ -299,8 +297,7 @@ class WebDavProvider : DocumentsProvider() {
         }
 
         val oldPath = file.path
-        val encodedName = URLEncoder.encode(displayName, StandardCharsets.UTF_8.name())
-        val newPath = oldPath.parent.resolve(encodedName)
+        val newPath = oldPath.parent.resolve(displayName).urlEncode()
 
         val res = runBlocking(Dispatchers.IO) {
             clients.get(account).move(file.davPath, WebDavPath(newPath, file.isDirectory))

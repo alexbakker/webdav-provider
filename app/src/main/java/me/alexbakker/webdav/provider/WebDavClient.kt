@@ -126,7 +126,8 @@ class WebDavClient(
     suspend fun propFind(path: WebDavPath, depth: Int = 1): Result<WebDavFile> {
         val res = execRequest {
             api.propFind(
-                path.toString(), depth = if (path.isDirectory) {
+                path.toString(),
+                depth = if (path.isDirectory) {
                     depth
                 } else {
                     0
