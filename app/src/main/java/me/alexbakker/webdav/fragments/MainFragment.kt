@@ -1,5 +1,6 @@
 package me.alexbakker.webdav.fragments
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
@@ -16,14 +17,16 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import me.alexbakker.webdav.helpers.MetricsHelper
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.adapters.AccountAdapter
 import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
 import me.alexbakker.webdav.databinding.FragmentMainBinding
 import me.alexbakker.webdav.dialogs.Dialogs
+import me.alexbakker.webdav.helpers.MetricsHelper
 import me.alexbakker.webdav.provider.WebDavProvider
 import javax.inject.Inject
 
@@ -89,9 +92,19 @@ class MainFragment : Fragment() {
         override fun onAccountClick(account: Account) {
             val intent = Intent(Intent.ACTION_VIEW)
             intent.setDataAndType(account.rootUri, DocumentsContract.Document.MIME_TYPE_DIR)
-
-            if (intent.resolveActivityInfo(requireContext().packageManager, 0) != null) {
+            try {
                 startActivity(intent)
+            } catch (e: ActivityNotFoundException) {
+                Snackbar
+                    .make(
+                        requireView(),
+                        R.string.error_documentsui,
+                        BaseTransientBottomBar.LENGTH_LONG
+                    )
+                    .setAction(R.string.action_details) {
+                        Dialogs.showErrorDialog(requireContext(), R.string.error_documentsui_dialog, e)
+                    }
+                    .show()
             }
         }
 
@@ -146,7 +159,6 @@ class MainFragment : Fragment() {
             accountAdapter.clearSelection()
         }
     }
-
 
     private inner class VerticalSpaceItemDecoration(dp: Float) : RecyclerView.ItemDecoration() {
         private val pixels: Int = MetricsHelper.convertDpToPixels(requireContext(), dp)
