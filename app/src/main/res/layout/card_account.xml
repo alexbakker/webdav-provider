@@ -64,47 +64,5 @@
                 app:layout_constraintTop_toBottomOf="@+id/text_account_url"
                 tool:text="Account username" />
         </androidx.constraintlayout.widget.ConstraintLayout>
-        <!--<LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_outline_smb_share_24"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="10dp"
-                android:paddingHorizontal="17.5dp"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@{account.name}"
-                    android:textStyle="bold"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    android:textSize="16sp"
-                    tool:text="Account name" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="italic"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    android:text="@{@string/url + `: ` + account.url}"
-                    tool:text="Account URL" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="italic"
-                    android:singleLine="true"
-                    android:ellipsize="end"
-                    android:visibility="@{account.username != null ? View.VISIBLE : View.GONE}"
-                    android:text="@{@string/username + `: ` + account.username}"
-                    tool:text="Account username" />
-        </LinearLayout>
-        </LinearLayout>-->
     </com.google.android.material.card.MaterialCardView>
 </layout>
