@@ -60,8 +60,13 @@
         <item name="actionModeTheme">@style/ThemeOverlay.WebDAVProvider.ActionMode</item>
     </style>
 
-    <style name="Widget.WebDAVProvider.AccountCardView" parent="Widget.Material3.CardView.Outlined">
-        <item name="cardBackgroundColor">?attr/colorSurfaceContainer</item>
+    <style name="Widget.WebDAVProvider.AccountCardView" parent="Widget.Material3.CardView.Elevated">
+        <item name="cardElevation">0dp</item>
+        <item name="materialThemeOverlay">@style/ThemeOverlay.WebDAVProvider.AccountCardView</item>
+    </style>
+
+    <style name="ThemeOverlay.WebDAVProvider.AccountCardView" parent="">
+        <item name="colorSurfaceContainerLow">?attr/colorSurfaceContainer</item>
     </style>
 
     <style name="ThemeOverlay.WebDAVProvider.ActionMode" parent="">
