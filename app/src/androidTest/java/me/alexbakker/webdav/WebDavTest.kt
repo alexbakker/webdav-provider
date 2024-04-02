@@ -221,9 +221,6 @@ class WebDavTest(private val testName: String, private val account: Account) {
         Assert.assertNotNull("openOutputStream(uri=${file.uri}) failed", outStream)
         outStream.use { it!!.write(bytes) }
 
-        // TODO: find out why this seems to be race-y
-        Thread.sleep(500)
-
         val inStream = context.contentResolver.openInputStream(file.uri)
         Assert.assertNotNull("openInputStream(uri=${file.uri}) failed", inStream)
         val readBytes = inStream.use { it!!.readBytes() }

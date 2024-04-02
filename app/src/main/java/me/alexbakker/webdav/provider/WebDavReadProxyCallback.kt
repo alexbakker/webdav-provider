@@ -18,7 +18,7 @@ class WebDavReadProxyCallback(
     private val contentLength: Long = file.contentLength!!.toLong()
 
     private val uuid = UUID.randomUUID()
-    private val TAG: String = "WebDavFileReadProxyCallback(uuid=$uuid)"
+    private val TAG: String = "${javaClass.simpleName}(uuid=$uuid)"
 
     init {
         Log.d(TAG, "init(file=${file.path}, contentLength=${contentLength})")

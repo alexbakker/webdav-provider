@@ -21,9 +21,12 @@ import me.alexbakker.webdav.R
 import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
 import me.alexbakker.webdav.extensions.urlEncode
+import okio.IOException
 import java.io.FileNotFoundException
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.CountDownLatch
 
 class WebDavProvider : DocumentsProvider() {
@@ -64,12 +67,15 @@ class WebDavProvider : DocumentsProvider() {
     private lateinit var looper: WebDavFileReadCallbackLooper
     private lateinit var storageManager: StorageManager
 
+    private lateinit var writeProxies: ConcurrentMap<String, WebDavWriteProxyCallback>
+
     override fun onCreate(): Boolean {
         Log.d(TAG, "onCreate()")
 
         val context = mustGetContext()
         looper = WebDavFileReadCallbackLooper()
         storageManager = context.getSystemService(Context.STORAGE_SERVICE) as StorageManager
+        writeProxies = ConcurrentHashMap()
         return true
     }
 
@@ -136,7 +142,6 @@ class WebDavProvider : DocumentsProvider() {
         return result
     }
 
-    @DelicateCoroutinesApi
     override fun openDocument(
         documentId: String,
         mode: String,
@@ -144,79 +149,99 @@ class WebDavProvider : DocumentsProvider() {
     ): ParcelFileDescriptor? {
         Log.d(TAG, "openDocument(documentId=$documentId, mode=$mode)")
 
+        val accessMode = ParcelFileDescriptor.parseMode(mode)
+        return when (mode) {
+            "r" -> openDocumentRead(documentId, accessMode, signal)
+            "w", "wt" -> openDocumentWrite(documentId, accessMode, signal)
+            else -> throw UnsupportedOperationException("Mode $mode is not supported")
+        }
+    }
+
+    private fun openDocumentRead(
+        documentId: String,
+        accessMode: Int,
+        signal: CancellationSignal?
+    ): ParcelFileDescriptor? {
+        // Wait briefly if this file is currently still open for writing, but timeout
+        // if it takes too long.
+        val writeProxy = writeProxies[documentId]
+        if (writeProxy != null) {
+            try {
+                Log.d(TAG, "openDocument(documentId=$documentId): Waiting for writer to finish")
+                runBlocking {
+                    signal?.setOnCancelListener { cancel() }
+                    withTimeout(2000) { writeProxy.join() }
+                }
+            } catch (e: CancellationException) {
+                Log.d(TAG, "openDocument(documentId=$documentId): Cancelled by signal")
+                return null
+            } finally {
+                signal?.setOnCancelListener(null)
+            }
+        }
+
+        // TODO: Make document lookup cancellable by the CancellationSignal
         val (account, _, file) = findDocument(documentId)
         if (file == null) {
             throw FileNotFoundException(documentId)
         }
 
-        val accessMode = ParcelFileDescriptor.parseMode(mode)
-        when (mode) {
-            "r" -> {
-                synchronized(cache) {
-                    val cacheResult = cache.get(account, file)
-                    return when (cacheResult.status) {
-                        WebDavCache.Result.Status.HIT -> {
-                            val cacheFile = cache.mapPathToCache(account.id, Paths.get(cacheResult.entry!!.path))
-                            ParcelFileDescriptor.open(cacheFile.toFile(), accessMode)
-                        }
-                        WebDavCache.Result.Status.PENDING -> {
-                            val callback = WebDavReadProxyCallback(clients.get(account), file)
-                            storageManager.openProxyFileDescriptor(accessMode, callback, getHandler())
-                        }
-                        WebDavCache.Result.Status.MISS -> {
-                            val cacheWriter = if (isFileCacheable(account, file)) {
-                                cache.startPut(account, file)
-                            } else null
-                            val callback = WebDavReadProxyCallback(clients.get(account), file, cacheWriter)
-                            storageManager.openProxyFileDescriptor(accessMode, callback, getHandler())
-                        }
-                    }
+        synchronized(cache) {
+            val cacheResult = cache.get(account, file)
+            return when (cacheResult.status) {
+                WebDavCache.Result.Status.HIT -> {
+                    val cacheFile = cache.mapPathToCache(account.id, Paths.get(cacheResult.entry!!.path))
+                    ParcelFileDescriptor.open(cacheFile.toFile(), accessMode)
                 }
-            }
-            "w", "wt" -> {
-                val pipe = ParcelFileDescriptor.createReliablePipe()
-                val inDesc = pipe[0]
-                val inStream = ParcelFileDescriptor.AutoCloseInputStream(inDesc)
-                val job = GlobalScope.launch(Dispatchers.IO) {
-                    val res = inStream.use {
-                        clients.get(account).putFile(
-                            file,
-                            inStream,
-                            contentType = file.contentType,
-                            contentLength = inDesc.statSize
-                        )
-                    }
-
-                    if (res.isSuccessful) {
-                        val propRes = clients.get(account).propFind(file.davPath)
-                        if (propRes.isSuccessful) {
-                            file.parent?.let {
-                                it.children.remove(file)
-                                it.children.add(propRes.body!!)
-                            }
-                        } else {
-                            Log.e(TAG, "openDocument(documentId=$documentId, mode=$mode) propFind failed: ${propRes.error?.message}\")")
-                        }
-                    } else {
-                        Log.e(TAG, "openDocument(documentId=$documentId, mode=$mode) upload failed: ${res.error?.message}\")")
-                    }
-
-                    file.parent?.let {
-                        val notifyUri = buildDocumentUri(account, it)
-                        mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
-                    }
+                WebDavCache.Result.Status.PENDING -> {
+                    val callback = WebDavReadProxyCallback(clients.get(account), file)
+                    storageManager.openProxyFileDescriptor(accessMode, callback, getHandler())
                 }
-
-                signal?.setOnCancelListener {
-                    job.cancel("openDocument(documentId=$documentId, mode=$mode): cancellation signal received")
+                WebDavCache.Result.Status.MISS -> {
+                    val cacheWriter = if (isFileCacheable(account, file)) {
+                        cache.startPut(account, file)
+                    } else null
+                    val callback = WebDavReadProxyCallback(clients.get(account), file, cacheWriter)
+                    storageManager.openProxyFileDescriptor(accessMode, callback, getHandler())
                 }
-
-                return pipe[1]
-            }
-            else -> {
-                throw UnsupportedOperationException("Mode $mode is not supported")
             }
         }
+    }
+
+    private fun openDocumentWrite(
+        documentId: String,
+        accessMode: Int,
+        signal: CancellationSignal?
+    ): ParcelFileDescriptor {
+        // TODO: Make document lookup cancellable by the CancellationSignal
+        val (account, _, file) = findDocument(documentId)
+        if (file == null) {
+            throw FileNotFoundException(documentId)
+        }
+
+        val writeProxy = writeProxies[documentId]
+        if (writeProxy != null) {
+            throw IOException("Document $documentId is currently already being written to")
+        }
+
+        val callback = WebDavWriteProxyCallback(clients.get(account), file,
+            onSuccess = { newFile ->
+                file.parent?.let {
+                    it.children.remove(file)
+                    it.children.add(newFile)
+
+                    val notifyUri = buildDocumentUri(account, it)
+                    mustGetContext().contentResolver.notifyChange(notifyUri, null, 0)
+                }
+                writeProxies.remove(documentId)
+            },
+            onFail = {
+                file.parent?.children?.remove(file)
+                writeProxies.remove(documentId)
+            }
+        )
+        writeProxies[documentId] = callback
+        return storageManager.openProxyFileDescriptor(accessMode, callback, getHandler())
     }
 
     @Throws(FileNotFoundException::class)

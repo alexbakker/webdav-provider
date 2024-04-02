@@ -12,6 +12,7 @@ import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.logging.HttpLoggingInterceptor
 import okio.BufferedSink
+import okio.Source
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.convert.Registry
 import org.simpleframework.xml.convert.RegistryStrategy
@@ -79,23 +80,23 @@ class WebDavClient(
 
     suspend fun putFile(
         file: WebDavFile,
-        inStream: InputStream,
+        source: Source,
         contentType: String? = null,
         contentLength: Long = -1L
     ): Result<Unit> {
-        return putFile(file.davPath, inStream, contentType, contentLength)
+        return putFile(file.davPath, source, contentType, contentLength)
     }
 
     private suspend fun putFile(
         path: WebDavPath,
-        inStream: InputStream,
+        source: Source,
         contentType: String? = null,
         contentLength: Long = -1L
     ): Result<Unit> {
         return execRequest {
             val body = OneShotRequestBody(
                 (contentType ?: "application/octet-stream").toMediaType(),
-                inStream,
+                source,
                 contentLength = contentLength
             )
             api.putFile(path.toString(), body)
@@ -191,7 +192,7 @@ class WebDavClient(
 
     private class OneShotRequestBody(
         private var contentType: MediaType,
-        private var inputStream: InputStream,
+        private var source: Source,
         private var contentLength: Long = -1L,
     ) : RequestBody() {
         private var exhausted: Boolean = false
@@ -213,9 +214,7 @@ class WebDavClient(
             }
 
             exhausted = true
-            sink.outputStream().use {
-                inputStream.copyTo(it)
-            }
+            sink.writeAll(source)
         }
     }
 
