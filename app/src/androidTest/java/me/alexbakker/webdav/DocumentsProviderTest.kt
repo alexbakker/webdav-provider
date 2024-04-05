@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 @RunWith(Parameterized::class)
 @HiltAndroidTest
-class WebDavTest(private val testName: String, private val account: Account) {
+class DocumentsProviderTest(private val testName: String, private val account: Account) {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
