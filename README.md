@@ -1,13 +1,11 @@
-# WebDAV-Provider [![CI](https://github.com/alexbakker/webdav-provider/workflows/build/badge.svg)](https://github.com/alexbakker/webdav-provider/actions?query=workflow%3Abuild)
+# WebDAV Provider [![CI](https://github.com/alexbakker/webdav-provider/workflows/build/badge.svg)](https://github.com/alexbakker/webdav-provider/actions?query=workflow%3Abuild)
 
 __WebDAV Provider__ is an Android app that can expose WebDAV storage to other
 apps through Android's Storage Access Framework (SAF).
 
+## Screenshots
 
-
-# Screenshots
-
-[<img src="screenshots/1.png" width="200">](screenshots/1.png) [<img src="screenshots/2.png" width="200">](screenshots/2.png) [<img src="screenshots/3.png" width="200">](screenshots/3.png) [<img src="screenshots/4.png" width="200">](screenshots/4.png)
+[<img src="screenshots/screenshot1.png" width="200">](screenshots/screenshot1.png) [<img src="screenshots/screenshot2.png" width="200">](screenshots/screenshot2.png) [<img src="screenshots/screenshot3.png" width="200">](screenshots/screenshot3.png) [<img src="screenshots/screenshot4.png" width="200">](screenshots/screenshot4.png)
 
 ## Development
 
