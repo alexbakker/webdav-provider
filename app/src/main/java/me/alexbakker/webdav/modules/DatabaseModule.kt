@@ -18,7 +18,7 @@ class DatabaseModule {
     @Provides
     @Singleton
     fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(context, AppDatabase::class.java, "database")
+        return Room.databaseBuilder(context, AppDatabase::class.java, "webdav")
             .allowMainThreadQueries()
             .build()
     }
