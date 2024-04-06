@@ -3,6 +3,7 @@ package me.alexbakker.webdav.data
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 @Database(
     version = 4,
@@ -14,6 +15,7 @@ import androidx.room.RoomDatabase
         AutoMigration(from = 3, to = 4)
     ]
 )
+@TypeConverters(SecretStringConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun accountDao(): AccountDao
     abstract fun cacheDao(): CacheDao

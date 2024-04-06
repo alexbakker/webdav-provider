@@ -30,10 +30,10 @@ data class Account(
     var verifyCerts: Boolean = true,
 
     @ColumnInfo(name = "username")
-    var username: String? = null,
+    var username: SecretString? = null,
 
     @ColumnInfo(name = "password")
-    var password: String? = null,
+    var password: SecretString? = null,
 
     @ColumnInfo(name = "client_cert")
     var clientCert: String? = null,
@@ -63,6 +63,11 @@ data class Account(
     val baseUrl: HttpUrl
         get() {
             return url!!.ensureTrailingSlash().toHttpUrl()
+        }
+
+    val hasError: Boolean
+        get() {
+            return username?.error != null || password?.error != null
         }
 
     enum class Protocol {

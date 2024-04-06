@@ -57,7 +57,7 @@
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:visibility="@{account.username != null ? View.VISIBLE : View.GONE}"
-                android:text="@{@string/username + `: ` + account.username}"
+                android:text="@{@string/username + `: ` + account.username.value}"
                 android:layout_marginStart="10dp"
                 android:textAppearance="?attr/textAppearanceBodySmall"
                 app:layout_constraintStart_toEndOf="@+id/img_account"

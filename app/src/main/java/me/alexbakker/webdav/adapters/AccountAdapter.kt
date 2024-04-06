@@ -8,6 +8,7 @@ import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.byId
 import me.alexbakker.webdav.databinding.CardAccountBinding
 
+
 class AccountAdapter(
     accounts: List<Account>,
     private val listener: Listener

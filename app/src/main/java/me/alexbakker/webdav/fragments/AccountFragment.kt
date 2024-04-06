@@ -34,6 +34,7 @@ import kotlinx.coroutines.launch
 import me.alexbakker.webdav.R
 import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
+import me.alexbakker.webdav.data.SecretString
 import me.alexbakker.webdav.databinding.FragmentAccountBinding
 import me.alexbakker.webdav.dialogs.Dialogs
 import me.alexbakker.webdav.provider.WebDavCache
@@ -322,6 +323,22 @@ class AccountFragment : Fragment() {
         fun getDropdownValueProtocol(view: AutoCompleteTextView): Account.Protocol {
             val array = view.resources!!.getStringArray(R.array.protocol_options)
             return Account.Protocol.values()[array.indexOf(view.text.toString())]
+        }
+
+        @BindingAdapter("android:text")
+        @JvmStatic
+        fun setSecretStringValue(view: TextInputEditText, newValue: SecretString?) {
+            view.setText(newValue?.value)
+        }
+
+        @InverseBindingAdapter(attribute = "android:text")
+        @JvmStatic
+        fun getSecretStringValue(view: TextInputEditText): SecretString? {
+            if (view.text.isNullOrBlank()) {
+                return null
+            }
+
+            return SecretString(view.text.toString())
         }
     }
 }

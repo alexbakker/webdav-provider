@@ -9,6 +9,7 @@ import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
 import me.alexbakker.webdav.data.CacheDao
 import me.alexbakker.webdav.data.CacheEntry
+import me.alexbakker.webdav.data.SecretString
 import me.alexbakker.webdav.provider.WebDavProvider
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -56,9 +57,10 @@ class DocumentsProviderTest(private val testName: String, private val account: A
                 arrayOf("hacdias", Account(
                     name = "Hacdias",
                     url = "http://${HOST}:8001",
-                    username = "test",
-                    password = "test"
-                )),
+                    username = SecretString("test"),
+                    password = SecretString("test")
+                )
+                ),
                 arrayOf("nginx", Account(
                     name = "Nginx",
                     url = "http://${HOST}:8002"
@@ -66,8 +68,8 @@ class DocumentsProviderTest(private val testName: String, private val account: A
                 arrayOf("nextcloud", Account(
                     name = "Nextcloud",
                     url = "http://${HOST}:8003/remote.php/dav/files/test",
-                    username = "test",
-                    password = "ilovepasswordstrengthchecks"
+                    username = SecretString("test"),
+                    password = SecretString("ilovepasswordstrengthchecks")
                 )),
                 arrayOf("apache", Account(
                     name = "Apache",

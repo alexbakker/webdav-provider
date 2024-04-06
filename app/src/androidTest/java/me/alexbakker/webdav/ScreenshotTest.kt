@@ -23,6 +23,7 @@ import me.alexbakker.webdav.activities.MainActivity
 import me.alexbakker.webdav.adapters.AccountAdapter
 import me.alexbakker.webdav.data.Account
 import me.alexbakker.webdav.data.AccountDao
+import me.alexbakker.webdav.data.SecretString
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -48,8 +49,8 @@ class ScreenshotTest {
             Account(
                 name = "Nextcloud",
                 url = "http://${host}:8003/remote.php/dav/files/admin",
-                username = "admin",
-                password = "admin"
+                username = SecretString("admin"),
+                password = SecretString("admin")
             ),
             Account(
                 name = "Nginx",
