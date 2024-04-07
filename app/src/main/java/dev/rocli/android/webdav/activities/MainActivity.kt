@@ -11,10 +11,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.ViewPropertyAnimatorCompat
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
+import dev.rocli.android.webdav.BuildConfig
 import dev.rocli.android.webdav.R
 import dev.rocli.android.webdav.databinding.ActivityMainBinding
 import dev.rocli.android.webdav.fragments.MainFragmentDirections
@@ -42,6 +44,13 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, dest, _ ->
             binding.fab.visibility = if (dest.id == R.id.MainFragment) VISIBLE else GONE
         }
+
+        // Override the main fragment label during instrumented tests so that
+        // we don't see "(Debug)" in the automatically generated screenshots.
+        if (BuildConfig.TEST.get()) {
+            navController.graph.findStartDestination().label = getString(R.string.app_name_release)
+        }
+
         setupActionBarWithNavController(this, navController)
     }
 

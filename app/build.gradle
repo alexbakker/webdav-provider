@@ -40,6 +40,7 @@ android {
 
         buildConfigField "String", "GIT_HASH", "\"${getGitHash()}\""
         buildConfigField "String", "GIT_BRANCH", "\"${getGitBranch()}\""
+        buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "TEST", "new java.util.concurrent.atomic.AtomicBoolean(false)"
 
         kapt {
             arguments {
