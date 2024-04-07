@@ -104,20 +104,23 @@ def main():
 
     # Gradle will sometimes fail to add verification entries for artifacts that
     # are already cached.
-    with tempfile.TemporaryDirectory() as temp_dir:
-        env = os.environ | {'GRADLE_USER_HOME': temp_dir}
+    for tasks in [
+        ['build', 'connectedCheck'],
+        ['app:exportLibraryDefinitions', '-PaboutLibraries.exportPath=src/main/res/raw']]:
 
-        subprocess.check_call(
-            [
-                './gradlew' + ('.bat' if os.name == 'nt' else ''),
-                '--write-verification-metadata', 'sha512',
-                '--no-daemon',
-                'build',
-                'connectedCheck'
-            ],
-            env=env,
-            cwd=root_dir,
-        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            env = os.environ | {'GRADLE_USER_HOME': temp_dir}
+
+            subprocess.check_call(
+                [
+                    './gradlew' + ('.bat' if os.name == 'nt' else ''),
+                    '--write-verification-metadata', 'sha512',
+                    '--no-daemon',
+                    '--rerun-tasks'
+                ] + tasks,
+                env=env,
+                cwd=root_dir,
+            )
 
     patch_xml(xml_file)
 

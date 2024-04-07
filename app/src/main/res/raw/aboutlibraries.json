@@ -1,6 +1,6 @@
 {
     "metadata": {
-        "generated": "2024-03-31T19:23:42.714Z"
+        "generated": "2024-04-07T10:53:51.44Z"
     },
     "libraries": [
         {
@@ -1531,7 +1531,7 @@
             ]
         },
         {
-            "uniqueId": "androidx.test.espresso:espresso-core",
+            "uniqueId": "androidx.test.espresso:espresso-contrib",
             "funding": [
                 
             ],
@@ -1583,6 +1583,31 @@
             "licenses": [
                 "Apache-2.0"
             ]
+        },
+        {
+            "uniqueId": "androidx.test.uiautomator:uiautomator",
+            "funding": [
+                
+            ],
+            "developers": [
+                {
+                    "name": "The Android Open Source Project"
+                }
+            ],
+            "artifactVersion": "2.3.0",
+            "description": "UI testing framework suitable for cross-app functional UI testing",
+            "scm": {
+                "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
+                "url": "https://cs.android.com/androidx/platform/frameworks/support"
+            },
+            "name": "UIAutomator",
+            "website": "https://developer.android.com/jetpack/androidx/releases/test-uiautomator#2.3.0",
+            "licenses": [
+                "Apache-2.0"
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.test:annotation",
@@ -1802,6 +1827,30 @@
             ]
         },
         {
+            "uniqueId": "com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework",
+            "funding": [
+                
+            ],
+            "developers": [
+                {
+                    "organisationUrl": "https://www.google.com",
+                    "name": "Casey Burkhardt"
+                }
+            ],
+            "artifactVersion": "3.1.2",
+            "description": "Library used to test for common accessibility issues.",
+            "scm": {
+                "connection": "scm:git:git@github.com:google/Accessibility-Test-Framework-for-Android.git",
+                "url": "https://github.com/google/Accessibility-Test-Framework-for-Android",
+                "developerConnection": "scm:git:git@github.com:google/Accessibility-Test-Framework-for-Android.git"
+            },
+            "name": "Accessibility Test Framework",
+            "website": "https://github.com/google/Accessibility-Test-Framework-for-Android",
+            "licenses": [
+                "Apache-2.0"
+            ]
+        },
+        {
             "uniqueId": "com.google.android.material:material",
             "funding": [
                 
@@ -1995,6 +2044,48 @@
             }
         },
         {
+            "uniqueId": "com.google.guava:failureaccess",
+            "funding": [
+                
+            ],
+            "developers": [
+                
+            ],
+            "artifactVersion": "1.0.1",
+            "description": "Contains\n    com.google.common.util.concurrent.internal.InternalFutureFailureAccess and\n    InternalFutures. Most users will never need to use this artifact. Its\n    classes is conceptually a part of Guava, but they're in this separate\n    artifact so that Android libraries can use them without pulling in all of\n    Guava (just as they can use ListenableFuture by depending on the\n    listenablefuture artifact).",
+            "scm": {
+                "connection": "scm:git:https://github.com/google/guava.git",
+                "url": "https://github.com/google/guava",
+                "developerConnection": "scm:git:git@github.com:google/guava.git"
+            },
+            "name": "Guava InternalFutureFailureAccess and InternalFutures",
+            "website": "https://github.com/google/guava",
+            "licenses": [
+                "Apache-2.0"
+            ]
+        },
+        {
+            "uniqueId": "com.google.guava:guava",
+            "funding": [
+                
+            ],
+            "developers": [
+                
+            ],
+            "artifactVersion": "28.2-android",
+            "description": "Guava is a suite of core and expanded libraries that include\n    utility classes, google's collections, io classes, and much\n    much more.",
+            "scm": {
+                "connection": "scm:git:https://github.com/google/guava.git",
+                "url": "https://github.com/google/guava",
+                "developerConnection": "scm:git:git@github.com:google/guava.git"
+            },
+            "name": "Guava: Google Core Libraries for Java",
+            "website": "https://github.com/google/guava",
+            "licenses": [
+                "Apache-2.0"
+            ]
+        },
+        {
             "uniqueId": "com.google.guava:listenablefuture",
             "funding": [
                 
@@ -2014,6 +2105,51 @@
             "licenses": [
                 "Apache-2.0"
             ]
+        },
+        {
+            "uniqueId": "com.google.j2objc:j2objc-annotations",
+            "funding": [
+                
+            ],
+            "developers": [
+                
+            ],
+            "artifactVersion": "1.3",
+            "description": "A set of annotations that provide additional information to the J2ObjC\n    translator to modify the result of translation.",
+            "scm": {
+                "connection": "scm:svn:http://svn.sonatype.org/spice/tags/oss-parent-7",
+                "url": "http://svn.sonatype.org/spice/tags/oss-parent-7",
+                "developerConnection": "scm:svn:https://svn.sonatype.org/spice/tags/oss-parent-7"
+            },
+            "name": "J2ObjC Annotations",
+            "website": "https://github.com/google/j2objc/",
+            "licenses": [
+                "Apache-2.0"
+            ]
+        },
+        {
+            "uniqueId": "com.google.protobuf:protobuf-lite",
+            "funding": [
+                
+            ],
+            "developers": [
+                
+            ],
+            "artifactVersion": "3.0.1",
+            "description": "A trimmed-down version of the Protocol Buffers library.",
+            "scm": {
+                "connection": "scm:git:https://github.com/google/protobuf.git",
+                "url": "https://github.com/google/protobuf"
+            },
+            "name": "Protocol Buffers [Lite]",
+            "website": "https://developers.google.com/protocol-buffers/",
+            "licenses": [
+                "BSD-3-Clause"
+            ],
+            "organization": {
+                "url": "http://www.google.com/",
+                "name": "Google"
+            }
         },
         {
             "uniqueId": "com.mikepenz:aboutlibraries-core-android-debug",
@@ -2257,21 +2393,89 @@
             }
         },
         {
+            "uniqueId": "org.checkerframework:checker-compat-qual",
+            "funding": [
+                
+            ],
+            "developers": [
+                {
+                    "organisationUrl": "https://www.cs.washington.edu/",
+                    "name": "Michael Ernst"
+                },
+                {
+                    "organisationUrl": "http://uwaterloo.ca/",
+                    "name": "Werner M. Dietl"
+                },
+                {
+                    "organisationUrl": "https://www.cs.washington.edu/research/plse/",
+                    "name": "Suzanne Millstein"
+                }
+            ],
+            "artifactVersion": "2.5.5",
+            "description": "Checker Qual is the set of annotations (qualifiers) and supporting classes\n        used by the Checker Framework to type check Java source code.  Please\n        see artifact:\n        org.checkerframework:checker",
+            "scm": {
+                "connection": "https://github.com/typetools/checker-framework.git",
+                "url": "https://github.com/typetools/checker-framework.git"
+            },
+            "name": "Checker Qual",
+            "website": "https://checkerframework.org",
+            "licenses": [
+                "da5e524a4235731b9b96281090f5f82d",
+                "MIT"
+            ]
+        },
+        {
+            "uniqueId": "org.hamcrest:hamcrest",
+            "funding": [
+                
+            ],
+            "developers": [
+                {
+                    "name": "Joe Walnes"
+                },
+                {
+                    "name": "Nat Pryce"
+                },
+                {
+                    "name": "Steve Freeman"
+                }
+            ],
+            "artifactVersion": "2.2",
+            "description": "Core API and libraries of hamcrest matcher framework.",
+            "scm": {
+                "connection": "git@github.com:hamcrest/JavaHamcrest.git",
+                "url": "https://github.com/hamcrest/JavaHamcrest"
+            },
+            "name": "Hamcrest",
+            "website": "http://hamcrest.org/JavaHamcrest/",
+            "licenses": [
+                "BSD-3-Clause"
+            ]
+        },
+        {
             "uniqueId": "org.hamcrest:hamcrest-core",
             "funding": [
                 
             ],
             "developers": [
-                
+                {
+                    "name": "Joe Walnes"
+                },
+                {
+                    "name": "Nat Pryce"
+                },
+                {
+                    "name": "Steve Freeman"
+                }
             ],
-            "artifactVersion": "1.3",
-            "description": "This is the core API of hamcrest matcher framework to be used by third-party framework providers. This includes the a foundation set of matcher implementations for common operations.",
+            "artifactVersion": "2.2",
+            "description": "Core Hamcrest API - deprecated, please use \"hamcrest\" instead",
             "scm": {
-                "connection": "scm:git:git@github.com:hamcrest/JavaHamcrest.git",
+                "connection": "git@github.com:hamcrest/JavaHamcrest.git",
                 "url": "https://github.com/hamcrest/JavaHamcrest"
             },
             "name": "Hamcrest Core",
-            "website": "https://github.com/hamcrest/JavaHamcrest",
+            "website": "http://hamcrest.org/JavaHamcrest/",
             "licenses": [
                 "BSD-3-Clause"
             ]
@@ -2302,16 +2506,24 @@
                 
             ],
             "developers": [
-                
+                {
+                    "name": "Joe Walnes"
+                },
+                {
+                    "name": "Nat Pryce"
+                },
+                {
+                    "name": "Steve Freeman"
+                }
             ],
-            "artifactVersion": "1.3",
-            "description": "Hamcrest library of matcher implementations.",
+            "artifactVersion": "2.2",
+            "description": "A library of Hamcrest matchers - deprecated, please use \"hamcrest\" instead",
             "scm": {
-                "connection": "scm:git:git@github.com:hamcrest/JavaHamcrest.git",
+                "connection": "git@github.com:hamcrest/JavaHamcrest.git",
                 "url": "https://github.com/hamcrest/JavaHamcrest"
             },
-            "name": "Hamcrest library",
-            "website": "https://github.com/hamcrest/JavaHamcrest",
+            "name": "Hamcrest Library",
+            "website": "http://hamcrest.org/JavaHamcrest/",
             "licenses": [
                 "BSD-3-Clause"
             ]
@@ -2639,6 +2851,32 @@
             ]
         },
         {
+            "uniqueId": "org.jsoup:jsoup",
+            "funding": [
+                
+            ],
+            "developers": [
+                {
+                    "name": "Jonathan Hedley"
+                }
+            ],
+            "artifactVersion": "1.12.2",
+            "description": "jsoup is a Java library for working with real-world HTML. It provides a very convenient API for extracting and manipulating data, using the best of DOM, CSS, and jquery-like methods. jsoup implements the WHATWG HTML5 specification, and parses HTML to the same DOM as modern browsers do.",
+            "scm": {
+                "connection": "scm:git:https://github.com/jhy/jsoup.git",
+                "url": "https://github.com/jhy/jsoup"
+            },
+            "name": "jsoup Java HTML Parser",
+            "website": "https://jsoup.org/",
+            "licenses": [
+                "MIT"
+            ],
+            "organization": {
+                "url": "https://jhy.io/",
+                "name": "Jonathan Hedley"
+            }
+        },
+        {
             "uniqueId": "org.simpleframework:simple-xml",
             "funding": [
                 
@@ -2748,6 +2986,19 @@
             "url": "https://spdx.org/licenses/EPL-1.0.html",
             "spdxId": "EPL-1.0",
             "name": "Eclipse Public License 1.0"
+        },
+        "MIT": {
+            "content": "MIT License\n\nCopyright (c) <year> <copyright holders>\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.",
+            "hash": "MIT",
+            "internalHash": "MIT",
+            "url": "https://spdx.org/licenses/MIT.html",
+            "spdxId": "MIT",
+            "name": "MIT License"
+        },
+        "da5e524a4235731b9b96281090f5f82d": {
+            "hash": "da5e524a4235731b9b96281090f5f82d",
+            "url": "http://www.gnu.org/software/classpath/license.html",
+            "name": "GNU General Public License, version 2 (GPL2), with the classpath exception"
         }
     }
 }

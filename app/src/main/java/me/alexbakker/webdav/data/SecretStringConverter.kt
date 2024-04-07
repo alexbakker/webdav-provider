@@ -40,7 +40,6 @@ class SecretStringConverter {
                 is BadPaddingException, is IllegalBlockSizeException -> {
                     return SecretString(error = e)
                 }
-
                 else -> throw e
             }
         }
