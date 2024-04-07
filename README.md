@@ -1,3 +1,6 @@
+<img align="left" width="80" height="80" src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp"
+alt="App icon">
+
 # WebDAV Provider [![CI](https://github.com/alexbakker/webdav-provider/workflows/build/badge.svg)](https://github.com/alexbakker/webdav-provider/actions?query=workflow%3Abuild)
 
 __WebDAV Provider__ is an Android app that can expose WebDAV through Android's
