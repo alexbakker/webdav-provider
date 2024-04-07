@@ -10,7 +10,7 @@ plugins {
 
 def appName = "WebDAV Provider"
 def appNameDebug = "${appName} (Debug)"
-def packageName = "me.alexbakker.webdav"
+def packageName = "dev.rocli.android.webdav"
 def providerAuthority = "${packageName}.provider"
 def providerAuthorityDebug = "${packageName}.debug.provider"
 
@@ -47,7 +47,7 @@ android {
             }
         }
 
-        testInstrumentationRunner "me.alexbakker.webdav.WebDavTestRunner"
+        testInstrumentationRunner "dev.rocli.android.webdav.WebDavTestRunner"
         testInstrumentationRunnerArguments clearPackageData: 'true'
     }
 

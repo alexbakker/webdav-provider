@@ -4,7 +4,7 @@
     xmlns:tool="http://schemas.android.com/tools">
     <data>
         <import type="android.view.View"/>
-        <variable name="account" type="me.alexbakker.webdav.data.Account" />
+        <variable name="account" type="dev.rocli.android.webdav.data.Account" />
     </data>
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_account"

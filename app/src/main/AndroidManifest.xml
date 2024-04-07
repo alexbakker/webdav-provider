@@ -16,6 +16,7 @@
         tools:targetApi="s">
         <activity
             android:name=".activities.MainActivity"
+            android:label="@string/app_label"
             android:exported="true"
             android:theme="@style/Theme.WebDAVProvider">
             <intent-filter>
@@ -24,7 +25,7 @@
             </intent-filter>
         </activity>
         <provider
-            android:name="me.alexbakker.webdav.provider.WebDavProvider"
+            android:name="dev.rocli.android.webdav.provider.WebDavProvider"
             android:authorities="${providerAuthority}"
             android:grantUriPermissions="true"
             android:exported="true"

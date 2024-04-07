@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/MainFragment"
-        android:name="me.alexbakker.webdav.fragments.MainFragment"
+        android:name="dev.rocli.android.webdav.fragments.MainFragment"
         android:label="@string/app_name"
         tools:layout="@layout/fragment_main">
         <action
@@ -27,7 +27,7 @@
     </fragment>
     <fragment
         android:id="@+id/AccountFragment"
-        android:name="me.alexbakker.webdav.fragments.AccountFragment"
+        android:name="dev.rocli.android.webdav.fragments.AccountFragment"
         android:label="{title}"
         tools:layout="@layout/fragment_account">
         <argument
@@ -45,7 +45,7 @@
     <fragment
         android:id="@+id/AboutFragment"
         android:label="@string/action_about"
-        android:name="me.alexbakker.webdav.fragments.AboutFragment"
+        android:name="dev.rocli.android.webdav.fragments.AboutFragment"
         tools:layout="@layout/fragment_about">
         <action
             android:id="@+id/action_AboutFragment_to_LicensesFragment"
@@ -63,7 +63,7 @@
     <fragment
         android:id="@+id/LicensesFragment"
         android:label="@string/about_third_party_libraries"
-        android:name="me.alexbakker.webdav.fragments.LicensesFragment">
+        android:name="dev.rocli.android.webdav.fragments.LicensesFragment">
         <argument
             android:name="data"
             app:argType="java.io.Serializable"

@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
-        <variable name="account" type="me.alexbakker.webdav.data.Account" />
+        <variable name="account" type="dev.rocli.android.webdav.data.Account" />
     </data>
     <LinearLayout
         android:layout_width="match_parent"
