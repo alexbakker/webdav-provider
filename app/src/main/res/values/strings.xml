@@ -76,7 +76,7 @@
     <string name="error_invalid_url">This must be a valid HTTP/HTTPS URL</string>
     <string name="error_webdav_connection">Couldn\'t establish a WebDAV connection: %s</string>
     <string name="error_webdav_connection_dialog">An error occurred while trying to establish a WebDAV connection</string>
-    <string name="error_list_dir_contents">An error occurred while trying to list the contents of %s:\n\n%s</string>
+    <string name="error_list_dir_contents">An error occurred while trying to list the contents of %1$s:\n\n%2$s</string>
     <string name="error_documentsui">Unable to start DocumentsUI</string>
     <string name="error_documentsui_dialog">An error occurred while trying to open the WebDAV location in DocumentsUI</string>
 </resources>

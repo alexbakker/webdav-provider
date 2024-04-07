@@ -283,62 +283,53 @@ class AccountFragment : Fragment() {
             }
         }
     }
+}
 
-    companion object {
-        @BindingAdapter("android:valueAttrChanged")
-        @JvmStatic
-        fun setSliderListeners(slider: Slider, attrChange: InverseBindingListener) {
-            slider.addOnChangeListener { _, _, _ ->
-                attrChange.onChange()
-            }
-        }
-
-        @BindingAdapter("android:value")
-        @JvmStatic
-        fun setSliderValueLong(view: Slider, newValue: Long) {
-            val fNewValue = newValue.toFloat()
-            if (view.value != fNewValue) {
-                view.value = fNewValue
-            }
-        }
-
-        @InverseBindingAdapter(attribute = "android:value")
-        @JvmStatic
-        fun getSliderValueLong(view: Slider): Long {
-            return view.value.toLong()
-        }
-
-        @BindingAdapter("android:text")
-        @JvmStatic
-        fun <T : Enum<T>> setDropdownValueEnum(view: AutoCompleteTextView, newValue: T) {
-            val array = view.resources!!.getStringArray(R.array.protocol_options)
-            val text = array[newValue.ordinal]
-            if (view.text.toString() != text) {
-                view.setText(text, false)
-            }
-        }
-
-        @InverseBindingAdapter(attribute = "android:text")
-        @JvmStatic
-        fun getDropdownValueProtocol(view: AutoCompleteTextView): Account.Protocol {
-            val array = view.resources!!.getStringArray(R.array.protocol_options)
-            return Account.Protocol.values()[array.indexOf(view.text.toString())]
-        }
-
-        @BindingAdapter("android:text")
-        @JvmStatic
-        fun setSecretStringValue(view: TextInputEditText, newValue: SecretString?) {
-            view.setText(newValue?.value)
-        }
-
-        @InverseBindingAdapter(attribute = "android:text")
-        @JvmStatic
-        fun getSecretStringValue(view: TextInputEditText): SecretString? {
-            if (view.text.isNullOrBlank()) {
-                return null
-            }
-
-            return SecretString(view.text.toString())
-        }
+@BindingAdapter("android:valueAttrChanged")
+fun Slider.setSliderListeners(attrChange: InverseBindingListener) {
+    this.addOnChangeListener { _, _, _ ->
+        attrChange.onChange()
     }
+}
+
+@BindingAdapter("android:value")
+fun Slider.setSliderValueLong(newValue: Long) {
+    val fNewValue = newValue.toFloat()
+    if (this.value != fNewValue) {
+        this.value = fNewValue
+    }
+}
+
+@InverseBindingAdapter(attribute = "android:value")
+fun Slider.getSliderValueLong(): Long {
+    return this.value.toLong()
+}
+
+@BindingAdapter("android:text")
+fun <T : Enum<T>> AutoCompleteTextView.setDropdownValueEnum(newValue: T) {
+    val array = this.resources!!.getStringArray(R.array.protocol_options)
+    val text = array[newValue.ordinal]
+    if (this.text.toString() != text) {
+        this.setText(text, false)
+    }
+}
+
+@InverseBindingAdapter(attribute = "android:text")
+fun AutoCompleteTextView.getDropdownValueProtocol(): Account.Protocol {
+    val array = this.resources!!.getStringArray(R.array.protocol_options)
+    return Account.Protocol.entries[array.indexOf(this.text.toString())]
+}
+
+@BindingAdapter("android:text")
+fun TextInputEditText.setSecretStringValue(newValue: SecretString?) {
+    this.setText(newValue?.value)
+}
+
+@InverseBindingAdapter(attribute = "android:text")
+fun TextInputEditText.getSecretStringValue(): SecretString? {
+    if (this.text.isNullOrBlank()) {
+        return null
+    }
+
+    return SecretString(this.text.toString())
 }
