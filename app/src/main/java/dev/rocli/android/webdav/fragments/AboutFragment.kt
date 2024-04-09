@@ -48,7 +48,7 @@ class AboutFragment : LibsSupportFragment() {
             copyToClipboard(getCurrentAppVersion(), R.string.toast_version_copied)
         }
         binding.btnGithub.setOnClickListener { openUrl(getString(R.string.about_data_github)) }
-        binding.btnAlexander.setOnClickListener { openUrl(getString(R.string.about_data_author_alex_website)) }
+        binding.btnRoclidev.setOnClickListener { openUrl(getString(R.string.about_data_author_website)) }
         binding.btnEmail.setOnClickListener { openMail(getString(R.string.about_data_email)) }
         binding.btnRate.setOnClickListener { openUrl(getString(R.string.about_data_playstore)) }
         binding.btnChangelog.setOnClickListener {

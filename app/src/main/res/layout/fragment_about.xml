@@ -290,12 +290,12 @@ Licenced under GPLv3
                             android:paddingTop="24dp"
                             android:paddingRight="16dp"
                             android:paddingBottom="16dp"
-                            android:text="@string/about_authors"
+                            android:text="@string/about_author"
                             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
                             android:textColor="?android:textColorSecondary" />
 
                         <LinearLayout
-                            android:id="@+id/btn_alexander"
+                            android:id="@+id/btn_roclidev"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:background="?attr/selectableItemBackground"
@@ -323,7 +323,7 @@ Licenced under GPLv3
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text="@string/about_author_alex"
+                                    android:text="@string/about_author_roclidev"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
                                 <TextView

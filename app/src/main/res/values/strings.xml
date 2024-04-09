@@ -39,8 +39,8 @@
     <string name="about_support">Support</string>
     <string name="about_support_rate">Rate</string>
     <string name="about_support_rate_description">Support us by leaving a review in the Google Play Store</string>
-    <string name="about_authors">Authors</string>
-    <string name="about_author_alex" translatable="false">Alexander Bakker</string>
+    <string name="about_author">Author</string>
+    <string name="about_author_roclidev" translatable="false">Rocli Development</string>
     <string name="about_country_netherlands">Netherlands</string>
     <string name="about_send_email">Send us an email</string>
     <string name="about_license">License</string>
@@ -52,9 +52,9 @@
     <string name="about_changelog">Changelog</string>
     <string name="about_changelog_description">What\'s new</string>
 
-    <string name="about_data_email" translatable="false">contact+webdavprovider@alexbakker.me</string>
+    <string name="about_data_email" translatable="false">support+webdav@rocli.dev</string>
     <string name="about_data_github" translatable="false">https://github.com/alexbakker/webdav-provider</string>
-    <string name="about_data_author_alex_website" translatable="false">https://alexbakker.me</string>
+    <string name="about_data_author_website" translatable="false">https://rocli.dev</string>
     <string name="about_data_playstore" translatable="false">https://play.google.com/store/apps/details?id=dev.rocli.android.webdav</string>
 
     <string name="toast_version_copied">Version copied to the clipboard</string>
