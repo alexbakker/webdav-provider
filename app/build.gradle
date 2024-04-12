@@ -91,7 +91,8 @@ android {
             manifestPlaceholders = [providerAuthority: providerAuthority]
             buildConfigField("String", "PROVIDER_AUTHORITY", "\"${providerAuthority}\"")
 
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
