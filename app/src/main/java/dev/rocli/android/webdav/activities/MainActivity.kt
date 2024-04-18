@@ -70,7 +70,6 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(action)
                 true
             }
-            R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
     }
