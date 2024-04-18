@@ -35,8 +35,8 @@ android {
         applicationId packageName
         minSdkVersion 27
         targetSdkVersion 34
-        versionCode 1
-        versionName "0.1.0"
+        versionCode 2
+        versionName "0.1.1"
 
         buildConfigField "String", "GIT_HASH", "\"${getGitHash()}\""
         buildConfigField "String", "GIT_BRANCH", "\"${getGitBranch()}\""
