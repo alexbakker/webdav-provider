@@ -14,6 +14,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
+import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
 import dev.rocli.android.webdav.BuildConfig
@@ -29,6 +30,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var statusGuardHack: ActionModeStatusGuardHack
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (BuildConfig.DYNAMIC_COLORS.get()) {
+            DynamicColors.applyToActivityIfAvailable(this)
+        }
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

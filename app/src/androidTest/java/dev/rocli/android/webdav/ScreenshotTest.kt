@@ -4,6 +4,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.takeScreenshot
 import androidx.test.core.graphics.writeToTestStorage
 import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.Espresso.openContextualActionModeOverflowMenu
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.action.ViewActions.pressBack
@@ -77,6 +78,11 @@ class ScreenshotTest {
         onView(withId(R.id.rvAccounts))
             .check(matches(hasDescendant(withText("Nextcloud"))))
 
+        takeScreenshot().writeToTestStorage("screenshot6")
+
+        BuildConfig.DYNAMIC_COLORS.set(false)
+        scenario.recreate()
+
         takeScreenshot().writeToTestStorage("screenshot1")
 
         onView(withId(R.id.rvAccounts)).perform(
@@ -88,6 +94,13 @@ class ScreenshotTest {
         onView(withId(R.id.action_edit)).perform(click())
 
         takeScreenshot().writeToTestStorage("screenshot2")
+
+        onView(isRoot()).perform(pressBack())
+
+        openContextualActionModeOverflowMenu()
+        onView(withText(R.string.action_about)).perform(click())
+
+        takeScreenshot().writeToTestStorage("screenshot5")
 
         onView(isRoot()).perform(pressBack())
 

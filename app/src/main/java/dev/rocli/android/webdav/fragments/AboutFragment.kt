@@ -6,7 +6,11 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.databinding.DataBindingUtil
@@ -34,6 +38,12 @@ class AboutFragment : LibsSupportFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setHasOptionsMenu(true)
+
+        // Override the app name during instrumented tests so that
+        // we don't see "(Debug)" in the automatically generated screenshots.
+        if (BuildConfig.TEST.get()) {
+            binding.textAppName.text = getString(R.string.app_name_release)
+        }
 
         binding.appVersion.text = getCurrentAppVersion()
         binding.btnLicense.setOnClickListener {
