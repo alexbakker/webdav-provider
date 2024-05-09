@@ -3,13 +3,12 @@ package dev.rocli.android.webdav.dialogs
 import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.Context
-import android.content.res.Resources.Theme
 import android.graphics.Color
 import android.os.Bundle
-import android.util.TypedValue
 import android.webkit.WebView
 import androidx.annotation.StringRes
 import androidx.fragment.app.DialogFragment
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.rocli.android.webdav.R
 import java.io.IOException
@@ -36,11 +35,23 @@ abstract class SimpleWebViewDialog protected constructor(@StringRes private val 
 
     protected val backgroundColor: String
         get() {
-            return colorToCSS(getThemeColor(com.google.android.material.R.attr.colorSurfaceContainerHigh, requireContext().theme))
+            val color: Int = MaterialColors.getColor(
+                requireContext(),
+                com.google.android.material.R.attr.colorSurfaceContainerHigh,
+                javaClass.getCanonicalName()
+            )
+            return colorToCSS(color)
         }
 
     protected val textColor: String
-        get() = colorToCSS(0xFFFFFF and getThemeColor(com.google.android.material.R.attr.colorOnSurface, requireContext().theme))
+        get() {
+            val color: Int = MaterialColors.getColor(
+                requireContext(),
+                com.google.android.material.R.attr.colorOnSurface,
+                javaClass.getCanonicalName()
+            )
+            return colorToCSS(0xFFFFFF and color)
+        }
 
     companion object {
         @SuppressLint("DefaultLocale")
@@ -64,12 +75,6 @@ abstract class SimpleWebViewDialog protected constructor(@StringRes private val 
             } catch (e: IOException) {
                 throw RuntimeException(e)
             }
-        }
-
-        private fun getThemeColor(attributeId: Int, theme: Theme): Int {
-            val typedValue = TypedValue()
-            theme.resolveAttribute(attributeId, typedValue, true)
-            return typedValue.data
         }
     }
 }
