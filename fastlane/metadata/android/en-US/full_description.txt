@@ -1,0 +1,14 @@
+WebDAV Provider is an app that can expose WebDAV through Android's Storage Access Framework (SAF),
+allowing you to access your WebDAV storage through Android's built-in file explorer,
+as well as other compatible apps on your device.
+
+<b>This app does not have its own user interface to browse files.</b>
+Once you've configured your WebDAV account in the app, use your device's built-in file explorer to browse files.
+
+<b>We do not offer WebDAV cloud storage.</b>
+Sign up for an account with a third-party cloud storage provider that supports WebDAV and enter your credentials in the app.
+You may use your own NAS or Nextcloud server.
+
+<b>Open source and license:</b>
+WebDAV Provider is open source and licensed under GPLv3.
+The source code is available at: https://github.com/alexbakker/webdav-provider

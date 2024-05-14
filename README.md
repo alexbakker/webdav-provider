@@ -13,12 +13,12 @@ src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png"
 
 ## Screenshots
 
-[<img src="screenshots/screenshot1.png"
-width="200">](screenshots/screenshot1.png) [<img
-src="screenshots/screenshot2.png" width="200">](screenshots/screenshot2.png)
-[<img src="screenshots/screenshot3.png"
-width="200">](screenshots/screenshot3.png) [<img
-src="screenshots/screenshot4.png" width="200">](screenshots/screenshot4.png)
+[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png"
+width="200">](fastlane/metadata/android/en-US/images/phoneScreenshots/1.png) [<img
+src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width="200">](fastlane/metadata/android/en-US/images/phoneScreenshots/2.png)
+[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png"
+width="200">](fastlane/metadata/android/en-US/images/phoneScreenshots/3.png) [<img
+src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width="200">](fastlane/metadata/android/en-US/images/phoneScreenshots/4.png)
 
 ## Development
 
