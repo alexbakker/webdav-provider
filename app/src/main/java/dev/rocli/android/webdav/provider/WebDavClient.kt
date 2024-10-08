@@ -3,6 +3,10 @@ package dev.rocli.android.webdav.provider
 import android.annotation.SuppressLint
 import android.content.Context
 import android.security.KeyChain
+import com.burgstaller.okhttp.AuthenticationCacheInterceptor
+import com.burgstaller.okhttp.CachingAuthenticatorDecorator
+import com.burgstaller.okhttp.digest.CachingAuthenticator
+import com.burgstaller.okhttp.digest.DigestAuthenticator
 import com.thegrizzlylabs.sardineandroid.model.Prop
 import com.thegrizzlylabs.sardineandroid.model.Property
 import com.thegrizzlylabs.sardineandroid.model.Resourcetype
@@ -30,6 +34,7 @@ import java.security.Principal
 import java.security.PrivateKey
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
+import java.util.concurrent.ConcurrentHashMap
 import javax.net.ssl.KeyManager
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
@@ -233,8 +238,18 @@ class WebDavClient(
             builder.addInterceptor(logging)
         }
         if (creds != null) {
+
+            // Basic Auth (Default)
             val auth = Credentials.basic(creds.first, creds.second)
             builder.addInterceptor(AuthInterceptor(auth))
+
+            // Digest Auth Support
+            val authenticator = DigestAuthenticator(com.burgstaller.okhttp.digest.Credentials(creds.first, creds.second))
+            val authCache: Map<String, CachingAuthenticator> = ConcurrentHashMap<String, CachingAuthenticator>()
+
+            builder.authenticator(CachingAuthenticatorDecorator(authenticator, authCache))
+            builder.addInterceptor(AuthenticationCacheInterceptor(authCache))
+
         }
 
         val serializer = buildSerializer()
