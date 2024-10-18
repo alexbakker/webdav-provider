@@ -45,14 +45,13 @@ services:
     volumes:
       - *vol-data
       - "./servers/nginx-apache-subpath/default.conf.tmpl:/etc/nginx/http.d/default.conf.tmpl"
-    networks:
-      default:
-        aliases:
-          - nginx
     ports:
       - "8005:80"
     environment:
       - NGINX_PORT=80
+    depends_on:
+      webdav-apache-subpath:
+        condition: service_healthy
     healthcheck:
       test: "curl -v --fail-with-body -L -X PROPFIND -H 'Depth: 1' http://127.0.0.1/webdav || exit 1"
       start_period: 5s
