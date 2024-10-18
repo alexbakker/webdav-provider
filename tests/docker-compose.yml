@@ -17,7 +17,7 @@ services:
     healthcheck:
       test: "curl -v -L --fail-with-body http://127.0.0.1/health || exit 1"
       start_period: 5s
-      start_interval: 1s
+      #start_interval: 1s
   webdav-hacdias:
     build: ./servers/hacdias
     volumes:
@@ -27,7 +27,7 @@ services:
     healthcheck:
       test: "curl -v --fail-with-body -u test:test -X PROPFIND http://127.0.0.1 || exit 1"
       start_period: 5s
-      start_interval: 1s
+      #start_interval: 1s
   webdav-nginx:
     build: ./servers/nginx
     volumes:
@@ -39,7 +39,7 @@ services:
     healthcheck:
       test: "curl -v --fail-with-body -X PROPFIND http://127.0.0.1 || exit 1"
       start_period: 5s
-      start_interval: 1s
+      #start_interval: 1s
   webdav-nginx-apache-subpath:
     build: ./servers/nginx
     volumes:
@@ -56,7 +56,7 @@ services:
     healthcheck:
       test: "curl -v --fail-with-body -L -X PROPFIND -H 'Depth: 1' http://127.0.0.1/webdav || exit 1"
       start_period: 5s
-      start_interval: 1s
+      #start_interval: 1s
   webdav-nextcloud:
     build: ./servers/nextcloud
     volumes:
@@ -73,7 +73,7 @@ services:
     healthcheck:
       test: "curl -v -L --fail-with-body -u admin:admin -X PROPFIND http://127.0.0.1/remote.php/dav/files/admin || exit 1"
       start_period: 20s
-      start_interval: 1s
+      #start_interval: 1s
   webdav-apache:
     build: ./servers/apache
     volumes:
@@ -83,7 +83,7 @@ services:
     healthcheck:
       test: "curl -v --fail-with-body -X PROPFIND -H 'Depth: 1' http://127.0.0.1 || exit 1"
       start_period: 5s
-      start_interval: 1s
+      #start_interval: 1s
   webdav-apache-subpath:
     build: ./servers/apache
     environment:
@@ -98,4 +98,4 @@ services:
     healthcheck:
       test: "curl -v --fail-with-body -X PROPFIND -H 'Depth: 1' http://127.0.0.1/webdav || exit 1"
       start_period: 5s
-      start_interval: 1s
+      #start_interval: 1s

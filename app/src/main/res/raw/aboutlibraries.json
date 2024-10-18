@@ -1,6 +1,6 @@
 {
     "metadata": {
-        "generated": "2024-04-07T13:59:33.316Z"
+        "generated": "2024-10-18T18:53:30.577Z"
     },
     "libraries": [
         {
@@ -13,14 +13,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.8.0",
+            "artifactVersion": "1.8.1",
             "description": "Provides the base Activity subclass and the relevant hooks to build a composable structure on top.",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Activity",
-            "website": "https://developer.android.com/jetpack/androidx/releases/activity#1.8.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/activity#1.8.1",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -38,14 +38,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.8.0",
+            "artifactVersion": "1.8.1",
             "description": "Kotlin extensions for 'activity' artifact",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Activity Kotlin Extensions",
-            "website": "https://developer.android.com/jetpack/androidx/releases/activity#1.8.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/activity#1.8.1",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -63,17 +63,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.3.1",
+            "artifactVersion": "1.4.1",
             "description": "Java annotation for use on unstable Android API surfaces. When used in conjunction with the Experimental annotation lint checks, this annotation provides functional parity with Kotlin's Experimental annotation.",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Experimental annotation",
-            "website": "https://developer.android.com/jetpack/androidx/releases/annotation#1.3.1",
+            "website": "https://developer.android.com/jetpack/androidx/releases/annotation#1.4.1",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.annotation:annotation-jvm",
@@ -85,17 +88,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.6.0",
-            "description": "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs.",
+            "artifactVersion": "1.8.1",
+            "description": "Provides source annotations for tooling and readability.",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
-            "name": "Support Annotations",
-            "website": "https://developer.android.com/jetpack/androidx/releases/annotation#1.6.0",
+            "name": "Annotation",
+            "website": "https://developer.android.com/jetpack/androidx/releases/annotation#1.8.1",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.appcompat:appcompat",
@@ -107,17 +113,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.6.1",
-            "description": "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later.",
+            "artifactVersion": "1.7.0",
+            "description": "Provides backwards-compatible implementations of UI-related Android SDK functionality, including dark mode and Material theming.",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
-            "name": "Android AppCompat Library",
-            "website": "https://developer.android.com/jetpack/androidx/releases/appcompat#1.6.1",
+            "name": "AppCompat",
+            "website": "https://developer.android.com/jetpack/androidx/releases/appcompat#1.7.0",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.appcompat:appcompat-resources",
@@ -129,17 +138,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.6.1",
-            "description": "The Resources Library is a static library that you can add to your Android application in order to use resource APIs that backport the latest APIs to older versions of the platform. Compatible on devices running API 14 or later.",
+            "artifactVersion": "1.7.0",
+            "description": "Provides backward-compatible implementations of resource-related Android SDKfunctionality, including color state list theming.",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
-            "name": "Android Resources Library",
-            "website": "https://developer.android.com/jetpack/androidx/releases/appcompat#1.6.1",
+            "name": "AppCompat Resources",
+            "website": "https://developer.android.com/jetpack/androidx/releases/appcompat#1.7.0",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.arch.core:core-common",
@@ -208,7 +220,7 @@
             ]
         },
         {
-            "uniqueId": "androidx.collection:collection",
+            "uniqueId": "androidx.collection:collection-jvm",
             "funding": [
                 
             ],
@@ -217,17 +229,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.1.0",
+            "artifactVersion": "1.4.2",
             "description": "Standalone efficient collections.",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
-                "url": "http://source.android.com"
+                "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
-            "name": "Support collections",
-            "website": "http://developer.android.com/tools/extras/support-library.html",
+            "name": "collections",
+            "website": "https://developer.android.com/jetpack/androidx/releases/collection#1.4.2",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.collection:collection-ktx",
@@ -239,17 +254,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.1.0",
+            "artifactVersion": "1.4.2",
             "description": "Kotlin extensions for 'collection' artifact",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
-                "url": "http://source.android.com"
+                "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Collections Kotlin Extensions",
-            "website": "http://developer.android.com/tools/extras/support-library.html",
+            "website": "https://developer.android.com/jetpack/androidx/releases/collection#1.4.2",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.concurrent:concurrent-futures",
@@ -349,17 +367,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.12.0",
+            "artifactVersion": "1.13.1",
             "description": "Provides backward-compatible implementations of Android platform APIs and features.",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Core",
-            "website": "https://developer.android.com/jetpack/androidx/releases/core#1.12.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/core#1.13.1",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.core:core-ktx",
@@ -371,17 +392,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.12.0",
+            "artifactVersion": "1.13.1",
             "description": "Kotlin extensions for 'core' artifact",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Core Kotlin Extensions",
-            "website": "https://developer.android.com/jetpack/androidx/releases/core#1.12.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/core#1.13.1",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.cursoradapter:cursoradapter",
@@ -457,7 +481,7 @@
             "developers": [
                 
             ],
-            "artifactVersion": "8.3.1",
+            "artifactVersion": "8.7.1",
             "description": "",
             "name": "androidx.databinding:databinding-adapters",
             "licenses": [
@@ -474,7 +498,7 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "8.3.1",
+            "artifactVersion": "8.7.1",
             "description": "Shared library between Data Binding runtime lib and compiler",
             "name": "androidx.databinding.databinding-common",
             "website": "http://tools.android.com/",
@@ -490,7 +514,7 @@
             "developers": [
                 
             ],
-            "artifactVersion": "8.3.1",
+            "artifactVersion": "8.7.1",
             "description": "",
             "name": "androidx.databinding:databinding-ktx",
             "licenses": [
@@ -505,7 +529,7 @@
             "developers": [
                 
             ],
-            "artifactVersion": "8.3.1",
+            "artifactVersion": "8.7.1",
             "description": "",
             "name": "androidx.databinding:databinding-runtime",
             "licenses": [
@@ -520,7 +544,7 @@
             "developers": [
                 
             ],
-            "artifactVersion": "8.3.1",
+            "artifactVersion": "8.7.1",
             "description": "",
             "name": "androidx.databinding:viewbinding",
             "licenses": [
@@ -603,14 +627,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.2.0",
+            "artifactVersion": "1.3.0",
             "description": "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters.",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Android Emoji2 Compat",
-            "website": "https://developer.android.com/jetpack/androidx/releases/emoji2#1.2.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/emoji2#1.3.0",
             "licenses": [
                 "Apache-2.0"
             ]
@@ -625,14 +649,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.2.0",
+            "artifactVersion": "1.3.0",
             "description": "View helpers for Emoji2",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Android Emoji2 Compat view helpers",
-            "website": "https://developer.android.com/jetpack/androidx/releases/emoji2#1.2.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/emoji2#1.3.0",
             "licenses": [
                 "Apache-2.0"
             ]
@@ -647,17 +671,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.6.2",
+            "artifactVersion": "1.8.4",
             "description": "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later.",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
-            "name": "Support fragment",
-            "website": "https://developer.android.com/jetpack/androidx/releases/fragment#1.6.2",
+            "name": "fragment",
+            "website": "https://developer.android.com/jetpack/androidx/releases/fragment#1.8.4",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.fragment:fragment-ktx",
@@ -669,17 +696,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.6.2",
+            "artifactVersion": "1.8.4",
             "description": "Kotlin extensions for 'fragment' artifact",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Fragment Kotlin Extensions",
-            "website": "https://developer.android.com/jetpack/androidx/releases/fragment#1.6.2",
+            "website": "https://developer.android.com/jetpack/androidx/releases/fragment#1.8.4",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.interpolator:interpolator",
@@ -726,7 +756,7 @@
             ]
         },
         {
-            "uniqueId": "androidx.lifecycle:lifecycle-common",
+            "uniqueId": "androidx.lifecycle:lifecycle-common-jvm",
             "funding": [
                 
             ],
@@ -735,14 +765,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.0",
+            "artifactVersion": "2.8.4",
             "description": "Android Lifecycle-Common",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Lifecycle-Common",
-            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.7.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.4",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -760,14 +790,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.0",
+            "artifactVersion": "2.8.4",
             "description": "Android Lifecycle LiveData",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Lifecycle LiveData",
-            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.7.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.4",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -785,14 +815,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.0",
+            "artifactVersion": "2.8.4",
             "description": "Android Lifecycle LiveData Core",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Lifecycle LiveData Core",
-            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.7.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.4",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -810,14 +840,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.0",
+            "artifactVersion": "2.8.4",
             "description": "Kotlin extensions for 'livedata-core' artifact",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "LiveData Core Kotlin Extensions",
-            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.7.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.4",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -835,14 +865,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.0",
+            "artifactVersion": "2.8.4",
             "description": "Kotlin extensions for 'livedata' artifact",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "LiveData Kotlin Extensions",
-            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.7.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.4",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -860,14 +890,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.0",
+            "artifactVersion": "2.8.4",
             "description": "Android Lifecycle Process",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Lifecycle Process",
-            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.7.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.4",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -876,7 +906,7 @@
             }
         },
         {
-            "uniqueId": "androidx.lifecycle:lifecycle-runtime",
+            "uniqueId": "androidx.lifecycle:lifecycle-runtime-android",
             "funding": [
                 
             ],
@@ -885,14 +915,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.0",
+            "artifactVersion": "2.8.4",
             "description": "Android Lifecycle Runtime",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Lifecycle Runtime",
-            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.7.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.4",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -901,7 +931,7 @@
             }
         },
         {
-            "uniqueId": "androidx.lifecycle:lifecycle-runtime-ktx",
+            "uniqueId": "androidx.lifecycle:lifecycle-runtime-ktx-android",
             "funding": [
                 
             ],
@@ -910,14 +940,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.0",
+            "artifactVersion": "2.8.4",
             "description": "Kotlin extensions for 'lifecycle' artifact",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Lifecycle Kotlin Extensions",
-            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.7.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.4",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -935,14 +965,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.0",
+            "artifactVersion": "2.8.4",
             "description": "Android Lifecycle Service",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Lifecycle Service",
-            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.7.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.4",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -960,14 +990,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.0",
+            "artifactVersion": "2.8.4",
             "description": "Android Lifecycle ViewModel",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Lifecycle ViewModel",
-            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.7.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.4",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -985,14 +1015,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.0",
+            "artifactVersion": "2.8.4",
             "description": "Kotlin extensions for 'viewmodel' artifact",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Lifecycle ViewModel Kotlin Extensions",
-            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.7.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.4",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -1010,14 +1040,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.0",
+            "artifactVersion": "2.8.4",
             "description": "Android Lifecycle ViewModel",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Lifecycle ViewModel with SavedState",
-            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.7.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/lifecycle#2.8.4",
             "licenses": [
                 "Apache-2.0"
             ],
@@ -1100,17 +1130,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.7",
+            "artifactVersion": "2.8.3",
             "description": "Android Navigation-Common",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Navigation Common",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.7.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.8.3",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.navigation:navigation-common-ktx",
@@ -1122,17 +1155,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.7",
+            "artifactVersion": "2.8.3",
             "description": "Android Navigation-Common-Ktx",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Navigation Common Kotlin Extensions",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.7.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.8.3",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.navigation:navigation-fragment",
@@ -1144,17 +1180,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.7",
+            "artifactVersion": "2.8.3",
             "description": "Android Navigation-Fragment",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Navigation Fragment",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.7.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.8.3",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.navigation:navigation-fragment-ktx",
@@ -1166,17 +1205,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.7",
+            "artifactVersion": "2.8.3",
             "description": "Android Navigation-Fragment-Ktx",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Navigation Fragment Kotlin Extensions",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.7.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.8.3",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.navigation:navigation-runtime",
@@ -1188,17 +1230,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.7",
+            "artifactVersion": "2.8.3",
             "description": "Android Navigation-Runtime",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Navigation Runtime",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.7.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.8.3",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.navigation:navigation-runtime-ktx",
@@ -1210,17 +1255,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.7",
+            "artifactVersion": "2.8.3",
             "description": "Android Navigation-Runtime-Ktx",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Navigation Runtime Kotlin Extensions",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.7.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.8.3",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.navigation:navigation-ui",
@@ -1232,17 +1280,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.7",
+            "artifactVersion": "2.8.3",
             "description": "Android Navigation-UI",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Navigation UI",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.7.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.8.3",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.navigation:navigation-ui-ktx",
@@ -1254,17 +1305,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "2.7.7",
+            "artifactVersion": "2.8.3",
             "description": "Android Navigation-UI-Ktx",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "Navigation UI Kotlin Extensions",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.7.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.8.3",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.print:print",
@@ -1298,14 +1352,14 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.3.0",
+            "artifactVersion": "1.3.1",
             "description": "Allows libraries to prepopulate ahead of time compilation traces to be read by ART",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "name": "androidx.profileinstaller:profileinstaller",
-            "website": "https://developer.android.com/jetpack/androidx/releases/profileinstaller#1.3.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/profileinstaller#1.3.1",
             "licenses": [
                 "Apache-2.0"
             ]
@@ -1659,17 +1713,20 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.4.1",
+            "artifactVersion": "1.5.0",
             "description": "Android Transition Support Library",
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
                 "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
-            "name": "Android Transition Support Library",
-            "website": "https://developer.android.com/jetpack/androidx/releases/transition#1.4.1",
+            "name": "Transition",
+            "website": "https://developer.android.com/jetpack/androidx/releases/transition#1.5.0",
             "licenses": [
                 "Apache-2.0"
-            ]
+            ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            }
         },
         {
             "uniqueId": "androidx.vectordrawable:vectordrawable",
@@ -1860,7 +1917,7 @@
                     "name": "The Android Open Source Project"
                 }
             ],
-            "artifactVersion": "1.11.0",
+            "artifactVersion": "1.12.0",
             "description": "Material Components for Android is a static library that you can add to your Android application in order to use APIs that provide implementations of the Material Design specification. Compatible on devices running API 14 or later.",
             "scm": {
                 "connection": "scm:git:https://github.com/material-components/material-components-android.git",
@@ -1901,7 +1958,7 @@
             "developers": [
                 
             ],
-            "artifactVersion": "2.51.1",
+            "artifactVersion": "2.52",
             "description": "A fast dependency injector for Android and Java.",
             "scm": {
                 "connection": "scm:git:git://github.com/google/dagger.git",
@@ -1926,7 +1983,7 @@
             "developers": [
                 
             ],
-            "artifactVersion": "2.51.1",
+            "artifactVersion": "2.52",
             "description": "A fast dependency injector for Android and Java.",
             "scm": {
                 "connection": "scm:git:git://github.com/google/dagger.git",
@@ -1951,7 +2008,7 @@
             "developers": [
                 
             ],
-            "artifactVersion": "2.51.1",
+            "artifactVersion": "2.52",
             "description": "A fast dependency injector for Android and Java.",
             "scm": {
                 "connection": "scm:git:git://github.com/google/dagger.git",
@@ -1976,7 +2033,7 @@
             "developers": [
                 
             ],
-            "artifactVersion": "2.51.1",
+            "artifactVersion": "2.52",
             "description": "A fast dependency injector for Android and Java.",
             "scm": {
                 "connection": "scm:git:git://github.com/google/dagger.git",
@@ -2001,7 +2058,7 @@
             "developers": [
                 
             ],
-            "artifactVersion": "2.51.1",
+            "artifactVersion": "2.52",
             "description": "A fast dependency injector for Android and Java.",
             "scm": {
                 "connection": "scm:git:git://github.com/google/dagger.git",
@@ -2152,7 +2209,7 @@
             }
         },
         {
-            "uniqueId": "com.mikepenz:aboutlibraries-core-android-debug",
+            "uniqueId": "com.mikepenz:aboutlibraries-core-android",
             "funding": [
                 
             ],
@@ -2161,7 +2218,7 @@
                     "name": "Mike Penz"
                 }
             ],
-            "artifactVersion": "11.1.1",
+            "artifactVersion": "11.2.3",
             "description": "AboutLibraries automatically detects all dependencies of a project and collects their information including the license. Optionally visualising it via the provided ui components.",
             "scm": {
                 "connection": "scm:git@github.com:mikepenz/AboutLibraries.git",
@@ -2335,6 +2392,42 @@
             "organization": {
                 "url": "http://squareup.com",
                 "name": "Square, Inc."
+            }
+        },
+        {
+            "uniqueId": "jakarta.inject:jakarta.inject-api",
+            "funding": [
+                
+            ],
+            "developers": [
+                {
+                    "name": "Antoine Sabot-Durand"
+                },
+                {
+                    "name": "Martin Kouba"
+                },
+                {
+                    "name": "Tomas Remes"
+                },
+                {
+                    "name": "Matej Novotny"
+                }
+            ],
+            "artifactVersion": "2.0.1",
+            "description": "Jakarta Dependency Injection",
+            "scm": {
+                "connection": "scm:git:ssh://git@github.com/eclipse-ee4j/injection-api.git",
+                "url": "https://github.com/eclipse-ee4j/injection-api",
+                "developerConnection": "scm:git:ssh://git@github.com/eclipse-ee4j/injection-api.git"
+            },
+            "name": "Jakarta Dependency Injection",
+            "website": "https://github.com/eclipse-ee4j/injection-api",
+            "licenses": [
+                "Apache-2.0"
+            ],
+            "organization": {
+                "url": "https://www.eclipse.org",
+                "name": "Eclipse Foundation"
             }
         },
         {
@@ -2539,7 +2632,7 @@
                     "name": "Kotlin Team"
                 }
             ],
-            "artifactVersion": "1.9.23",
+            "artifactVersion": "2.0.21",
             "description": "Kotlin Android Extensions Runtime",
             "scm": {
                 "connection": "scm:git:https://github.com/JetBrains/kotlin.git",
@@ -2587,7 +2680,7 @@
                     "name": "Kotlin Team"
                 }
             ],
-            "artifactVersion": "1.9.23",
+            "artifactVersion": "2.0.21",
             "description": "Runtime library for the Parcelize compiler plugin",
             "scm": {
                 "connection": "scm:git:https://github.com/JetBrains/kotlin.git",
@@ -2611,7 +2704,7 @@
                     "name": "Kotlin Team"
                 }
             ],
-            "artifactVersion": "1.9.23",
+            "artifactVersion": "2.0.21",
             "description": "Kotlin Standard Library",
             "scm": {
                 "connection": "scm:git:https://github.com/JetBrains/kotlin.git",
@@ -2705,7 +2798,7 @@
                     "name": "JetBrains Team"
                 }
             ],
-            "artifactVersion": "1.8.0",
+            "artifactVersion": "1.9.0",
             "description": "Coroutines support libraries for Kotlin",
             "scm": {
                 "url": "https://github.com/Kotlin/kotlinx.coroutines"
@@ -2727,7 +2820,7 @@
                     "name": "JetBrains Team"
                 }
             ],
-            "artifactVersion": "1.8.0",
+            "artifactVersion": "1.9.0",
             "description": "Coroutines support libraries for Kotlin",
             "scm": {
                 "url": "https://github.com/Kotlin/kotlinx.coroutines"
@@ -2749,7 +2842,7 @@
                     "name": "JetBrains Team"
                 }
             ],
-            "artifactVersion": "1.8.0",
+            "artifactVersion": "1.9.0",
             "description": "Coroutines support libraries for Kotlin",
             "scm": {
                 "url": "https://github.com/Kotlin/kotlinx.coroutines"
@@ -2771,7 +2864,7 @@
                     "name": "JetBrains Team"
                 }
             ],
-            "artifactVersion": "1.6.3",
+            "artifactVersion": "1.7.1",
             "description": "Kotlin multiplatform serialization runtime library",
             "scm": {
                 "url": "https://github.com/Kotlin/kotlinx.serialization"
@@ -2793,7 +2886,7 @@
                     "name": "JetBrains Team"
                 }
             ],
-            "artifactVersion": "1.6.3",
+            "artifactVersion": "1.7.1",
             "description": "Kotlin multiplatform serialization runtime library",
             "scm": {
                 "url": "https://github.com/Kotlin/kotlinx.serialization"
@@ -2815,7 +2908,7 @@
                     "name": "JetBrains Team"
                 }
             ],
-            "artifactVersion": "1.6.3",
+            "artifactVersion": "1.7.1",
             "description": "Kotlin multiplatform serialization runtime library",
             "scm": {
                 "url": "https://github.com/Kotlin/kotlinx.serialization"

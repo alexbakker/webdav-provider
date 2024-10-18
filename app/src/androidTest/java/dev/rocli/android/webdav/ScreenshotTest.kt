@@ -73,7 +73,7 @@ class ScreenshotTest {
         scenario.close()
     }
 
-    @Test
+    @Test(timeout = 30000)
     fun takeShowcaseScreenshots() {
         onView(withId(R.id.rvAccounts))
             .check(matches(hasDescendant(withText("Nextcloud"))))

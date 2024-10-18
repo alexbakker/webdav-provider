@@ -29,12 +29,12 @@ def getGitBranch = { -> return getCmdOutput(["git", "rev-parse", "--abbrev-ref",
 android {
     namespace packageName
 
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId packageName
         minSdkVersion 27
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode 3
         versionName "0.1.2"
 
@@ -99,17 +99,17 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = JavaVersion.VERSION_11
     }
 
     lint {
         abortOnError true
-        disable 'MissingTranslation'
+        checkDependencies true
     }
 
     aboutLibraries {
@@ -125,16 +125,16 @@ android {
 
 dependencies {
     def roomVersion = "2.6.1"
-    def espressoVersion = "3.5.1"
+    def espressoVersion = '3.5.1'
 
-    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.core:core-ktx:1.12.0'
-    implementation "androidx.fragment:fragment-ktx:1.6.2"
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.7'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.7.7'
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.fragment:fragment-ktx:1.8.4'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.8.3'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.8.3'
     implementation "androidx.room:room-runtime:$roomVersion"
-    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'com.google.android.material:material:1.12.0'
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     implementation "com.mikepenz:aboutlibraries:$aboutLibrariesVersion"
     implementation "com.mikepenz:aboutlibraries-core:$aboutLibrariesVersion"
@@ -144,20 +144,21 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-simplexml:2.11.0'
     implementation 'com.github.thegrizzlylabs:sardine-android:0.9'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0'
     kapt "androidx.room:room-compiler:$roomVersion"
     kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
 
+    // NOTE: Don't update test/espresso libraries until this is resolved: https://github.com/android/android-test/issues/2273
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation "androidx.test:core:1.5.0"
-    androidTestImplementation "androidx.test:runner:1.5.2"
-    androidTestImplementation "androidx.test:rules:1.5.0"
+    androidTestImplementation 'androidx.test:core:1.5.0'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "androidx.test.espresso:espresso-intents:$espressoVersion"
     androidTestImplementation "androidx.test.uiautomator:uiautomator:2.3.0"
     androidTestImplementation "com.google.dagger:hilt-android-testing:$hiltVersion"
-    androidTestUtil "androidx.test:orchestrator:1.4.2"
+    androidTestUtil 'androidx.test:orchestrator:1.4.2'
     kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hiltVersion"
 }

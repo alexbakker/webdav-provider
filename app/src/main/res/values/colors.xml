@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
     <color name="md_theme_light_primary">#29638A</color>
     <color name="md_theme_light_surfaceTint">#29638A</color>
     <color name="md_theme_light_onPrimary">#FFFFFF</color>

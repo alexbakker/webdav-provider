@@ -1,7 +1,7 @@
 <img align="left" width="80" height="80" src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp"
 alt="App icon">
 
-# WebDAV Provider [![CI](https://github.com/alexbakker/webdav-provider/workflows/build/badge.svg)](https://github.com/alexbakker/webdav-provider/actions?query=workflow%3Abuild)
+# WebDAV Provider [![build](https://github.com/alexbakker/webdav-provider/actions/workflows/build.yaml/badge.svg)](https://github.com/alexbakker/webdav-provider/actions/workflows/build.yaml)
 
 __WebDAV Provider__ is an Android app that can expose WebDAV through Android's
 Storage Access Framework (SAF). This allows you to access your WebDAV storage

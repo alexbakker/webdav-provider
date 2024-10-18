@@ -305,12 +305,14 @@ class WebDavClient(
             trustManagerFactory.trustManagers
         } else {
             hostnameVerifier { _, _ -> true }
-            arrayOf(@SuppressLint("CustomX509TrustManager")
-            object : X509TrustManager {
-                override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-                override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) = Unit
-                override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) = Unit
-            })
+            arrayOf(
+                @SuppressLint("CustomX509TrustManager")
+                object : X509TrustManager {
+                    override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+                    override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) = Unit
+                    override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) = Unit
+                }
+            )
         }
         sslContext.init(keyManager, trustManager, SecureRandom())
         sslSocketFactory(sslContext.socketFactory, trustManager.first() as X509TrustManager)

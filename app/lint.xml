@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <issue id="MissingTranslation" severity="ignore" />
+    <issue id="MissingQuantity" severity="ignore" />
+    <issue id="UnusedResources" severity="error">
+        <ignore path="res/raw/aboutlibraries.json" />
+    </issue>
+</lint>

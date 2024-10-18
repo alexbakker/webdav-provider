@@ -1,12 +1,12 @@
 package dev.rocli.android.webdav.activities
 
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View.GONE
 import android.view.View.VISIBLE
 import android.view.ViewGroup
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
 import androidx.core.view.ViewPropertyAnimatorCompat
@@ -14,6 +14,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.findNavController
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
+import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.color.DynamicColors
 import com.google.android.material.color.MaterialColors
 import dagger.hilt.android.AndroidEntryPoint
@@ -99,9 +100,7 @@ class MainActivity : AppCompatActivity() {
     private inner class ActionModeStatusGuardHack {
         private var fadeAnimField: Field? = null
         private var actionModeViewField: Field? = null
-
-        @ColorInt
-        private val statusBarColor: Int = window.statusBarColor
+        private var appBarBackground: Drawable? = null
 
         init {
             try {
@@ -115,7 +114,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        public fun apply(visibility: Int) {
+        fun apply(visibility: Int) {
             if (fadeAnimField == null || actionModeViewField == null) {
                 return
             }
@@ -123,27 +122,34 @@ class MainActivity : AppCompatActivity() {
             val fadeAnim: ViewPropertyAnimatorCompat?
             val actionModeView: ViewGroup?
             try {
-                fadeAnim = fadeAnimField?.get(getDelegate()) as ViewPropertyAnimatorCompat?
-                actionModeView = actionModeViewField?.get(getDelegate()) as ViewGroup?
+                fadeAnim = fadeAnimField?.get(delegate) as ViewPropertyAnimatorCompat?
+                actionModeView = actionModeViewField?.get(delegate) as ViewGroup?
             } catch (e: IllegalAccessException) {
                 return
             }
 
-            if (fadeAnim == null || actionModeView == null) {
-                return
+            val appBarLayout = findViewById<AppBarLayout>(R.id.app_bar_layout)
+            if (appBarLayout != null && appBarBackground == null) {
+                appBarBackground = appBarLayout.background
             }
 
+            if (fadeAnim == null || actionModeView == null || appBarLayout == null || appBarBackground == null) {
+                return
+            }
             fadeAnim.cancel()
-            actionModeView.visibility = visibility
-            actionModeView.setAlpha(if (visibility == VISIBLE) 1f else 0f)
 
-            window.statusBarColor = if (visibility == VISIBLE) {
-                MaterialColors.getColor(
-                    actionModeView,
+            if (visibility == VISIBLE) {
+                actionModeView.visibility = VISIBLE
+                actionModeView.alpha = 1f
+                val color = MaterialColors.getColor(
+                    appBarLayout,
                     com.google.android.material.R.attr.colorSurfaceContainer
                 )
+                appBarLayout.setBackgroundColor(color)
             } else {
-                statusBarColor
+                actionModeView.visibility = GONE
+                actionModeView.alpha = 0f
+                appBarLayout.background = appBarBackground
             }
         }
     }
