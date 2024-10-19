@@ -1,6 +1,6 @@
 {
     "metadata": {
-        "generated": "2024-10-18T18:53:30.577Z"
+        "generated": "2024-10-19T14:52:53.473Z"
     },
     "libraries": [
         {
@@ -2393,6 +2393,29 @@
                 "url": "http://squareup.com",
                 "name": "Square, Inc."
             }
+        },
+        {
+            "uniqueId": "io.github.rburgst:okhttp-digest",
+            "funding": [
+                
+            ],
+            "developers": [
+                {
+                    "name": "Rainer Burgstaller"
+                }
+            ],
+            "artifactVersion": "3.1.0",
+            "description": "A digest authenticator for okhttp.",
+            "scm": {
+                "connection": "scm:git:git@github.com:rburgst/okhttp-digest.git",
+                "url": "https://github.com/rburgst/okhttp-digest",
+                "developerConnection": "scm:git:git@github.com:rburgst/okhttp-digest.git"
+            },
+            "name": "okhttp-digest",
+            "website": "https://github.com/rburgst/okhttp-digest",
+            "licenses": [
+                "Apache-2.0"
+            ]
         },
         {
             "uniqueId": "jakarta.inject:jakarta.inject-api",

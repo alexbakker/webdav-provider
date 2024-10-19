@@ -50,6 +50,7 @@ class ScreenshotTest {
             Account(
                 name = "Nextcloud",
                 url = "http://${host}:8003/remote.php/dav/files/admin",
+                authType = Account.AuthType.BASIC,
                 username = SecretString("admin"),
                 password = SecretString("admin")
             ),

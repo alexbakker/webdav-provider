@@ -3,6 +3,10 @@ package dev.rocli.android.webdav.provider
 import android.annotation.SuppressLint
 import android.content.Context
 import android.security.KeyChain
+import com.burgstaller.okhttp.AuthenticationCacheInterceptor
+import com.burgstaller.okhttp.CachingAuthenticatorDecorator
+import com.burgstaller.okhttp.digest.CachingAuthenticator
+import com.burgstaller.okhttp.digest.DigestAuthenticator
 import com.thegrizzlylabs.sardineandroid.model.Prop
 import com.thegrizzlylabs.sardineandroid.model.Property
 import com.thegrizzlylabs.sardineandroid.model.Resourcetype
@@ -30,6 +34,7 @@ import java.security.Principal
 import java.security.PrivateKey
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
+import java.util.concurrent.ConcurrentHashMap
 import javax.net.ssl.KeyManager
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
@@ -40,7 +45,7 @@ import javax.net.ssl.X509TrustManager
 class WebDavClient(
     context: Context,
     private val url: HttpUrl,
-    private val creds: Pair<String, String>? = null,
+    private val creds: WebDavCredentials? = null,
     private val clientCert: String? = null,
     private val verify: Boolean = true,
     private val noHttp2: Boolean = false
@@ -181,7 +186,7 @@ class WebDavClient(
         return Result(body = res.body(), headers = res.headers())
     }
 
-    private class AuthInterceptor(val auth: String) : Interceptor {
+    private class BasicAuthInterceptor(val auth: String) : Interceptor {
         override fun intercept(chain: Interceptor.Chain): okhttp3.Response {
             val req = chain.request().newBuilder()
                 .header("Authorization", auth)
@@ -218,7 +223,7 @@ class WebDavClient(
         }
     }
 
-    private fun buildApiService(context: Context, url: HttpUrl, creds: Pair<String, String>?): WebDavService {
+    private fun buildApiService(context: Context, url: HttpUrl, creds: WebDavCredentials?): WebDavService {
         val builder = OkHttpClient.Builder().apply {
             if (clientCert != null || !verify) {
                 useCustomTLS(context, clientCert, verify)
@@ -233,8 +238,15 @@ class WebDavClient(
             builder.addInterceptor(logging)
         }
         if (creds != null) {
-            val auth = Credentials.basic(creds.first, creds.second)
-            builder.addInterceptor(AuthInterceptor(auth))
+            if (creds.type == WebDavCredentials.AuthType.BASIC) {
+                val auth = Credentials.basic(creds.username, creds.password)
+                builder.addInterceptor(BasicAuthInterceptor(auth))
+            } else if (creds.type == WebDavCredentials.AuthType.DIGEST) {
+                val authenticator = DigestAuthenticator(com.burgstaller.okhttp.digest.Credentials(creds.username, creds.password))
+                val authCache: Map<String, CachingAuthenticator> = ConcurrentHashMap<String, CachingAuthenticator>()
+                builder.authenticator(CachingAuthenticatorDecorator(authenticator, authCache))
+                builder.addInterceptor(AuthenticationCacheInterceptor(authCache))
+            }
         }
 
         val serializer = buildSerializer()

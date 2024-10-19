@@ -18,10 +18,24 @@ class WebDavClientManager(private val context: Context) {
                 return client
             }
 
-            val creds = account.username?.value?.let {username ->
-                account.password?.value?.let {password ->
-                    Pair(username, password)
+            val creds = if (account.authType != Account.AuthType.NONE) {
+                account.username?.value?.let { username ->
+                    account.password?.value?.let { password ->
+                        when (account.authType) {
+                            Account.AuthType.BASIC -> {
+                                WebDavCredentials(WebDavCredentials.AuthType.BASIC, username, password)
+                            }
+                            Account.AuthType.DIGEST -> {
+                                WebDavCredentials(WebDavCredentials.AuthType.DIGEST, username, password)
+                            }
+                            else -> {
+                                null
+                            }
+                        }
+                    }
                 }
+            } else {
+                null
             }
 
             client = WebDavClient(

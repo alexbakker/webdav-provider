@@ -4,4 +4,10 @@
         <item>Auto</item>
         <item>HTTP/1.1</item>
     </string-array>
+
+    <string-array name="auth_type_options">
+        <item>None</item>
+        <item>Basic</item>
+        <item>Digest</item>
+    </string-array>
 </resources>

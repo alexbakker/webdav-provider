@@ -29,6 +29,9 @@ data class Account(
     @ColumnInfo(name = "verify_certs")
     var verifyCerts: Boolean = true,
 
+    @ColumnInfo(name = "auth_type", defaultValue = "NONE")
+    var authType: AuthType = AuthType.NONE,
+
     @ColumnInfo(name = "username")
     var username: SecretString? = null,
 
@@ -72,6 +75,12 @@ data class Account(
 
     enum class Protocol {
         AUTO, HTTP1
+    }
+
+    enum class AuthType {
+        NONE,
+        BASIC,
+        DIGEST
     }
 }
 

@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
+import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.InverseBindingAdapter
@@ -29,8 +30,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import dev.rocli.android.webdav.R
 import dev.rocli.android.webdav.data.Account
 import dev.rocli.android.webdav.data.AccountDao
@@ -41,6 +40,8 @@ import dev.rocli.android.webdav.provider.WebDavCache
 import dev.rocli.android.webdav.provider.WebDavClientManager
 import dev.rocli.android.webdav.provider.WebDavPath
 import dev.rocli.android.webdav.provider.WebDavProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import javax.inject.Inject
 
@@ -71,8 +72,21 @@ class AccountFragment : Fragment() {
             binding.account = Account()
         }
 
-        val adapter = ArrayAdapter.createFromResource(requireContext(), R.array.protocol_options, R.layout.dropdown_list_item)
-        binding.dropdownProtocol.setAdapter(adapter)
+        val protocolAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.protocol_options, R.layout.dropdown_list_item)
+        binding.dropdownProtocol.setAdapter(protocolAdapter)
+
+        val authTypeAdapter = ArrayAdapter.createFromResource(requireContext(), R.array.auth_type_options, R.layout.dropdown_list_item)
+        binding.dropdownAuthType.setAdapter(authTypeAdapter)
+        binding.dropdownAuthType.doAfterTextChanged {
+            binding.account?.let {
+                if (it.authType == Account.AuthType.NONE) {
+                    it.username = null
+                    it.password = null
+                }
+            }
+            updateUserPassVisibility()
+        }
+        updateUserPassVisibility()
 
         if (binding.account!!.clientCert.isNullOrBlank()) {
             binding.textLayoutCertificate.setEndIconDrawable(R.drawable.ic_outline_add_24)
@@ -202,13 +216,23 @@ class AccountFragment : Fragment() {
         return true
     }
 
+    private fun updateUserPassVisibility() {
+        val visibility = if (binding.account!!.authType == Account.AuthType.NONE)
+            View.GONE else View.VISIBLE
+        binding.textLayoutUsername.visibility = visibility
+        binding.textLayoutPassword.visibility = visibility
+    }
+
     private fun validateForm(clientCert: Boolean = false): Boolean {
         var res = true
         if (binding.textName.text.toString().isBlank()) {
             getInputLayout(binding.textName).error = getString(R.string.error_field_required)
             res = false
         } else {
-            getInputLayout(binding.textName).error = null
+            getInputLayout(binding.textName).let {
+                it.error = null
+                it.isErrorEnabled = false
+            }
         }
 
         try {
@@ -217,7 +241,10 @@ class AccountFragment : Fragment() {
                 getInputLayout(binding.textUrl).error = getString(R.string.notice_http_client_certificate)
                 res = false
             } else {
-                getInputLayout(binding.textUrl).error = null
+                getInputLayout(binding.textUrl).let {
+                    it.error = null
+                    it.isErrorEnabled = false
+                }
             }
         } catch (e: IllegalArgumentException) {
             getInputLayout(binding.textUrl).error = getString(R.string.error_invalid_url)
@@ -306,7 +333,7 @@ fun Slider.getSliderValueLong(): Long {
 }
 
 @BindingAdapter("android:text")
-fun <T : Enum<T>> AutoCompleteTextView.setDropdownValueEnum(newValue: T) {
+fun AutoCompleteTextView.setDropdownValueProtocol(newValue: Account.Protocol) {
     val array = this.resources!!.getStringArray(R.array.protocol_options)
     val text = array[newValue.ordinal]
     if (this.text.toString() != text) {
@@ -318,6 +345,21 @@ fun <T : Enum<T>> AutoCompleteTextView.setDropdownValueEnum(newValue: T) {
 fun AutoCompleteTextView.getDropdownValueProtocol(): Account.Protocol {
     val array = this.resources!!.getStringArray(R.array.protocol_options)
     return Account.Protocol.entries[array.indexOf(this.text.toString())]
+}
+
+@BindingAdapter("android:text")
+fun AutoCompleteTextView.setDropdownValueAuthType(newValue: Account.AuthType) {
+    val array = this.resources!!.getStringArray(R.array.auth_type_options)
+    val text = array[newValue.ordinal]
+    if (this.text.toString() != text) {
+        this.setText(text, false)
+    }
+}
+
+@InverseBindingAdapter(attribute = "android:text")
+fun AutoCompleteTextView.getDropdownValueAuthType(): Account.AuthType {
+    val array = this.resources!!.getStringArray(R.array.auth_type_options)
+    return Account.AuthType.entries[array.indexOf(this.text.toString())]
 }
 
 @BindingAdapter("android:text")

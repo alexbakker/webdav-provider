@@ -83,7 +83,22 @@ services:
       test: "curl -v --fail-with-body -X PROPFIND -H 'Depth: 1' http://127.0.0.1 || exit 1"
       start_period: 5s
       #start_interval: 1s
+  webdav-apache-digest:
+    build: ./servers/apache
+    environment:
+      - DATA_DIR=/dav/apache-digest
+    volumes:
+      - *vol-data
+      - "./servers/apache-digest/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf"
+      - "./servers/apache-digest/.passwd:/.passwd"
+    ports:
+      - "8006:80"
+    healthcheck:
+      test: "curl -v --fail-with-body --digest -u test:test -X PROPFIND -H 'Depth: 1' http://127.0.0.1 || exit 1"
+      start_period: 5s
+      #start_interval: 1s
   webdav-apache-subpath:
+    # This container is a dependency of webdav-nginx-apache-subpath
     build: ./servers/apache
     environment:
       - DATA_DIR=/dav/apache-subpath

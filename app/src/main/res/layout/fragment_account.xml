@@ -4,6 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
         <variable name="account" type="dev.rocli.android.webdav.data.Account" />
+        <import type="android.view.View"/>
+        <import type="dev.rocli.android.webdav.data.Account.AuthType"/>
     </data>
     <LinearLayout
         android:layout_width="match_parent"
@@ -115,15 +117,32 @@
                 app:layout_constraintTop_toBottomOf="@+id/layout_dropdown_protocol" />
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_auth_type"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvAuth">
+
+                <AutoCompleteTextView
+                    android:id="@+id/dropdown_auth_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:text="@={account.authType}" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/text_layout_username"
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
                 android:hint="@string/username"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvAuth">
+                app:layout_constraintTop_toBottomOf="@+id/layout_auth_type">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/text_username"
@@ -151,7 +170,6 @@
                     android:singleLine="true"
                     android:text="@={account.password}" />
             </com.google.android.material.textfield.TextInputLayout>
-
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"

@@ -57,10 +57,10 @@ class DocumentsProviderTest(private val testName: String, private val account: A
                 arrayOf("hacdias", Account(
                     name = "Hacdias",
                     url = "http://${HOST}:8001",
+                    authType = Account.AuthType.BASIC,
                     username = SecretString("test"),
                     password = SecretString("test")
-                )
-                ),
+                )),
                 arrayOf("nginx", Account(
                     name = "Nginx",
                     url = "http://${HOST}:8002"
@@ -68,6 +68,7 @@ class DocumentsProviderTest(private val testName: String, private val account: A
                 arrayOf("nextcloud", Account(
                     name = "Nextcloud",
                     url = "http://${HOST}:8003/remote.php/dav/files/test",
+                    authType = Account.AuthType.BASIC,
                     username = SecretString("test"),
                     password = SecretString("ilovepasswordstrengthchecks")
                 )),
@@ -78,6 +79,13 @@ class DocumentsProviderTest(private val testName: String, private val account: A
                 arrayOf("apache-subpath", Account(
                     name = "Apache (subpath) proxied through Nginx",
                     url = "http://${HOST}:8005/webdav"
+                )),
+                arrayOf("apache-digest", Account(
+                    name = "Apache using digest auth",
+                    url = "http://${HOST}:8006",
+                    authType = Account.AuthType.DIGEST,
+                    username = SecretString("test"),
+                    password = SecretString("test")
                 )),
             )
         }
