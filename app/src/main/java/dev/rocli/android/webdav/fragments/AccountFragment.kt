@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
@@ -82,6 +83,7 @@ class AccountFragment : Fragment() {
                 if (it.authType == Account.AuthType.NONE) {
                     it.username = null
                     it.password = null
+                    binding.invalidateAll()
                 }
             }
             updateUserPassVisibility()
@@ -230,6 +232,26 @@ class AccountFragment : Fragment() {
             res = false
         } else {
             getInputLayout(binding.textName).let {
+                it.error = null
+                it.isErrorEnabled = false
+            }
+        }
+
+        if (binding.textLayoutUsername.isVisible && binding.textUsername.text.toString().isBlank()) {
+            getInputLayout(binding.textUsername).error = getString(R.string.error_field_required)
+            res = false
+        } else {
+            getInputLayout(binding.textUsername).let {
+                it.error = null
+                it.isErrorEnabled = false
+            }
+        }
+
+        if (binding.textLayoutPassword.isVisible && binding.textPassword.text.toString().isBlank()) {
+            getInputLayout(binding.textPassword).error = getString(R.string.error_field_required)
+            res = false
+        } else {
+            getInputLayout(binding.textPassword).let {
                 it.error = null
                 it.isErrorEnabled = false
             }
