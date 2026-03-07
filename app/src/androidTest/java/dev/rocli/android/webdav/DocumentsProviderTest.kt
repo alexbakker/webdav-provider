@@ -13,7 +13,7 @@ import dev.rocli.android.webdav.data.SecretString
 import dev.rocli.android.webdav.provider.WebDavProvider
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.internal.EMPTY_REQUEST
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert
@@ -103,7 +103,7 @@ class DocumentsProviderTest(private val testName: String, private val account: A
 
     private fun resetEnvironment() {
         val req = Request.Builder()
-            .post(EMPTY_REQUEST)
+            .post(ByteArray(0).toRequestBody())
             .url("http://${HOST}:8000/reset/${testName}")
             .build()
         val res = httpClient.newCall(req).execute()

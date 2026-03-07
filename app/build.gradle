@@ -1,7 +1,7 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
-    id 'kotlin-kapt'
+    id 'com.android.legacy-kapt' version '9.1.0'
+    id 'com.google.devtools.ksp'
     id 'kotlin-parcelize'
     id 'dagger.hilt.android.plugin'
     id "androidx.navigation.safeargs.kotlin"
@@ -16,9 +16,8 @@ def providerAuthorityDebug = "${packageName}.debug.provider"
 
 def getCmdOutput = { cmd ->
     def stdout = new ByteArrayOutputStream()
-    exec {
+    providers.exec {
         commandLine cmd
-        standardOutput = stdout
     }
     return stdout.toString().trim()
 }
@@ -27,61 +26,57 @@ def getGitHash = { -> return getCmdOutput(["git", "rev-parse", "--short", "HEAD"
 def getGitBranch = { -> return getCmdOutput(["git", "rev-parse", "--abbrev-ref", "HEAD"]) }
 
 android {
-    namespace packageName
+    namespace = packageName
 
-    compileSdk 35
+    compileSdk = 36
 
     defaultConfig {
-        applicationId packageName
-        minSdkVersion 27
-        targetSdkVersion 35
-        versionCode 4
-        versionName "0.2.0"
+        applicationId = packageName
+        minSdk = 27
+        targetSdk = 36
+        versionCode = 4
+        versionName = "0.2.0"
 
         buildConfigField "String", "GIT_HASH", "\"${getGitHash()}\""
         buildConfigField "String", "GIT_BRANCH", "\"${getGitBranch()}\""
         buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "TEST", "new java.util.concurrent.atomic.AtomicBoolean(false)"
         buildConfigField "java.util.concurrent.atomic.AtomicBoolean", "DYNAMIC_COLORS", "new java.util.concurrent.atomic.AtomicBoolean(true)"
 
-        kapt {
-            arguments {
-                arg("room.schemaLocation", "$projectDir/schemas")
-            }
-        }
 
-        testInstrumentationRunner "dev.rocli.android.webdav.WebDavTestRunner"
+        testInstrumentationRunner = "dev.rocli.android.webdav.WebDavTestRunner"
         testInstrumentationRunnerArguments clearPackageData: 'true'
     }
 
     testOptions {
-        execution 'ANDROIDX_TEST_ORCHESTRATOR'
+        execution = 'ANDROIDX_TEST_ORCHESTRATOR'
 
         unitTests {
             all {
-                ignoreFailures false
+                ignoreFailures = false
                 testLogging {
                     events "passed", "skipped", "failed", "standardOut", "standardError"
 
-                    showExceptions true
-                    exceptionFormat "full"
-                    showCauses true
-                    showStackTraces true
+                    showExceptions = true
+                    exceptionFormat = "full"
+                    showCauses = true
+                    showStackTraces = true
                 }
             }
 
-            includeAndroidResources true
+            includeAndroidResources = true
         }
     }
 
     buildFeatures {
-        dataBinding true
-        viewBinding true
-        buildConfig true
+        dataBinding = true
+        viewBinding = true
+        buildConfig = true
+        resValues = true
     }
 
     buildTypes {
         debug {
-            applicationIdSuffix ".debug"
+            applicationIdSuffix = ".debug"
 
             resValue("string", "app_name", appNameDebug)
             manifestPlaceholders = [providerAuthority: providerAuthorityDebug]
@@ -92,62 +87,65 @@ android {
             manifestPlaceholders = [providerAuthority: providerAuthority]
             buildConfigField("String", "PROVIDER_AUTHORITY", "\"${providerAuthority}\"")
 
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
-    }
-
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     lint {
-        abortOnError true
-        checkDependencies true
+        abortOnError = true
+        checkDependencies = true
     }
 
     aboutLibraries {
         // Tasks for aboutLibraries are not run automatically to keep the build reproducible
         // To update manually: ./gradlew app:exportLibraryDefinitions -PaboutLibraries.exportPath=src/main/res/raw
-        prettyPrint = true
-        fetchRemoteFunding = false
-        registerAndroidTasks = false
-        exclusionPatterns = [~"javax.annotation.*"]
-        duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
+        export {
+            excludeFields.addAll("funding")
+            prettyPrint = true
+        }
+        library {
+            duplicationMode = com.mikepenz.aboutlibraries.plugin.DuplicateMode.MERGE
+        }
     }
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+    arg("dagger.hilt.android.internal.disableAndroidSuperclassValidation", "true")
+}
 dependencies {
-    def roomVersion = "2.6.1"
+    def roomVersion = '2.8.4'
     def espressoVersion = '3.5.1'
 
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.core:core-ktx:1.13.1'
-    implementation 'androidx.fragment:fragment-ktx:1.8.4'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.8.3'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.8.3'
+    implementation 'androidx.appcompat:appcompat:1.7.1'
+    implementation 'androidx.documentfile:documentfile:1.1.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
+    implementation 'androidx.core:core-ktx:1.18.0'
+    implementation 'androidx.fragment:fragment-ktx:1.8.9'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.7'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.9.7'
     implementation "androidx.room:room-runtime:$roomVersion"
-    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'com.google.android.material:material:1.13.0'
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     implementation "com.mikepenz:aboutlibraries:$aboutLibrariesVersion"
     implementation "com.mikepenz:aboutlibraries-core:$aboutLibrariesVersion"
-    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
-    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
-    implementation 'com.squareup.retrofit2:converter-simplexml:2.11.0'
+    implementation 'com.squareup.okhttp3:okhttp:5.3.2'
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.3.2'
+    implementation 'com.squareup.retrofit2:retrofit:3.0.0'
+    implementation 'com.squareup.retrofit2:converter-simplexml:3.0.0'
     implementation 'com.github.thegrizzlylabs:sardine-android:0.9'
-    implementation 'io.github.rburgst:okhttp-digest:3.1.0'
+    implementation 'io.github.rburgst:okhttp-digest:3.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.9.0'
-    kapt "androidx.room:room-compiler:$roomVersion"
-    kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
+    ksp "androidx.room:room-compiler:$roomVersion"
+    ksp "com.google.dagger:hilt-android-compiler:$hiltVersion"
 
     // NOTE: Don't update test/espresso libraries until this is resolved: https://github.com/android/android-test/issues/2273
     testImplementation 'junit:junit:4.13.2'
@@ -161,5 +159,5 @@ dependencies {
     androidTestImplementation "androidx.test.uiautomator:uiautomator:2.3.0"
     androidTestImplementation "com.google.dagger:hilt-android-testing:$hiltVersion"
     androidTestUtil 'androidx.test:orchestrator:1.4.2'
-    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hiltVersion"
+    kspAndroidTest "com.google.dagger:hilt-android-compiler:$hiltVersion"
 }

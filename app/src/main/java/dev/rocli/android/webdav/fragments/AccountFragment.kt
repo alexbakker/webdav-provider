@@ -16,10 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
-import androidx.databinding.BindingAdapter
 import androidx.databinding.DataBindingUtil
-import androidx.databinding.InverseBindingAdapter
-import androidx.databinding.InverseBindingListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -34,7 +31,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import dev.rocli.android.webdav.R
 import dev.rocli.android.webdav.data.Account
 import dev.rocli.android.webdav.data.AccountDao
-import dev.rocli.android.webdav.data.SecretString
 import dev.rocli.android.webdav.databinding.FragmentAccountBinding
 import dev.rocli.android.webdav.dialogs.Dialogs
 import dev.rocli.android.webdav.provider.WebDavCache
@@ -334,66 +330,3 @@ class AccountFragment : Fragment() {
     }
 }
 
-@BindingAdapter("android:valueAttrChanged")
-fun Slider.setSliderListeners(attrChange: InverseBindingListener) {
-    this.addOnChangeListener { _, _, _ ->
-        attrChange.onChange()
-    }
-}
-
-@BindingAdapter("android:value")
-fun Slider.setSliderValueLong(newValue: Long) {
-    val fNewValue = newValue.toFloat()
-    if (this.value != fNewValue) {
-        this.value = fNewValue
-    }
-}
-
-@InverseBindingAdapter(attribute = "android:value")
-fun Slider.getSliderValueLong(): Long {
-    return this.value.toLong()
-}
-
-@BindingAdapter("android:text")
-fun AutoCompleteTextView.setDropdownValueProtocol(newValue: Account.Protocol) {
-    val array = this.resources!!.getStringArray(R.array.protocol_options)
-    val text = array[newValue.ordinal]
-    if (this.text.toString() != text) {
-        this.setText(text, false)
-    }
-}
-
-@InverseBindingAdapter(attribute = "android:text")
-fun AutoCompleteTextView.getDropdownValueProtocol(): Account.Protocol {
-    val array = this.resources!!.getStringArray(R.array.protocol_options)
-    return Account.Protocol.entries[array.indexOf(this.text.toString())]
-}
-
-@BindingAdapter("android:text")
-fun AutoCompleteTextView.setDropdownValueAuthType(newValue: Account.AuthType) {
-    val array = this.resources!!.getStringArray(R.array.auth_type_options)
-    val text = array[newValue.ordinal]
-    if (this.text.toString() != text) {
-        this.setText(text, false)
-    }
-}
-
-@InverseBindingAdapter(attribute = "android:text")
-fun AutoCompleteTextView.getDropdownValueAuthType(): Account.AuthType {
-    val array = this.resources!!.getStringArray(R.array.auth_type_options)
-    return Account.AuthType.entries[array.indexOf(this.text.toString())]
-}
-
-@BindingAdapter("android:text")
-fun TextInputEditText.setSecretStringValue(newValue: SecretString?) {
-    this.setText(newValue?.value)
-}
-
-@InverseBindingAdapter(attribute = "android:text")
-fun TextInputEditText.getSecretStringValue(): SecretString? {
-    if (this.text.isNullOrBlank()) {
-        return null
-    }
-
-    return SecretString(this.text.toString())
-}
