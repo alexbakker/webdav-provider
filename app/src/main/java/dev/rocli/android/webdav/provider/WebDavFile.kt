@@ -2,8 +2,7 @@ package dev.rocli.android.webdav.provider
 
 import android.webkit.MimeTypeMap
 import com.thegrizzlylabs.sardineandroid.model.Response
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
+import dev.rocli.android.webdav.extensions.urlDecodePath
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.text.ParseException
@@ -41,10 +40,10 @@ class WebDavFile(
         get() = WebDavPath(path, isDirectory)
 
     val decodedName: String
-        get() = URLDecoder.decode(name, StandardCharsets.UTF_8.name())
+        get() = name
 
     constructor (res: Response, href: String = res.href)
-            : this(Paths.get(href), res.propstat[0].prop.resourcetype.collection != null) {
+            : this(Paths.get(href.urlDecodePath()), res.propstat[0].prop.resourcetype.collection != null) {
         val prop = res.propstat[0].prop
         etag = prop.getetag
         contentType = parseContentType(name, prop.getcontenttype)
