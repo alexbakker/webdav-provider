@@ -1,6 +1,7 @@
 package dev.rocli.android.webdav.extensions
 
 import okhttp3.HttpUrl
+import java.net.URI
 import java.nio.file.Path
 import java.nio.file.Paths
 
@@ -10,6 +11,10 @@ fun String.ensureTrailingSlash(): String {
     } else {
         this
     }
+}
+
+fun String.urlDecodePath(): String {
+    return URI("http://fake$this").path
 }
 
 fun Path.urlEncode(): Path {

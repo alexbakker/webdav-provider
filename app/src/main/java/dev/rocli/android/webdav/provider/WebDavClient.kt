@@ -67,7 +67,7 @@ class WebDavClient(
     class Error(message: String) : Exception(message)
 
     suspend fun get(path: WebDavPath, offset: Long = 0): Result<InputStream> {
-        val res = execRequest { api.get(path.toString(), if (offset == 0L) null else "bytes=$offset-") }
+        val res = execRequest { api.get(path.toEncodedString(), if (offset == 0L) null else "bytes=$offset-") }
         if (!res.isSuccessful) {
             return Result(error = res.error)
         }
@@ -80,7 +80,7 @@ class WebDavClient(
     }
 
     suspend fun putDir(path: WebDavPath): Result<Unit> {
-        return execRequest { api.putDir(path.toString()) }
+        return execRequest { api.putDir(path.toEncodedString()) }
     }
 
     suspend fun putFile(
@@ -104,7 +104,7 @@ class WebDavClient(
                 source,
                 contentLength = contentLength
             )
-            api.putFile(path.toString(), body)
+            api.putFile(path.toEncodedString(), body)
         }
     }
 
@@ -113,11 +113,11 @@ class WebDavClient(
     }
 
     private suspend fun delete(path: WebDavPath): Result<Unit> {
-        return execRequest { api.delete(path.toString()) }
+        return execRequest { api.delete(path.toEncodedString()) }
     }
 
     suspend fun options(path: WebDavPath): Result<WebDavOptions> {
-        val res = execRequest { api.options(path.toString()) }
+        val res = execRequest { api.options(path.toEncodedString()) }
         if (!res.isSuccessful) {
             return Result(error = res.error)
         }
@@ -132,7 +132,7 @@ class WebDavClient(
     suspend fun propFind(path: WebDavPath, depth: Int = 1): Result<WebDavFile> {
         val res = execRequest {
             api.propFind(
-                path.toString(),
+                path.toEncodedString(),
                 depth = if (path.isDirectory) {
                     depth
                 } else {
@@ -168,8 +168,8 @@ class WebDavClient(
     }
 
     suspend fun move(path: WebDavPath, newPath: WebDavPath): Result<Unit> {
-        val dest = url.newBuilder().encodedPath(newPath.toString()).build()
-        return execRequest { api.move(path.toString(), dest.toString()) }
+        val dest = url.newBuilder().encodedPath(newPath.toEncodedString()).build()
+        return execRequest { api.move(path.toEncodedString(), dest.toString()) }
     }
 
     private suspend fun <T> execRequest(exec: suspend () -> Response<T>): Result<T> {

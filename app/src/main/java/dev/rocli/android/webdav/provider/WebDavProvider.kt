@@ -4,7 +4,11 @@ import android.content.Context
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.net.Uri
-import android.os.*
+import android.os.Bundle
+import android.os.CancellationSignal
+import android.os.Handler
+import android.os.Looper
+import android.os.ParcelFileDescriptor
 import android.os.storage.StorageManager
 import android.provider.DocumentsContract
 import android.provider.DocumentsContract.Document
@@ -15,12 +19,15 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.EntryPoints
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.*
 import dev.rocli.android.webdav.BuildConfig
 import dev.rocli.android.webdav.R
 import dev.rocli.android.webdav.data.Account
 import dev.rocli.android.webdav.data.AccountDao
-import dev.rocli.android.webdav.extensions.urlEncode
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import okio.IOException
 import java.io.FileNotFoundException
 import java.nio.file.Path
@@ -257,7 +264,7 @@ class WebDavProvider : DocumentsProvider() {
             throw FileNotFoundException(documentId)
         }
 
-        val path = dir.path.resolve(displayName).urlEncode()
+        val path = dir.path.resolve(displayName)
         val isDirectory = mimeType.equals(Document.MIME_TYPE_DIR, ignoreCase = true)
 
         var resDocumentId: String? = null
@@ -322,7 +329,7 @@ class WebDavProvider : DocumentsProvider() {
         }
 
         val oldPath = file.path
-        val newPath = oldPath.parent.resolve(displayName).urlEncode()
+        val newPath = oldPath.parent.resolve(displayName)
 
         val res = runBlocking(Dispatchers.IO) {
             clients.get(account).move(file.davPath, WebDavPath(newPath, file.isDirectory))
