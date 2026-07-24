@@ -1,6 +1,6 @@
 plugins {
     id 'com.android.application'
-    id 'com.android.legacy-kapt' version '9.1.0'
+    id 'com.android.legacy-kapt' version '9.3.1'
     id 'com.google.devtools.ksp'
     id 'kotlin-parcelize'
     id 'dagger.hilt.android.plugin'
@@ -28,12 +28,12 @@ def getGitBranch = { -> return getCmdOutput(["git", "rev-parse", "--abbrev-ref",
 android {
     namespace = packageName
 
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = packageName
         minSdk = 27
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 4
         versionName = "0.2.0"
 
@@ -127,23 +127,23 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'androidx.documentfile:documentfile:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
-    implementation 'androidx.core:core-ktx:1.18.0'
+    implementation 'androidx.core:core-ktx:1.19.0'
     implementation 'androidx.fragment:fragment-ktx:1.8.9'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.7'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.9.7'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.8'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.9.8'
     implementation "androidx.room:room-runtime:$roomVersion"
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'com.google.android.material:material:1.14.0'
     implementation "com.google.dagger:hilt-android:$hiltVersion"
     implementation "com.mikepenz:aboutlibraries:$aboutLibrariesVersion"
     implementation "com.mikepenz:aboutlibraries-core:$aboutLibrariesVersion"
-    implementation 'com.squareup.okhttp3:okhttp:5.3.2'
-    implementation 'com.squareup.okhttp3:logging-interceptor:5.3.2'
+    implementation 'com.squareup.okhttp3:okhttp:5.4.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.4.0'
     implementation 'com.squareup.retrofit2:retrofit:3.0.0'
     implementation 'com.squareup.retrofit2:converter-simplexml:3.0.0'
     implementation 'com.github.thegrizzlylabs:sardine-android:0.9'
     implementation 'io.github.rburgst:okhttp-digest:3.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0'
     ksp "androidx.room:room-compiler:$roomVersion"
     ksp "com.google.dagger:hilt-android-compiler:$hiltVersion"
 

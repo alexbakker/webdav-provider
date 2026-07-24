@@ -46,10 +46,10 @@
         },
         {
             "uniqueId": "androidx.annotation:annotation",
-            "artifactVersion": "1.9.1",
+            "artifactVersion": "1.10.0",
             "name": "Annotation",
             "description": "Provides source annotations for tooling and readability.",
-            "website": "https://developer.android.com/jetpack/androidx/releases/annotation#1.9.1",
+            "website": "https://developer.android.com/jetpack/androidx/releases/annotation#1.10.0",
             "developers": [
                 {
                     "name": "The Android Open Source Project"
@@ -317,10 +317,10 @@
         },
         {
             "uniqueId": "androidx.core:core",
-            "artifactVersion": "1.18.0",
+            "artifactVersion": "1.19.0",
             "name": "Core",
             "description": "Provides backward-compatible implementations of Android platform APIs and features.",
-            "website": "https://developer.android.com/jetpack/androidx/releases/core#1.18.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/core#1.19.0",
             "developers": [
                 {
                     "name": "The Android Open Source Project"
@@ -339,10 +339,10 @@
         },
         {
             "uniqueId": "androidx.core:core-ktx",
-            "artifactVersion": "1.18.0",
+            "artifactVersion": "1.19.0",
             "name": "Core Kotlin Extensions",
             "description": "Kotlin extensions for 'core' artifact",
-            "website": "https://developer.android.com/jetpack/androidx/releases/core#1.18.0",
+            "website": "https://developer.android.com/jetpack/androidx/releases/core#1.19.0",
             "developers": [
                 {
                     "name": "The Android Open Source Project"
@@ -402,18 +402,21 @@
         },
         {
             "uniqueId": "androidx.customview:customview",
-            "artifactVersion": "1.1.0",
-            "name": "Support Custom View",
+            "artifactVersion": "1.2.0",
+            "name": "Custom View",
             "description": "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later.",
-            "website": "https://developer.android.com/jetpack/androidx",
+            "website": "https://developer.android.com/jetpack/androidx/releases/customview#1.2.0",
             "developers": [
                 {
                     "name": "The Android Open Source Project"
                 }
             ],
+            "organization": {
+                "name": "The Android Open Source Project"
+            },
             "scm": {
                 "connection": "scm:git:https://android.googlesource.com/platform/frameworks/support",
-                "url": "http://source.android.com"
+                "url": "https://cs.android.com/androidx/platform/frameworks/support"
             },
             "licenses": [
                 "Apache-2.0"
@@ -440,7 +443,7 @@
         },
         {
             "uniqueId": "androidx.databinding:databinding-adapters",
-            "artifactVersion": "9.1.0",
+            "artifactVersion": "9.3.1",
             "name": "androidx.databinding:databinding-adapters",
             "description": "",
             "developers": [
@@ -452,7 +455,7 @@
         },
         {
             "uniqueId": "androidx.databinding:databinding-common",
-            "artifactVersion": "9.1.0",
+            "artifactVersion": "9.3.1",
             "name": "androidx.databinding.databinding-common",
             "description": "Shared library between Data Binding runtime lib and compiler",
             "website": "http://tools.android.com/",
@@ -467,7 +470,7 @@
         },
         {
             "uniqueId": "androidx.databinding:databinding-ktx",
-            "artifactVersion": "9.1.0",
+            "artifactVersion": "9.3.1",
             "name": "androidx.databinding:databinding-ktx",
             "description": "",
             "developers": [
@@ -479,7 +482,7 @@
         },
         {
             "uniqueId": "androidx.databinding:databinding-runtime",
-            "artifactVersion": "9.1.0",
+            "artifactVersion": "9.3.1",
             "name": "androidx.databinding:databinding-runtime",
             "description": "",
             "developers": [
@@ -491,7 +494,7 @@
         },
         {
             "uniqueId": "androidx.databinding:viewbinding",
-            "artifactVersion": "9.1.0",
+            "artifactVersion": "9.3.1",
             "name": "androidx.databinding:viewbinding",
             "description": "",
             "developers": [
@@ -1009,29 +1012,11 @@
             ]
         },
         {
-            "uniqueId": "androidx.multidex:multidex",
-            "artifactVersion": "2.0.1",
-            "name": "Android Multi-Dex Library",
-            "description": "Library for legacy multi-dex support",
-            "developers": [
-                {
-                    "name": "The Android Open Source Project"
-                }
-            ],
-            "scm": {
-                "connection": "scm:git:https://android.googlesource.com/platform/frameworks/multidex",
-                "url": "http://source.android.com"
-            },
-            "licenses": [
-                "Apache-2.0"
-            ]
-        },
-        {
             "uniqueId": "androidx.navigation:navigation-common",
-            "artifactVersion": "2.9.7",
+            "artifactVersion": "2.9.8",
             "name": "Navigation Common",
             "description": "Android Navigation-Common",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.9.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.9.8",
             "developers": [
                 {
                     "name": "The Android Open Source Project"
@@ -1050,10 +1035,10 @@
         },
         {
             "uniqueId": "androidx.navigation:navigation-fragment",
-            "artifactVersion": "2.9.7",
+            "artifactVersion": "2.9.8",
             "name": "Navigation Fragment",
             "description": "Android Navigation-Fragment",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.9.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.9.8",
             "developers": [
                 {
                     "name": "The Android Open Source Project"
@@ -1072,10 +1057,10 @@
         },
         {
             "uniqueId": "androidx.navigation:navigation-fragment-ktx",
-            "artifactVersion": "2.9.7",
+            "artifactVersion": "2.9.8",
             "name": "Navigation Fragment Kotlin Extensions",
             "description": "Android Navigation-Fragment-Ktx",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.9.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.9.8",
             "developers": [
                 {
                     "name": "The Android Open Source Project"
@@ -1094,10 +1079,10 @@
         },
         {
             "uniqueId": "androidx.navigation:navigation-runtime",
-            "artifactVersion": "2.9.7",
+            "artifactVersion": "2.9.8",
             "name": "Navigation Runtime",
             "description": "Android Navigation-Runtime",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.9.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.9.8",
             "developers": [
                 {
                     "name": "The Android Open Source Project"
@@ -1116,10 +1101,10 @@
         },
         {
             "uniqueId": "androidx.navigation:navigation-ui",
-            "artifactVersion": "2.9.7",
+            "artifactVersion": "2.9.8",
             "name": "Navigation UI",
             "description": "Android Navigation-UI",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.9.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.9.8",
             "developers": [
                 {
                     "name": "The Android Open Source Project"
@@ -1138,10 +1123,10 @@
         },
         {
             "uniqueId": "androidx.navigation:navigation-ui-ktx",
-            "artifactVersion": "2.9.7",
+            "artifactVersion": "2.9.8",
             "name": "Navigation UI Kotlin Extensions",
             "description": "Android Navigation-UI-Ktx",
-            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.9.7",
+            "website": "https://developer.android.com/jetpack/androidx/releases/navigation#2.9.8",
             "developers": [
                 {
                     "name": "The Android Open Source Project"
@@ -1693,9 +1678,9 @@
         },
         {
             "uniqueId": "com.google.android.material:material",
-            "artifactVersion": "1.13.0",
+            "artifactVersion": "1.14.0",
             "name": "Material Components for Android",
-            "description": "Material Components for Android is a static library that you can add to your Android application in order to use APIs that provide implementations of the Material Design specification. Compatible on devices running API 21 or later.",
+            "description": "Material Components for Android is a static library that you can add to your Android application in order to use APIs that provide implementations of the Material Design specification. Compatible on devices running API 23 or later.",
             "website": "https://github.com/material-components/material-components-android",
             "developers": [
                 {
@@ -1730,7 +1715,7 @@
         },
         {
             "uniqueId": "com.google.dagger:dagger",
-            "artifactVersion": "2.59.2",
+            "artifactVersion": "2.60.1",
             "name": "Dagger",
             "description": "A fast dependency injector for Android and Java.",
             "website": "https://github.com/google/dagger",
@@ -1754,7 +1739,7 @@
         },
         {
             "uniqueId": "com.google.dagger:dagger-lint-aar",
-            "artifactVersion": "2.59.2",
+            "artifactVersion": "2.60.1",
             "name": "Dagger Lint Rules AAR Distribution",
             "description": "A fast dependency injector for Android and Java.",
             "website": "https://github.com/google/dagger",
@@ -1778,7 +1763,7 @@
         },
         {
             "uniqueId": "com.google.dagger:hilt-android",
-            "artifactVersion": "2.59.2",
+            "artifactVersion": "2.60.1",
             "name": "Hilt Android",
             "description": "A fast dependency injector for Android and Java.",
             "website": "https://github.com/google/dagger",
@@ -1802,7 +1787,7 @@
         },
         {
             "uniqueId": "com.google.dagger:hilt-android-testing",
-            "artifactVersion": "2.59.2",
+            "artifactVersion": "2.60.1",
             "name": "Hilt Android Testing",
             "description": "A fast dependency injector for Android and Java.",
             "website": "https://github.com/google/dagger",
@@ -1826,7 +1811,7 @@
         },
         {
             "uniqueId": "com.google.dagger:hilt-core",
-            "artifactVersion": "2.59.2",
+            "artifactVersion": "2.60.1",
             "name": "Hilt Core",
             "description": "A fast dependency injector for Android and Java.",
             "website": "https://github.com/google/dagger",
@@ -2036,7 +2021,7 @@
         },
         {
             "uniqueId": "com.squareup.okhttp3:logging-interceptor",
-            "artifactVersion": "5.3.2",
+            "artifactVersion": "5.4.0",
             "name": "logging-interceptor",
             "description": "Square\u2019s meticulous HTTP client for Java and Kotlin.",
             "website": "https://square.github.io/okhttp/",
@@ -2056,7 +2041,7 @@
         },
         {
             "uniqueId": "com.squareup.okhttp3:okhttp",
-            "artifactVersion": "5.3.2",
+            "artifactVersion": "5.4.0",
             "name": "okhttp",
             "description": "Square\u2019s meticulous HTTP client for Java and Kotlin.",
             "website": "https://square.github.io/okhttp/",
@@ -2076,7 +2061,7 @@
         },
         {
             "uniqueId": "com.squareup.okio:okio",
-            "artifactVersion": "3.16.4",
+            "artifactVersion": "3.17.0",
             "name": "okio",
             "description": "A modern I/O library for Android, Java, and Kotlin Multiplatform.",
             "website": "https://github.com/square/okio/",
@@ -2437,7 +2422,7 @@
         },
         {
             "uniqueId": "org.jetbrains.kotlin:kotlin-stdlib",
-            "artifactVersion": "2.3.20",
+            "artifactVersion": "2.3.21",
             "name": "Kotlin Stdlib",
             "description": "Kotlin Standard Library",
             "website": "https://kotlinlang.org/",
@@ -2477,7 +2462,7 @@
         },
         {
             "uniqueId": "org.jetbrains.kotlinx:kotlinx-coroutines-android",
-            "artifactVersion": "1.10.2",
+            "artifactVersion": "1.11.0",
             "name": "kotlinx-coroutines-android",
             "description": "Coroutines support libraries for Kotlin",
             "website": "https://github.com/Kotlin/kotlinx.coroutines",
@@ -2496,7 +2481,7 @@
         },
         {
             "uniqueId": "org.jetbrains.kotlinx:kotlinx-coroutines-bom",
-            "artifactVersion": "1.10.2",
+            "artifactVersion": "1.11.0",
             "name": "kotlinx-coroutines-bom",
             "description": "Coroutines support libraries for Kotlin",
             "website": "https://github.com/Kotlin/kotlinx.coroutines",
@@ -2515,7 +2500,7 @@
         },
         {
             "uniqueId": "org.jetbrains.kotlinx:kotlinx-coroutines-core",
-            "artifactVersion": "1.10.2",
+            "artifactVersion": "1.11.0",
             "name": "kotlinx-coroutines-core",
             "description": "Coroutines support libraries for Kotlin",
             "website": "https://github.com/Kotlin/kotlinx.coroutines",
