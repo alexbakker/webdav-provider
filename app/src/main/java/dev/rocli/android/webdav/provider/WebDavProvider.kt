@@ -438,7 +438,7 @@ class WebDavProvider : DocumentsProvider() {
         cursor.newRow().apply {
             add(Document.COLUMN_DOCUMENT_ID, buildDocumentId(account, file))
             add(Document.COLUMN_MIME_TYPE, if (file.isDirectory) Document.MIME_TYPE_DIR else file.contentType)
-            add(Document.COLUMN_DISPLAY_NAME, file.decodedName)
+            add(Document.COLUMN_DISPLAY_NAME, file.name)
             add(Document.COLUMN_LAST_MODIFIED, file.lastModified?.time)
             add(Document.COLUMN_FLAGS, flags)
             add(Document.COLUMN_SIZE, file.contentLength)

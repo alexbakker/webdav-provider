@@ -39,9 +39,6 @@ class WebDavFile(
     val davPath: WebDavPath
         get() = WebDavPath(path, isDirectory)
 
-    val decodedName: String
-        get() = name
-
     constructor (res: Response, href: String = res.href)
             : this(Paths.get(href.urlDecodePath()), res.propstat[0].prop.resourcetype.collection != null) {
         val prop = res.propstat[0].prop
