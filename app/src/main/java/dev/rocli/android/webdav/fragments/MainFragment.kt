@@ -1,8 +1,11 @@
 package dev.rocli.android.webdav.fragments
 
+import android.Manifest.permission.ACCESS_LOCAL_NETWORK
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.provider.DocumentsContract
 import android.view.LayoutInflater
@@ -11,9 +14,13 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ActionMode
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -27,9 +34,13 @@ import dev.rocli.android.webdav.data.AccountDao
 import dev.rocli.android.webdav.databinding.FragmentMainBinding
 import dev.rocli.android.webdav.dialogs.Dialogs
 import dev.rocli.android.webdav.helpers.MetricsHelper
+import dev.rocli.android.webdav.helpers.NetworkHelper
 import dev.rocli.android.webdav.provider.WebDavProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import javax.inject.Inject
-
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {
@@ -39,6 +50,10 @@ class MainFragment : Fragment() {
     private var actionMode: ActionMode? = null
     private lateinit var binding : FragmentMainBinding
     private lateinit var accountAdapter: AccountAdapter
+
+    private val localNetworkPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -59,6 +74,34 @@ class MainFragment : Fragment() {
         val navController = findNavController()
         navController.addOnDestinationChangedListener { _, _, _ ->
             actionMode?.finish()
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            checkLocalNetworkPermission()
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.CINNAMON_BUN)
+    private fun checkLocalNetworkPermission() {
+        if (ContextCompat.checkSelfPermission(requireContext(), ACCESS_LOCAL_NETWORK) == PackageManager.PERMISSION_GRANTED) {
+            return
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            val needsPermission = accountDao.getAll().any { account ->
+                account.url?.let { url -> NetworkHelper.isLocalNetworkHost(url.toHttpUrl().host) } ?: false
+            }
+
+            if (needsPermission) {
+                withContext(Dispatchers.Main) {
+                    Snackbar
+                        .make(requireView(), R.string.notice_local_network_permission_required, BaseTransientBottomBar.LENGTH_INDEFINITE)
+                        .setAction(R.string.action_grant) {
+                            localNetworkPermissionLauncher.launch(ACCESS_LOCAL_NETWORK)
+                        }
+                        .show()
+                }
+            }
         }
     }
 

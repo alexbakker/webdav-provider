@@ -1,5 +1,8 @@
 package dev.rocli.android.webdav.fragments
 
+import android.Manifest.permission.ACCESS_LOCAL_NETWORK
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.security.KeyChain
 import android.view.LayoutInflater
@@ -9,10 +12,11 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.children
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -33,6 +37,7 @@ import dev.rocli.android.webdav.data.Account
 import dev.rocli.android.webdav.data.AccountDao
 import dev.rocli.android.webdav.databinding.FragmentAccountBinding
 import dev.rocli.android.webdav.dialogs.Dialogs
+import dev.rocli.android.webdav.helpers.NetworkHelper
 import dev.rocli.android.webdav.provider.WebDavCache
 import dev.rocli.android.webdav.provider.WebDavClientManager
 import dev.rocli.android.webdav.provider.WebDavPath
@@ -57,6 +62,18 @@ class AccountFragment : Fragment() {
 
     private val args: AccountFragmentArgs by navArgs()
     private lateinit var binding: FragmentAccountBinding
+
+    private val localNetworkPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            performSave()
+        } else {
+            Snackbar
+                .make(requireView(), R.string.notice_local_network_permission_denied, BaseTransientBottomBar.LENGTH_LONG)
+                .show()
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -156,43 +173,7 @@ class AccountFragment : Fragment() {
         when (item.itemId) {
             R.id.action_save -> {
                 if (validateForm(binding.textCertificate.text.toString().isNotBlank())) {
-                    updateTestStatus(true)
-                    val job = lifecycleScope.launch(Dispatchers.IO) {
-                        clients.delete(account)
-                        val res = clients.get(account).propFind(WebDavPath(account.rootPath, true))
-                        if (res.isSuccessful) {
-                            webDavCache.clearFileMeta(account)
-                            webDavCache.setFileMeta(account, res.body!!)
-                            if (account.id == 0L) {
-                                accountDao.insert(account)
-                            } else {
-                                accountDao.update(account)
-                            }
-
-                            WebDavProvider.notifyChangeRoots(requireContext())
-                            lifecycleScope.launch(Dispatchers.Main) { close() }
-                        } else {
-                            lifecycleScope.launch(Dispatchers.Main) {
-                                Snackbar
-                                    .make(
-                                        requireView(),
-                                        getString(R.string.error_webdav_connection, res.error?.message),
-                                        BaseTransientBottomBar.LENGTH_LONG
-                                    )
-                                    .setAction(R.string.action_details) {
-                                        Dialogs.showErrorDialog(requireContext(), R.string.error_webdav_connection_dialog, res.error!!)
-                                    }
-                                    .show()
-                            }
-                        }
-                    }
-                    job.invokeOnCompletion {
-                        if (it == null) {
-                            lifecycleScope.launch(Dispatchers.Main) {
-                                updateTestStatus(false)
-                            }
-                        }
-                    }
+                    performSave()
                 }
             }
             R.id.action_delete -> {
@@ -212,6 +193,58 @@ class AccountFragment : Fragment() {
         }
 
         return true
+    }
+
+    private fun performSave() {
+        val account = binding.account!!
+        val host = binding.textUrl.text.toString().toHttpUrl().host
+        updateTestStatus(true)
+        val job = lifecycleScope.launch(Dispatchers.IO) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+                if (NetworkHelper.isLocalNetworkHost(host)) {
+                    if (ContextCompat.checkSelfPermission(requireContext(), ACCESS_LOCAL_NETWORK) != PackageManager.PERMISSION_GRANTED) {
+                        lifecycleScope.launch(Dispatchers.Main) {
+                            localNetworkPermissionLauncher.launch(ACCESS_LOCAL_NETWORK)
+                        }
+                        return@launch
+                    }
+                }
+            }
+            clients.delete(account)
+            val res = clients.get(account).propFind(WebDavPath(account.rootPath, true))
+            if (res.isSuccessful) {
+                webDavCache.clearFileMeta(account)
+                webDavCache.setFileMeta(account, res.body!!)
+                if (account.id == 0L) {
+                    accountDao.insert(account)
+                } else {
+                    accountDao.update(account)
+                }
+
+                WebDavProvider.notifyChangeRoots(requireContext())
+                lifecycleScope.launch(Dispatchers.Main) { close() }
+            } else {
+                lifecycleScope.launch(Dispatchers.Main) {
+                    Snackbar
+                        .make(
+                            requireView(),
+                            getString(R.string.error_webdav_connection, res.error?.message),
+                            BaseTransientBottomBar.LENGTH_LONG
+                        )
+                        .setAction(R.string.action_details) {
+                            Dialogs.showErrorDialog(requireContext(), R.string.error_webdav_connection_dialog, res.error!!)
+                        }
+                        .show()
+                }
+            }
+        }
+        job.invokeOnCompletion {
+            if (it == null) {
+                lifecycleScope.launch(Dispatchers.Main) {
+                    updateTestStatus(false)
+                }
+            }
+        }
     }
 
     private fun updateUserPassVisibility() {
