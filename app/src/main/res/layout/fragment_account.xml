@@ -11,6 +11,7 @@
         android:orientation="vertical">
         <com.google.android.material.progressindicator.LinearProgressIndicator
             android:id="@+id/progress_indicator"
+            style="@style/Widget.Material3Expressive.LinearProgressIndicator"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:indeterminate="true"
@@ -240,6 +241,7 @@
                     app:layout_constraintTop_toBottomOf="@+id/checkbox_act_as_local_storage" />
                 <com.google.android.material.slider.Slider
                     android:id="@+id/slider_max_cache_file_size"
+                    style="@style/Widget.Material3Expressive.Slider.Small"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:stepSize="5"
