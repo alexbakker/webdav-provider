@@ -15,11 +15,7 @@ def providerAuthority = "${packageName}.provider"
 def providerAuthorityDebug = "${packageName}.debug.provider"
 
 def getCmdOutput = { cmd ->
-    def stdout = new ByteArrayOutputStream()
-    providers.exec {
-        commandLine cmd
-    }
-    return stdout.toString().trim()
+    return providers.exec { commandLine cmd }.standardOutput.asText.get().trim()
 }
 
 def getGitHash = { -> return getCmdOutput(["git", "rev-parse", "--short", "HEAD"]) }
